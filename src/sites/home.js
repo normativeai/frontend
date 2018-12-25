@@ -6,6 +6,13 @@ const home = {
     }
   },
   methods: {
+    showRegForm: function() {
+      this.showReg = true;
+      this.$nextTick(function () {
+        this.$refs.showRegLink.click()
+      })
+      
+    }
   },
   template: `
     <div class="container-fluid">
@@ -24,7 +31,7 @@ const home = {
                   </a>
                 </li>
                 <li class="nav-item">
-                  <a class="nav-link" href="#register" v-on:click="showReg = true">
+                  <a class="nav-link" href="#register" v-on:click="showReg = true" ref="showRegLink">
                     <span data-feather="clipboard"></span>
                     Register
                   </a>
@@ -58,7 +65,7 @@ const home = {
           
           <a name="login" style="display:block;visibility:hidden;position:relative;top:-3em"></a>
           <login v-if="!loggedIn"></login>
-          <p>Don't have an account? <a href="#register" v-on:click="showReg = true"><b>Click to register</b></a></p>
+          <p>Don't have an account? <a href="#register" v-on:click="showRegForm"><b>Click to register</b></a></p>
           
           <div v-if="!loggedIn && showReg">
             <hr>

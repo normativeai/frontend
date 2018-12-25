@@ -39,6 +39,10 @@ nai = new function () { var lib = this;
       console.log(err)
     });
   }
+  
+  lib.register = function(data, success, fail) {
+    this.$http.post('/signup', data).then(success).catch(fail)
+  }
 }
 
 Vue.use(VueRouter);

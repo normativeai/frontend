@@ -17,7 +17,11 @@ nai = new function () { var lib = this;
   lib.setUserToken = function(data) {
     var enc = JSON.stringify(data);
     localStorage.setItem('user', enc);
-    this.$http.defaults.headers.common['Authorization'] = data.auth;
+    this.setAPIToken(data.auth);
+  }
+  
+  lib.setAPIToken = function(token) {
+    this.$http.defaults.headers.common['Authorization'] = 'Bearer ' + token;
   }
 
   lib.isLoggedIn = function() {
@@ -104,8 +108,11 @@ var app = new Vue({
     // 1: check if user is logged-in
     if (nai.isLoggedIn()) {
       try {
-        this.user = JSON.parse(nai.getUserToken());
+        var data = JSON.parse(nai.getUserToken());
+        this.user = data 
+        nai.setAPIToken(data.auth);
       } catch(e) {
+        console.log(e)
         nai.logout();
       }
     }

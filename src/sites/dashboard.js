@@ -1,8 +1,8 @@
 const dashboard = {
   data: function() {
     return {
-      current: null,
-      examples: [],
+      theories: [],
+      theoriesLoaded: false
     }
   },
   methods: {
@@ -31,13 +31,13 @@ const dashboard = {
             </h6>
             <ul class="nav flex-column mb-2">
               <li class="nav-item">
-                <a class="nav-link">
+                <a class="nav-link" href="#legislatures">
                   <span data-feather="book"></span>
                   Legislatures
                 </a>
               </li>
               <li class="nav-item">
-                <a class="nav-link">
+                <a class="nav-link" href="#queries">
                   <span data-feather="cpu"></span>
                   Queries
                 </a>
@@ -63,7 +63,7 @@ const dashboard = {
           <hr>
           
           <a name="legislatures" style="display:block;visibility:hidden;position:relative;top:-3em"></a>
-          <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center">
+          <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center mb-4">
             <h3>Legislatures</h3>
             <div class="btn-toolbar mb-2 mb-md-0">
               <div class="btn-group mr-2">
@@ -83,47 +83,13 @@ const dashboard = {
             </div>
           </div>
           
-          <div class="row">
-            <div class="col-sm-4">
-              <div class="card">
-                <div class="card-body">
-                  <h5 class="card-title">Theory 1</h5>
-                  <h6 class="card-subtitle mb-2 text-muted">Some Subtitle</h6>
-                  <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-                  <a href="#" class="card-link">Open and edit</a>
-                </div>
-              </div>
-            </div>
-            <div class="col-sm-4">
-              <div class="card">
-                <div class="card-body">
-                  <h5 class="card-title">Theory 2</h5>
-                  <h6 class="card-subtitle mb-2 text-muted">Some Subtitle</h6>
-                  <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-                  <a href="#" class="card-link">Open and edit</a>
-                </div>
-              </div>
-            </div>
-            <div class="col-sm-4">
-              <div class="card">
-                <div class="card-body">
-                  <h5 class="card-title">Theory 3</h5>
-                  <h6 class="card-subtitle mb-2 text-muted">Some Subtitle</h6>
-                  <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-                  <a href="#" class="card-link">Open and edit</a>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="row">
-            <div class="col-sm-4">
-              <div class="card">
-                <div class="card-body">
-                  <h5 class="card-title">Theory 4</h5>
-                  <h6 class="card-subtitle mb-2 text-muted">Some Subtitle</h6>
-                  <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-                  <a href="#" class="card-link">Open and edit</a>
-                </div>
+          <loading-bar v-bind:loading="!theoriesLoaded"></loading-bar>
+          <div v-if="theoriesLoaded">
+            <p v-if="theories.length == 0"><em>No legislatures formalized yet. Click on "create new" above,
+            to create a new formalization or import a publicly available one.</em></p>
+            <div class="row" v-for="i in Math.ceil(theories.length / 3)" style="margin-bottom: 2em">
+              <div class="col-sm-4" v-for="t in theories.slice((i-1) * 3, i * 3)">
+                <theory-card v-bind:theory="t"></theory-card>
               </div>
             </div>
           </div>
@@ -157,10 +123,11 @@ const dashboard = {
       </div>
     </div>
   `,
-  mounted: function () {
+  created: function () {
     feather.replace();
     console.log('dashboard mounted')
-    nai.$http.get('/users').then(function(resp) {console.log(resp.data)}).catch(
+    var self = this;
+    /*nai.$http.get('/users').then(function(resp) {console.log(resp.data)}).catch(
       function(error) {
         if (error.response) {
         // The request was made and the server responded with a status code
@@ -179,9 +146,13 @@ const dashboard = {
       }
       console.log(error.config);
       }
-    );
+    );*/
     
-    nai.$http.get('/theories').then(function(resp) {console.log(resp.data)}).catch(
+    nai.$http.get('/theories').then(function(resp) {
+      console.log("theories: " + JSON.stringify(resp.data));
+      self.theories = resp.data;
+      self.theoriesLoaded = true;
+    }).catch(
       function(error) {
         if (error.response) {
         // The request was made and the server responded with a status code

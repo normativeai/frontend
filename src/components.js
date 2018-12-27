@@ -199,6 +199,66 @@ Vue.component('register', {
 })
 
 ////////////////////////////////////////////////////////////////////
+// General purpose loading animation
+////////////////////////////////////////////////////////////////////
+
+Vue.component('loading-bar', {
+  props: ['loading', 'progress'],
+  computed: {
+    progress0: function() {
+      if (!!this.progress) {
+        return this.progress
+      } else {
+        return 100
+      }
+    },
+    progressStyle: function() {
+      return "width: " + this.progress0 + "%";
+    }
+  },
+  template: `
+    <div v-if="loading" class="progress">
+      <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" v-bind:aria-valuenow="progress0" aria-valuemin="0" aria-valuemax="100" v-bind:style="progressStyle"></div>
+    </div>
+  `
+})
+
+////////////////////////////////////////////////////////////////////
+// Theory card for dashboard
+////////////////////////////////////////////////////////////////////
+
+Vue.component('theory-card', {
+  props: ['theory', 'delete'],
+  data: function() {
+    return {
+    }
+  },
+  methods: {
+  },
+  computed: {
+  },
+  mounted: function () {
+    this.$nextTick(function () {
+      feather.replace();
+    })
+  },
+  template: `
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title">{{ theory.name }}</h5>
+        <h6 class="card-subtitle mb-2 text-muted">Last edited: {{ theory.lastUpdate }}</h6>
+        <p class="card-text">{{ theory.description }}</p>
+        
+        <button class="btn btn-sm btn-primary">
+          <span data-feather="book-open"></span>
+          Open and edit
+        </button>
+      </div>
+    </div>
+  `
+})
+
+////////////////////////////////////////////////////////////////////
 // Obsolete? query entry
 ////////////////////////////////////////////////////////////////////
 
@@ -267,12 +327,6 @@ Vue.component('query', {
     </div>
   `
 })
-
-
-
-
-
-
 
 
 

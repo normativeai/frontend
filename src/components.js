@@ -1,10 +1,9 @@
+////////////////////////////////////////////////////////////////////
+// Updatable <input>
+////////////////////////////////////////////////////////////////////
+
 Vue.component('input-update', {
   props: ['placeholder', 'value', 'edit'],
-  //data: function() {
-  //  return {
-  //    text: ''
-  //  }
-  //},
   computed: {
     output: function() {
       if (!this.value || this.value == '') return this.placeholder
@@ -18,6 +17,10 @@ Vue.component('input-update', {
     </div>
   `
 })
+
+////////////////////////////////////////////////////////////////////
+// Updatable <textarea>
+////////////////////////////////////////////////////////////////////
 
 Vue.component('textarea-update', {
   props: ['placeholder', 'value', 'edit', 'rows'],
@@ -39,75 +42,9 @@ Vue.component('textarea-update', {
   `
 })
 
-Vue.component('query', {
-  props: ['querydata'],
-  data: function() {
-    return {
-      edit: false
-    }
-  },
-  methods: {
-    doEdit: function() {
-      this.edit = true;
-    },
-    finishedEdit: function() {
-      this.edit = false;
-    },
-    toggleEdit: function() {
-      (this.edit) ? this.finishedEdit() : this.doEdit();
-    },
-    addAssumption: function() {
-      this.querydata.assumptions.push('');
-      this.doEdit();
-    }
-  },
-  mounted: function () {
-    this.$nextTick(function () {
-      feather.replace();
-    })
-  },
-  template: `
-    <div class="card">
-      <div class="card-header">
-        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center">
-          <h5>Query {{querydata.qid}}: <input-update style="display:inline" v-bind:edit="edit" placeholder="Enter title" v-model="querydata.title"></input-update></h5>
-          <div class="btn-toolbar mb-2 mb-md-0">
-            <button class="btn btn-sm btn-outline-primary">
-              <span data-feather="play"></span>
-              Run
-            </button>
-            <button class="btn btn-sm btn-outline-secondary" v-on:click="toggleEdit" v-bind:class="{active : edit}" v-bind:aria-pressed="edit">
-              <span data-feather="edit"></span>
-              Edit
-            </button>
-            <button class="btn btn-sm btn-outline-secondary" v-on:click="$emit('duplicate-query', querydata)">
-              <span data-feather="copy"></span>
-              Duplicate
-            </button>
-          </div>
-        </div>
-      </div>
-      <div class="card-body">
-        <h5 class="card-title">Description</h5>
-        <textarea-update class="card-text" v-bind:edit="edit" placeholder="Enter description" v-model="querydata.description"></textarea-update>
-        <h5 class="card-title">Assumptions <button class="btn btn-sm btn-outline-secondary" v-on:click="addAssumption" >
-              <span data-feather="plus"></span></button></h5>
-        <p class="card-text">
-        <ul>
-          <li v-for="(as,index) in querydata.assumptions">
-          <input-update class="card-text" v-bind:edit="edit" placeholder="Enter assumption" v-model="querydata.assumptions[index]"></input-update></li>
-        </ul>
-        </p>
-        <h5 class="card-title">Goal</h5>
-        <input-update class="card-text" v-bind:edit="edit" placeholder="Enter goal" v-model="querydata.goal"></input-update>
-      </div>
-    </div>
-  `
-})
-
-///////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////
+// Login form with API call
+////////////////////////////////////////////////////////////////////
 
 Vue.component('login', {
   data: function () {
@@ -183,9 +120,9 @@ Vue.component('login', {
   `
 })
 
-///////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////
+// Register form with API call
+////////////////////////////////////////////////////////////////////
 
 Vue.component('register', {
   data: function () {
@@ -261,9 +198,87 @@ Vue.component('register', {
   `
 })
 
-///////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////
+// Obsolete? query entry
+////////////////////////////////////////////////////////////////////
+
+Vue.component('query', {
+  props: ['querydata'],
+  data: function() {
+    return {
+      edit: false
+    }
+  },
+  methods: {
+    doEdit: function() {
+      this.edit = true;
+    },
+    finishedEdit: function() {
+      this.edit = false;
+    },
+    toggleEdit: function() {
+      (this.edit) ? this.finishedEdit() : this.doEdit();
+    },
+    addAssumption: function() {
+      this.querydata.assumptions.push('');
+      this.doEdit();
+    }
+  },
+  mounted: function () {
+    this.$nextTick(function () {
+      feather.replace();
+    })
+  },
+  template: `
+    <div class="card">
+      <div class="card-header">
+        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center">
+          <h5>Query {{querydata.qid}}: <input-update style="display:inline" v-bind:edit="edit" placeholder="Enter title" v-model="querydata.title"></input-update></h5>
+          <div class="btn-toolbar mb-2 mb-md-0">
+            <button class="btn btn-sm btn-outline-primary">
+              <span data-feather="play"></span>
+              Run
+            </button>
+            <button class="btn btn-sm btn-outline-secondary" v-on:click="toggleEdit" v-bind:class="{active : edit}" v-bind:aria-pressed="edit">
+              <span data-feather="edit"></span>
+              Edit
+            </button>
+            <button class="btn btn-sm btn-outline-secondary" v-on:click="$emit('duplicate-query', querydata)">
+              <span data-feather="copy"></span>
+              Duplicate
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="card-body">
+        <h5 class="card-title">Description</h5>
+        <textarea-update class="card-text" v-bind:edit="edit" placeholder="Enter description" v-model="querydata.description"></textarea-update>
+        <h5 class="card-title">Assumptions <button class="btn btn-sm btn-outline-secondary" v-on:click="addAssumption" >
+              <span data-feather="plus"></span></button></h5>
+        <p class="card-text">
+        <ul>
+          <li v-for="(as,index) in querydata.assumptions">
+          <input-update class="card-text" v-bind:edit="edit" placeholder="Enter assumption" v-model="querydata.assumptions[index]"></input-update></li>
+        </ul>
+        </p>
+        <h5 class="card-title">Goal</h5>
+        <input-update class="card-text" v-bind:edit="edit" placeholder="Enter goal" v-model="querydata.goal"></input-update>
+      </div>
+    </div>
+  `
+})
+
+
+
+
+
+
+
+
+
+////////////////////////////////////////////////////////////////////
+// Obsolete dashboard-like stuff
+////////////////////////////////////////////////////////////////////
 
 Vue.component('example', {
   props: ['current', 'user', 'api'],
@@ -493,3 +508,4 @@ Vue.component('example', {
 </div>
   `
 })
+

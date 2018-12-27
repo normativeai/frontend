@@ -25,13 +25,13 @@ const home = {
               </h6>
               <ul class="nav flex-column mb-2">
                 <li class="nav-item">
-                  <a class="nav-link" href="#login">
+                  <a class="nav-link" href="#thelogin">
                     <span data-feather="log-in"></span>
                     Log in
                   </a>
                 </li>
                 <li class="nav-item">
-                  <a class="nav-link" href="#register" v-on:click="showReg = true" ref="showRegLink">
+                  <a class="nav-link" href="#theregistration" v-on:click="showReg = true" ref="showRegLink">
                     <span data-feather="clipboard"></span>
                     Register
                   </a>
@@ -63,13 +63,13 @@ const home = {
           <h1>Normative Reasoning</h1>
           <hr>
           
-          <a name="login" style="display:block;visibility:hidden;position:relative;top:-3em"></a>
+          <a name="thelogin" style="display:block;visibility:hidden;position:relative;top:-3em"></a>
           <login v-if="!loggedIn"></login>
           <p>Don't have an account? <a href="#register" v-on:click="showRegForm"><b>Click to register</b></a></p>
           
           <div v-if="!loggedIn && showReg">
             <hr>
-            <a name="register" style="display:block;visibility:hidden;position:relative;top:-3em"></a>
+            <a name="theregistration" style="display:block;visibility:hidden;position:relative;top:-3em"></a>
             <register></register>
           </div>
           

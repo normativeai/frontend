@@ -228,14 +228,32 @@ Vue.component('loading-bar', {
 ////////////////////////////////////////////////////////////////////
 
 Vue.component('theory-card', {
-  props: ['theory', 'delete'],
+  props: ['theory'],
   data: function() {
     return {
     }
   },
   methods: {
+    deleteMe: function() {
+      this.$parent.$emit('delete-theory', this.theory._id)
+    }
   },
   computed: {
+    date: function() {
+      return new Date(this.theory.lastUpdate);
+    },
+    updated: function() {
+      return this.date.toLocaleString();
+    },
+    descLimit: function() {return 80 },
+    description: function() {
+      var desc = this.theory.description;
+      if (desc.length > this.descLimit) {
+        return desc.substr(0,this.descLimit) + "...";
+      } else {
+        return desc;
+      }
+    }
   },
   mounted: function () {
     this.$nextTick(function () {
@@ -246,13 +264,21 @@ Vue.component('theory-card', {
     <div class="card">
       <div class="card-body">
         <h5 class="card-title">{{ theory.name }}</h5>
-        <h6 class="card-subtitle mb-2 text-muted">Last edited: {{ theory.lastUpdate }}</h6>
-        <p class="card-text">{{ theory.description }}</p>
+        <h6 class="card-subtitle mb-2 text-muted">Last edited: {{ updated }}</h6>
+        <p class="card-text">{{ description }}</p>
         
-        <button class="btn btn-sm btn-primary">
-          <span data-feather="book-open"></span>
-          Open and edit
-        </button>
+        <div class="btn-toolbar mb-2 mb-md-0 d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center">
+          <div class="btn-group mr-2">
+            <button class="btn btn-sm btn-primary">
+              <span data-feather="book-open"></span>
+              Open and edit
+            </button>
+          </div>
+          <button class="btn btn-sm btn-outline-danger" v-on:click="deleteMe">
+          <span data-feather="trash"></span>
+          Remove
+          </button>
+        </div>
       </div>
     </div>
   `

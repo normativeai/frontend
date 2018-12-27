@@ -6,20 +6,9 @@ const dashboard = {
     }
   },
   methods: {
-    getExamples: function() {
-      console.log('getExamples');
-      if (!this.loggedIn) return;
-      var apicall = API + 'getExamples';
-      var postdata = {auth: this.user.auth};
-      console.log('POST ' + apicall + " " + JSON.stringify(postdata));
-      var response = [ex1, ex2]; /* later from backend call */
-      console.log('Response: ' + JSON.stringify(response));
-      this.examples = response; 
-    },
-  
-    setCurrentEx: function(example) {
-      this.current = example;
-    },
+    onTheoryDelete: function(theoryId) {
+      console.log('delete theory ' + theoryId);
+    }
   },
   template: `
     <div class="container-fluid">
@@ -72,10 +61,6 @@ const dashboard = {
                   Create new
                 </button>
               </div>
-              <button class="btn btn-sm btn-outline-secondary">
-              <span data-feather="trash"></span>
-              Remove
-              </button>
               <button class="btn btn-sm btn-outline-secondary float-right">
                 <span data-feather="copy"></span>
                 Import
@@ -124,7 +109,11 @@ const dashboard = {
     </div>
   `,
   created: function () {
-    feather.replace();
+    ////feather.replace();
+    
+    this.$on('delete-theory', this.onTheoryDelete);
+    
+    
     console.log('dashboard mounted')
     var self = this;
     /*nai.$http.get('/users').then(function(resp) {console.log(resp.data)}).catch(
@@ -149,7 +138,7 @@ const dashboard = {
     );*/
     
     nai.$http.get('/theories').then(function(resp) {
-      console.log("theories: " + JSON.stringify(resp.data));
+      console.log("theories loaded");
       self.theories = resp.data;
       self.theoriesLoaded = true;
     }).catch(

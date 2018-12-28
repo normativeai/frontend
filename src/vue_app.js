@@ -70,8 +70,7 @@ nai = new function () { var lib = this;
   
   lib.deleteTheory = function(theory, success, fail) {
     console.log('delete theory ' + theory._id);
-    //this.$http.delete('/theories/' + theory._id).then(success).catch(fail)
-    success(null)
+    this.$http.delete('/theories/' + theory._id).then(success).catch(fail)
   }
 }
 

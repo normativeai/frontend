@@ -116,6 +116,41 @@ const theory = {
               </thead>
             </table>
           </div>
+          
+          <hr>
+          <a name="facts" style="display:block;visibility:hidden;position:relative;top:-3em"></a>
+          <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3">
+            <h2>Fact base</h2>
+            <div class="btn-toolbar mb-2 mb-md-0">
+              <div class="btn-group mr-2">
+                <button class="btn btn-sm btn-outline-primary">
+                  <span data-feather="plus"></span>
+                  Add fact
+                </button>
+              </div>
+              <button class="btn btn-sm btn-outline-secondary">
+              <span data-feather="edit"></span>
+              Toggle edit
+              </button>
+              <button class="btn btn-sm btn-outline-secondary float-right">
+                <span data-feather="play"></span>
+                Run consistency check
+              </button>
+            </div>
+          </div> 
+          <p><em>A consistency check should be conducted prior to executing any further queries.</em></p>
+          <div class="table-responsive">
+            <table class="table table-striped table-sm table-hover" style="table-layout:fixed;">
+              <thead>
+                <tr>
+                  <th style="width:2em">#</th>
+                  <th style="width:60%">Statement</th>
+                  <th style="width:40%">Fact</th>
+                  <th style="width:10em; text-align: center">Actions</th>
+                </tr>
+              </thead>
+            </table>
+          </div>
         </div>
           
           <p>&nbsp;</p>

@@ -150,7 +150,10 @@ const dashboard = {
     
     console.log('dashboard mounted')
     var self = this;
-    /*nai.$http.get('/users').then(function(resp) {console.log(resp.data)}).catch(
+    nai.$http.get('/users').then(function(resp) {
+      //console.log(resp.data)
+      //console.log(JSON.stringify(resp.data))
+    }).catch(
       function(error) {
         if (error.response) {
         // The request was made and the server responded with a status code
@@ -169,12 +172,14 @@ const dashboard = {
       }
       console.log(error.config);
       }
-    );*/
+    );
     
     nai.$http.get('/theories').then(function(resp) {
       console.log("theories loaded");
       self.theories = resp.data;
       self.theoriesLoaded = true;
+      //console.log(self.theories);
+      //console.log(JSON.stringify(resp.data))
     }).catch(
       function(error) {
         if (error.response) {

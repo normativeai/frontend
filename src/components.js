@@ -203,7 +203,7 @@ Vue.component('register', {
 ////////////////////////////////////////////////////////////////////
 
 Vue.component('loading-bar', {
-  props: ['loading', 'progress'],
+  props: ['progress'],
   computed: {
     progress0: function() {
       if (!!this.progress) {
@@ -217,7 +217,7 @@ Vue.component('loading-bar', {
     }
   },
   template: `
-    <div v-if="loading" class="progress">
+    <div class="progress">
       <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" v-bind:aria-valuenow="progress0" aria-valuemin="0" aria-valuemax="100" v-bind:style="progressStyle"></div>
     </div>
   `
@@ -249,6 +249,9 @@ Vue.component('theory-card', {
       this.$nextTick(function () {
         feather.replace();
       })
+    },
+    open: function() {
+      router.push('/theory/'+this.theory._id)
     }
   },
   computed: {
@@ -282,7 +285,7 @@ Vue.component('theory-card', {
         
         <div class="btn-toolbar mb-2 mb-md-0 d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center">
           <div class="btn-group mr-2">
-            <button class="btn btn-sm btn-primary">
+            <button class="btn btn-sm btn-primary" v-on:click="open">
               <span data-feather="book-open"></span>
               Open
             </button>
@@ -294,7 +297,7 @@ Vue.component('theory-card', {
           
           <div class="btn-group ml-2" v-if="deleteRequested">
             <button class="btn btn-sm btn-danger" v-on:click="deleteMe">
-            <span data-feather="trash"></span>
+            <span data-feather="check"></span>
             Confirm
             </button>
             <button class="btn btn-sm btn-secondary" v-on:click="cancelDelete">

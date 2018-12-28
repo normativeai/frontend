@@ -102,7 +102,7 @@ const dashboard = {
             </div>
           </div>
           
-          <loading-bar v-bind:loading="!theoriesLoaded"></loading-bar>
+          <loading-bar v-if="!theoriesLoaded"></loading-bar>
           <div v-if="theoriesLoaded">
             <p v-if="theories.length == 0"><em>No legislatures formalized yet. Click on "create new" above,
             to create a new formalization or import a publicly available one.</em></p>

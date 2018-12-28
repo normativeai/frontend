@@ -521,7 +521,7 @@ Vue.component('example', {
       </button>
     </div>
   </div>
-  <p>Defining the vocabulary explicitly is not strictly necessarprimaryy, however strongly advised.
+  <p>Defining the vocabulary explicitly is not strictly necessary, however strongly advised.
   It helps keeping an overview of the used symbols and their intended meaning for the
   fact base and queries. The contents of this table do not alter the formalization; they
   are used for extended GUI features.</p>

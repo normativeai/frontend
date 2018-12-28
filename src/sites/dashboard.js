@@ -2,12 +2,46 @@ const dashboard = {
   data: function() {
     return {
       theories: [],
-      theoriesLoaded: false
+      theoriesLoaded: false,
+      queries: [],
+      queriesLoaded: false
     }
   },
   methods: {
-    onTheoryDelete: function(theoryId) {
-      console.log('delete theory ' + theoryId);
+    onTheoryDelete: function(theory) {
+      
+      nai.deleteTheory(theory, this.onTheoryDeleteSuccess(theory), this.onTheoryDeleteError)
+    },
+    onTheoryDeleteSuccess: function(theory) {
+      var self = this
+      return function(resp) {
+        // reflect update locally
+        self.theories.splice(self.theories.indexOf(theory),1)
+        console.log('Theory ' + theory.name + ' deleted');
+      }
+    },
+    onTheoryDeleteError: function(error) {
+      if (error.response) {
+        // The request was made and the server responded with a status code
+        // that falls out of the range of 2xx
+        console.log(error.response.data);
+        console.log(error.response.status);
+        console.log(error.response.headers);
+      } else if (error.request) {
+        // The request was made but no response was received
+        // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
+        // http.ClientRequest in node.js
+        console.log(error.request);
+      } else {
+        // Something happened in setting up the request that triggered an Error
+        console.log('Error', error.message);
+      }
+      console.log(error.config);
+    }
+  },
+  computed: {
+    theoryRows: function() {
+      return Math.ceil(this.theories.length / 3);
     }
   },
   template: `
@@ -72,9 +106,9 @@ const dashboard = {
           <div v-if="theoriesLoaded">
             <p v-if="theories.length == 0"><em>No legislatures formalized yet. Click on "create new" above,
             to create a new formalization or import a publicly available one.</em></p>
-            <div class="row" v-for="i in Math.ceil(theories.length / 3)" style="margin-bottom: 2em">
+            <div class="row" v-for="i in theoryRows" style="margin-bottom: 2em">
               <div class="col-sm-4" v-for="t in theories.slice((i-1) * 3, i * 3)">
-                <theory-card v-bind:theory="t"></theory-card>
+                <theory-card v-bind:theory="t" :key="t._id"></theory-card>
               </div>
             </div>
           </div>

@@ -67,6 +67,12 @@ nai = new function () { var lib = this;
   lib.register = function(data, success, fail) {
     this.$http.post('/signup', data).then(success).catch(fail)
   }
+  
+  lib.deleteTheory = function(theory, success, fail) {
+    console.log('delete theory ' + theory._id);
+    //this.$http.delete('/theories/' + theory._id).then(success).catch(fail)
+    success(null)
+  }
 }
 
 ///////////

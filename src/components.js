@@ -231,11 +231,24 @@ Vue.component('theory-card', {
   props: ['theory'],
   data: function() {
     return {
+      deleteRequested: false
     }
   },
   methods: {
     deleteMe: function() {
-      this.$parent.$emit('delete-theory', this.theory._id)
+      this.$parent.$emit('delete-theory', this.theory)
+    },
+    requestDelete: function() {
+      this.deleteRequested = true;
+      this.$nextTick(function () {
+      feather.replace();
+    })
+    },
+    cancelDelete: function() {
+      this.deleteRequested = false;
+      this.$nextTick(function () {
+        feather.replace();
+      })
     }
   },
   computed: {
@@ -255,7 +268,7 @@ Vue.component('theory-card', {
       }
     }
   },
-  mounted: function () {
+  created: function () {
     this.$nextTick(function () {
       feather.replace();
     })
@@ -271,13 +284,24 @@ Vue.component('theory-card', {
           <div class="btn-group mr-2">
             <button class="btn btn-sm btn-primary">
               <span data-feather="book-open"></span>
-              Open and edit
+              Open
             </button>
           </div>
-          <button class="btn btn-sm btn-outline-danger" v-on:click="deleteMe">
+          <button class="btn btn-sm btn-outline-danger" v-on:click="requestDelete" v-if="!deleteRequested">
           <span data-feather="trash"></span>
           Remove
           </button>
+          
+          <div class="btn-group ml-2" v-if="deleteRequested">
+            <button class="btn btn-sm btn-danger" v-on:click="deleteMe">
+            <span data-feather="trash"></span>
+            Confirm
+            </button>
+            <button class="btn btn-sm btn-secondary" v-on:click="cancelDelete">
+            <span data-feather="x"></span>
+            Cancel
+            </button>
+          </div>
         </div>
       </div>
     </div>

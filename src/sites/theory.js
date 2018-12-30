@@ -9,8 +9,15 @@ const theory = {
     }
   },
   methods: {
+    /* general stuff */
     back: function() {
       router.push('/dashboard')
+    },
+    doneLoading: function() {
+      this.loaded = true
+      this.$nextTick(function () {
+        feather.replace();
+      })
     },
     /* vocabulary stuff */
     doEditVoc: function() {
@@ -25,12 +32,19 @@ const theory = {
     vocDelButtonClick: function(index) {
       this.theoryVoc.splice(index,1)
     },
-    doneLoading: function() {
-      this.loaded = true
-      this.$nextTick(function () {
-        feather.replace();
-      })
-    }
+    /* fact stuff */
+    doEditFacts: function() {
+      this.editFacts = true;
+    },
+    finishedEditFacts: function() {
+      this.editFacts = false;
+    },
+    toggleEditFacts: function() {
+      (this.editFacts) ? this.finishedEditFacts() : this.doEditFacts();
+    },
+    factDelButtonClick: function(index) {
+      this.theoryFormalization.splice(index,1)
+    },
   },
   computed: {
     theoryName: function() {
@@ -60,6 +74,20 @@ const theory = {
     },
     vocDelButtonStyle: function() {
       if (this.editVoc) {
+        return ""
+      } else {
+        return "cursor: not-allowed"
+      }
+    },
+    factDelButtonTitle: function() {
+      if (this.editFacts) {
+        return "Delete entry"
+      } else {
+        return "Enable edit mode for deleting"
+      }
+    },
+    factDelButtonStyle: function() {
+      if (this.editFacts) {
         return ""
       } else {
         return "cursor: not-allowed"
@@ -169,7 +197,7 @@ const theory = {
               <tbody>
                 <tr v-for="(item, index) in theoryVoc" :key="item._id">
                   <td><input-update placeholder="Enter symbol" v-bind:edit="editVoc" v-model="item.symbol"></input-update></td>
-                  <td><textarea-update placeholder="Enter description" v-bind:edit="editVoc" v-model="item.original"></textarea-update></td>
+                  <td><em><textarea-update placeholder="Enter description" v-bind:edit="editVoc" v-model="item.original"></textarea-update></em></td>
                   <td class="table-secondary" style="text-align: center">
                     <button type="button" class="btn btn-sm btn-danger" v-bind:disabled="!editVoc" v-bind:title="vocDelButtonTitle" v-bind:style="vocDelButtonStyle" v-on:click="vocDelButtonClick(index)"><span data-feather="x"></span></button>
                   </td>
@@ -189,7 +217,7 @@ const theory = {
                   Add fact
                 </button>
               </div>
-              <button class="btn btn-sm btn-outline-secondary">
+              <button class="btn btn-sm btn-outline-secondary" v-on:click="toggleEditFacts" v-bind:class="{active : editFacts}" v-bind:aria-pressed="editFacts">
               <span data-feather="edit"></span>
               Toggle edit
               </button>
@@ -206,10 +234,21 @@ const theory = {
                 <tr>
                   <th style="width:2em">#</th>
                   <th style="width:60%">Statement</th>
-                  <th style="width:40%">Fact</th>
+                  <th style="width:40%">Formula</th>
                   <th style="width:10em; text-align: center">Actions</th>
                 </tr>
               </thead>
+              <tbody>
+                <tr v-for="(item, index) in theoryFormalization" :key="item._id">
+                  <td>{{ index+1 }}</td>
+                  <td><em><textarea-update placeholder="Enter Description (or leave empty if constructed from fact)" v-bind:edit="editFacts" v-model="item.original"></textarea-update></em></td>
+                  <td><textarea-update placeholder="Enter fact" v-bind:edit="editFacts" v-model="item.formula"></textarea-update></td>
+                  <td class="table-secondary" style="text-align: center">
+                    <button title="Check for logical independence" type="button" class="btn btn-sm btn-secondary"><span data-feather="activity"></span></button>
+                    <button title="Remove fact" type="button" class="btn btn-sm btn-danger" v-on:click="factDelButtonClick(index)" v-bind:disabled="!editFacts" v-bind:title="factDelButtonTitle" v-bind:style="factDelButtonStyle"><span data-feather="x"></span></button>
+                  </td>
+                </tr>
+              </tbody>
             </table>
           </div>
         </div>

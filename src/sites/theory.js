@@ -4,15 +4,67 @@ const theory = {
       theory: null,
       loaded: false,
       editVoc: false,
-      editFacts: false
+      editFacts: false,
+      theoryRest: {"content":"Content","vocabulary":[{"_id":"5c287fad512c9c3eaa4d25c2","symbol":"D","original":"Delivery"},{"_id":"5c287fad512c9c3eaa4d25c1","symbol":"I","original":"Insurance"}],"formalization":[{"_id":"5c287fad512c9c3eaa4d25c3","original":"Delivery means you should make Insurance","formula":"D => I"}]}
     }
   },
   methods: {
     back: function() {
       router.push('/dashboard')
+    },
+    /* vocabulary stuff */
+    doEditVoc: function() {
+      this.editVoc = true;
+    },
+    finishedEditVoc: function() {
+      this.editVoc = false;
+    },
+    toggleEditVoc: function() {
+      (this.editVoc) ? this.finishedEditVoc() : this.doEditVoc();
+    },
+    vocDelButtonClick: function(index) {
+      this.theoryVoc.splice(index,1)
+    },
+    doneLoading: function() {
+      this.loaded = true
+      this.$nextTick(function () {
+        feather.replace();
+      })
     }
   },
   computed: {
+    theoryName: function() {
+      return this.theory.name
+    },
+    theoryId: function() {
+      return this.theory._id
+    },
+    theoryDesc: function() {
+      return this.theory.description
+    },
+    theoryContent: function() {
+      return this.theoryRest.content
+    },
+    theoryVoc: function() {
+      return this.theoryRest.vocabulary
+    },
+    theoryFormalization: function() {
+      return this.theoryRest.formalization
+    },
+    vocDelButtonTitle: function() {
+      if (this.editVoc) {
+        return "Delete entry"
+      } else {
+        return "Enable edit mode for deleting"
+      }
+    },
+    vocDelButtonStyle: function() {
+      if (this.editVoc) {
+        return ""
+      } else {
+        return "cursor: not-allowed"
+      }
+    }
   },
   template: `
     <div class="container-fluid">
@@ -65,7 +117,7 @@ const theory = {
           </div>
           <div v-if="loaded">
             <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-            <h1 class="h1">{{ theory.name }}</h1>
+            <h1 class="h1">{{ theoryName }}</h1>
             <div class="btn-toolbar mb-2 mb-md-0">
               <div class="btn-group mr-2">
                 <button class="btn btn-sm btn-outline-secondary">
@@ -82,7 +134,7 @@ const theory = {
             </div>
           </div>
           <p>
-          <em>{{ theory.description }}</em>
+          <em>{{ theoryDesc }}</em>
           </p>
           
           <a name="vocabulary" style="display:block;visibility:hidden;position:relative;top:-3em"></a>
@@ -95,7 +147,7 @@ const theory = {
               Add entry
               </button>
               </div>
-              <button class="btn btn-sm btn-outline-secondary">
+              <button class="btn btn-sm btn-outline-secondary" v-on:click="toggleEditVoc" v-bind:class="{active : editVoc}" v-bind:aria-pressed="editVoc">
               <span data-feather="edit"></span>
               Toggle edit
               </button>
@@ -106,14 +158,23 @@ const theory = {
           fact base and queries. The contents of this table do not alter the formalization; they
           are used for extended GUI features.</p>
           <div class="">
-            <table class="table table-striped table-sm" style="table-layout:fixed;width:50%">
+            <table class="table table-striped table-sm" style="table-layout:fixed;width:100%">
               <thead>
                 <tr>
                   <th style="width:5em">Symbol</th>
                   <th style="width:100%">Description</th>
-                  <th style="width:6em;text-align: center">Action</th>
+                  <th style="width:5em;text-align: center">Action</th>
                 </tr>
               </thead>
+              <tbody>
+                <tr v-for="(item, index) in theoryVoc" :key="item._id">
+                  <td><input-update placeholder="Enter symbol" v-bind:edit="editVoc" v-model="item.symbol"></input-update></td>
+                  <td><textarea-update placeholder="Enter description" v-bind:edit="editVoc" v-model="item.original"></textarea-update></td>
+                  <td class="table-secondary" style="text-align: center">
+                    <button type="button" class="btn btn-sm btn-danger" v-bind:disabled="!editVoc" v-bind:title="vocDelButtonTitle" v-bind:style="vocDelButtonStyle" v-on:click="vocDelButtonClick(index)"><span data-feather="x"></span></button>
+                  </td>
+                </tr>
+              </tbody>
             </table>
           </div>
           
@@ -160,11 +221,9 @@ const theory = {
     </div>
   `,
   mounted: function() {
-    this.$nextTick(function () {
-      feather.replace();
-    })
+    feather.replace();
   },
-  created: function () {    
+  created: function () {
     console.log('theory view created')
     var self = this;
     var theoryId = this.$route.params.id
@@ -172,8 +231,9 @@ const theory = {
       nai.$http.get('/theories/' + theoryId).then(function(resp) {
         console.log("theory retrieved");
         self.theory = resp.data;
-        self.loaded = true;
+        self.doneLoading()
         console.log(self.theory);
+        console.log(JSON.stringify(self.theory));
       }).catch(
         function(error) {
           if (error.response) {

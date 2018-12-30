@@ -5,6 +5,7 @@ const theory = {
       loaded: false,
       editVoc: false,
       editFacts: false,
+      editTitle: false,
       theoryRest: {"content":"Content","vocabulary":[{"_id":"5c287fad512c9c3eaa4d25c2","symbol":"D","original":"Delivery"},{"_id":"5c287fad512c9c3eaa4d25c1","symbol":"I","original":"Insurance"}],"formalization":[{"_id":"5c287fad512c9c3eaa4d25c3","original":"Delivery means you should make Insurance","formula":"D => I"}]}
     }
   },
@@ -18,6 +19,32 @@ const theory = {
       this.$nextTick(function () {
         feather.replace();
       })
+    },
+    saveTheory: function() {
+      var updatedTheory = {
+        name: this.theoryName,
+        description: this.theoryDesc,
+        content: this.theoryContent,
+        vocabulary: this.theoryVoc,
+        formalization: this.theoryFormalization
+      }
+      nai.$http.put('/theories/' + this.theoryId, updatedTheory).then(function(resp) {
+        console.log(resp)
+      }).catch(function(error) {
+        console.log(error)
+      })
+      console.log('Updated theory')
+      console.log(updatedTheory)
+    },
+    /* title/description stuff */
+    doEditTitle: function() {
+      this.editTitle = true;
+    },
+    finishedEditTitle: function() {
+      this.editTitle = false;
+    },
+    toggleEditTitle: function() {
+      (this.editTitle) ? this.finishedEditTitle() : this.doEditTitle();
     },
     /* vocabulary stuff */
     doEditVoc: function() {
@@ -52,6 +79,9 @@ const theory = {
     },
     theoryId: function() {
       return this.theory._id
+    },
+    theoryLastUpdate: function() {
+      return new Date(this.theory.lastUpdate);
     },
     theoryDesc: function() {
       return this.theory.description
@@ -144,25 +174,26 @@ const theory = {
             <loading-bar v-if="!loaded"></loading-bar>
           </div>
           <div v-if="loaded">
-            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-            <h1 class="h1">{{ theoryName }}</h1>
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-0 mb-0">
+            <input-update class="h1" placeholder="Enter title" v-bind:edit="editTitle" v-model="theoryName"></input-update>
             <div class="btn-toolbar mb-2 mb-md-0">
               <div class="btn-group mr-2">
-                <button class="btn btn-sm btn-outline-secondary">
+                <button class="btn btn-sm btn-outline-primary" v-on:click="saveTheory">
                 <span data-feather="save"></span>
                 Save</button>
-                <button class="btn btn-sm btn-outline-secondary">
+                <button class="btn btn-sm btn-outline-primary">
                 <span data-feather="download"></span>
                 Export</button>
               </div>
-              <button class="btn btn-sm btn-outline-primary">
-                <span data-feather="play"></span>
-                Run all
+              <button class="btn btn-sm btn-outline-secondary" v-on:click="toggleEditTitle" v-bind:class="{active : editTitle}" v-bind:aria-pressed="editTitle">
+                <span data-feather="edit"></span>
+                Edit title/description
               </button>
             </div>
           </div>
+          <p style="margin:0" class="small border-bottom pb-2 mb-2"><em>Last updated: {{ theoryLastUpdate.toLocaleString() }}</em></p>
           <p>
-          <em>{{ theoryDesc }}</em>
+          <textarea-update placeholder="Enter description of theory" v-bind:edit="editTitle" v-model="theoryDesc"></textarea-update>
           </p>
           
           <a name="vocabulary" style="display:block;visibility:hidden;position:relative;top:-3em"></a>
@@ -181,10 +212,10 @@ const theory = {
               </button>
             </div>
           </div>
-          <p>Defining the vocabulary explicitly is not strictly necessary, however strongly advised.
+          <p class="small"><em>Defining the vocabulary explicitly is not strictly necessary, however strongly advised.
           It helps keeping an overview of the used symbols and their intended meaning for the
           fact base and queries. The contents of this table do not alter the formalization; they
-          are used for extended GUI features.</p>
+          are used for extended GUI features.</em></p>
           <div class="">
             <table class="table table-striped table-sm" style="table-layout:fixed;width:100%">
               <thead>
@@ -227,7 +258,7 @@ const theory = {
               </button>
             </div>
           </div> 
-          <p><em>A consistency check should be conducted prior to executing any further queries.</em></p>
+          <p class="small"><em>A consistency check should be conducted prior to executing any further queries.</em></p>
           <div class="table-responsive">
             <table class="table table-striped table-sm table-hover" style="table-layout:fixed;">
               <thead>

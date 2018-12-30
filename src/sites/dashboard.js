@@ -143,43 +143,25 @@ const dashboard = {
     </div>
   `,
   created: function () {
-    ////feather.replace();
-    
     this.$on('delete-theory', this.onTheoryDelete);
-    
-    
     console.log('dashboard mounted')
+    
     var self = this;
     nai.$http.get('/users').then(function(resp) {
-      //console.log(resp.data)
+      console.log("user infos loaded");
+      console.log(resp.data)
       //console.log(JSON.stringify(resp.data))
-    }).catch(
-      function(error) {
-        if (error.response) {
-        // The request was made and the server responded with a status code
-        // that falls out of the range of 2xx
-        console.log(error.response.data);
-        console.log(error.response.status);
-        console.log(error.response.headers);
-      } else if (error.request) {
-        // The request was made but no response was received
-        // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
-        // http.ClientRequest in node.js
-        console.log(error.request);
+      if (!!resp.data.user) {
+        if (!!resp.data.user.theories) {
+          self.theories = resp.data.user.theories;
+          self.theoriesLoaded = true;
+        } else {
+          console.log('could not retrieve theory data')
+          // error handling
+        }
       } else {
-        // Something happened in setting up the request that triggered an Error
-        console.log('Error', error.message);
+        console.log('could not retrieve user data')
       }
-      console.log(error.config);
-      }
-    );
-    
-    nai.$http.get('/theories').then(function(resp) {
-      console.log("theories loaded");
-      self.theories = resp.data;
-      self.theoriesLoaded = true;
-      //console.log(self.theories);
-      //console.log(JSON.stringify(resp.data))
     }).catch(
       function(error) {
         if (error.response) {

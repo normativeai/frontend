@@ -5,8 +5,7 @@ const theory = {
       loaded: false,
       editVoc: false,
       editFacts: false,
-      editTitle: false,
-      theoryRest: {"content":"Content","vocabulary":[{"_id":"5c287fad512c9c3eaa4d25c2","symbol":"D","original":"Delivery"},{"_id":"5c287fad512c9c3eaa4d25c1","symbol":"I","original":"Insurance"}],"formalization":[{"_id":"5c287fad512c9c3eaa4d25c3","original":"Delivery means you should make Insurance","formula":"D => I"}]}
+      editTitle: false
     }
   },
   methods: {
@@ -47,6 +46,13 @@ const theory = {
       (this.editTitle) ? this.finishedEditTitle() : this.doEditTitle();
     },
     /* vocabulary stuff */
+    addLineToVoc: function() {
+      this.theoryVoc.push({symbol: '', original: ''});
+      this.$nextTick(function () {
+        feather.replace();
+      })
+      this.doEditVoc();
+    },
     doEditVoc: function() {
       this.editVoc = true;
     },
@@ -60,6 +66,13 @@ const theory = {
       this.theoryVoc.splice(index,1)
     },
     /* fact stuff */
+    addLineToFacts: function() {
+      this.theoryFormalization.push({forumla: '', original: ''});
+      this.$nextTick(function () {
+        feather.replace();
+      })
+      this.doEditFacts();
+    },
     doEditFacts: function() {
       this.editFacts = true;
     },
@@ -87,13 +100,13 @@ const theory = {
       return this.theory.description
     },
     theoryContent: function() {
-      return this.theoryRest.content
+      return this.theory.content
     },
     theoryVoc: function() {
-      return this.theoryRest.vocabulary
+      return this.theory.vocabulary
     },
     theoryFormalization: function() {
-      return this.theoryRest.formalization
+      return this.theory.formalization
     },
     vocDelButtonTitle: function() {
       if (this.editVoc) {
@@ -201,7 +214,7 @@ const theory = {
             <h2>Vocabulary</h2>
             <div class="btn-toolbar mb-2 mb-md-0">
               <div class="btn-group mr-2">
-              <button class="btn btn-sm btn-outline-primary">
+              <button class="btn btn-sm btn-outline-primary" v-on:click="addLineToVoc">
               <span data-feather="plus"></span>
               Add entry
               </button>
@@ -243,7 +256,7 @@ const theory = {
             <h2>Fact base</h2>
             <div class="btn-toolbar mb-2 mb-md-0">
               <div class="btn-group mr-2">
-                <button class="btn btn-sm btn-outline-primary">
+                <button class="btn btn-sm btn-outline-primary" v-on:click="addLineToFacts">
                   <span data-feather="plus"></span>
                   Add fact
                 </button>

@@ -308,12 +308,22 @@ const theory = {
   },
   created: function () {
     console.log('theory view created')
+    console.log(this.$route);
     var self = this;
     var theoryId = this.$route.params.id
     if (!!theoryId) {
       nai.$http.get('/theories/' + theoryId).then(function(resp) {
         console.log("theory retrieved");
         self.theory = resp.data;
+        
+        // if theory was freshly created, edit=true is set as GET parameter
+        // so enable edit mode for all contents
+        if (self.$route.query.edit) {
+          self.doEditTitle();
+          self.doEditVoc();
+          self.doEditFacts();
+        }
+        
         self.doneLoading()
         console.log(self.theory);
         console.log(JSON.stringify(self.theory));
@@ -339,12 +349,7 @@ const theory = {
       );
     } else {
       // error handling
-      console.log('no theory id given');
-      this.theory = {name: '', description: '', vocabulary: [{symbol: '', original: ''}], formalization: [{original: '', formula: ''}]}
-      self.doneLoading();
-      this.doEditTitle();
-      this.doEditVoc();
-      this.doEditFacts();
+      console.log('no theory id given');      
     }
   }
 }

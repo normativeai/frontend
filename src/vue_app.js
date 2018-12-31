@@ -68,6 +68,16 @@ nai = new function () { var lib = this;
     this.$http.post('/signup', data).then(success).catch(fail)
   }
   
+  lib.createFreshTheory = function(success, fail) {
+    var freshTheory = { 
+                    name: 'New Theory', 
+                    description: '', 
+                    vocabulary: [{symbol: '', original: ''}], 
+                    formalization: [{original: '', formula: ''}]
+                  }
+    this.$http.post('/theories', freshTheory).then(success).catch(fail)
+  }
+  
   lib.deleteTheory = function(theory, success, fail) {
     console.log('delete theory ' + theory._id);
     this.$http.delete('/theories/' + theory._id).then(success).catch(fail)

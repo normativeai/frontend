@@ -9,7 +9,20 @@ const dashboard = {
   },
   methods: {
     createTheory: function() {
-      router.push('/theory')
+      nai.createFreshTheory(this.onTheoryCreateSuccess, this.onTheoryCreateFail);
+    },
+    onTheoryCreateSuccess: function(resp) {
+      console.log(resp)
+      if (!!resp.data) {
+        var id = resp.data._id;
+        router.push({ path: '/theory/'+id, query: { edit: true } })
+      } else {
+        // error handling, unexpected return
+        console.log('theory creation failed')
+      }
+    },
+    onTheoryCreateFail: function(error) {
+      console.log(error)
     },
     onTheoryDelete: function(theory) {    
       nai.deleteTheory(theory, this.onTheoryDeleteSuccess(theory), this.onTheoryDeleteError)

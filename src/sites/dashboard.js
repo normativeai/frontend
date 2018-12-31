@@ -8,8 +8,10 @@ const dashboard = {
     }
   },
   methods: {
-    onTheoryDelete: function(theory) {
-      
+    createTheory: function() {
+      router.push('/theory')
+    },
+    onTheoryDelete: function(theory) {    
       nai.deleteTheory(theory, this.onTheoryDeleteSuccess(theory), this.onTheoryDeleteError)
     },
     onTheoryDeleteSuccess: function(theory) {
@@ -90,7 +92,7 @@ const dashboard = {
             <h3>Legislatures</h3>
             <div class="btn-toolbar mb-2 mb-md-0">
               <div class="btn-group mr-2">
-                <button class="btn btn-sm btn-outline-primary">
+                <button class="btn btn-sm btn-outline-primary" v-on:click="createTheory">
                   <span data-feather="plus"></span>
                   Create new
                 </button>

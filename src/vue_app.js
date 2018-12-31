@@ -92,6 +92,7 @@ const router = new VueRouter({
     { path: '/', component: home },
     // restricted access
     { path: '/dashboard', component: dashboard, meta: { requiresAuth: true } },
+    { path: '/theory', component: theory, meta: { requiresAuth: true } },
     { path: '/theory/:id', component: theory, meta: { requiresAuth: true } },
     
     // default catch all

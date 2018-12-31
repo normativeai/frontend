@@ -340,6 +340,11 @@ const theory = {
     } else {
       // error handling
       console.log('no theory id given');
+      this.theory = {name: '', description: '', vocabulary: [{symbol: '', original: ''}], formalization: [{original: '', formula: ''}]}
+      self.doneLoading();
+      this.doEditTitle();
+      this.doEditVoc();
+      this.doEditFacts();
     }
   }
 }

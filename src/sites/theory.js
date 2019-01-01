@@ -85,6 +85,13 @@ const theory = {
     factDelButtonClick: function(index) {
       this.theoryFormalization.splice(index,1)
     },
+    runConsistencyCheck: function() {
+      nai.checkConsistency(this.theoryId, function(resp) {
+        console.log(resp)
+      }, function(error) {
+        console.log(error)
+      })
+    }
   },
   computed: {
     theoryName: function() {
@@ -265,7 +272,7 @@ const theory = {
               <span data-feather="edit"></span>
               Toggle edit
               </button>
-              <button class="btn btn-sm btn-outline-secondary float-right">
+              <button class="btn btn-sm btn-outline-secondary float-right" v-on:click="runConsistencyCheck">
                 <span data-feather="play"></span>
                 Run consistency check
               </button>

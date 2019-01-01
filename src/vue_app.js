@@ -82,6 +82,10 @@ nai = new function () { var lib = this;
     console.log('delete theory ' + theory._id);
     this.$http.delete('/theories/' + theory._id).then(success).catch(fail)
   }
+  
+  lib.checkConsistency = function(theoryId, success, fail) {
+    nai.$http.get('/theories/' + this.theoryId + '/consistency').then(success).catch(fail)
+  }
 }
 
 ///////////

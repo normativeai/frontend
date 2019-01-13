@@ -84,7 +84,7 @@ nai = new function () { var lib = this;
   }
   
   lib.checkConsistency = function(theoryId, success, fail) {
-    nai.$http.get('/theories/' + this.theoryId + '/consistency').then(success).catch(fail)
+    nai.$http.get('/theories/' + theoryId + '/consistency').then(success).catch(fail)
   }
 }
 

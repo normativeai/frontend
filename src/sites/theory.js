@@ -3,6 +3,7 @@ const theory = {
     return {
       theory: null,
       loaded: false,
+      saving: false,
       editVoc: false,
       editFacts: false,
       editTitle: false
@@ -20,6 +21,7 @@ const theory = {
       })
     },
     saveTheory: function() {
+      var self = this;
       var updatedTheory = {
         name: this.theoryName,
         description: this.theoryDesc,
@@ -27,13 +29,19 @@ const theory = {
         vocabulary: this.theoryVoc,
         formalization: this.theoryFormalization
       }
+      this.saving = true;
       nai.$http.put('/theories/' + this.theoryId, updatedTheory).then(function(resp) {
         console.log(resp)
+        self.saving = false;
       }).catch(function(error) {
         console.log(error)
+        self.saving = false;
       })
       console.log('Updated theory')
       console.log(updatedTheory)
+      this.finishedEditTitle()
+      this.finishedEditVoc()
+      this.finishedEditFacts()
     },
     /* title/description stuff */
     doEditTitle: function() {
@@ -195,7 +203,8 @@ const theory = {
           </div>
           <div v-if="loaded">
             <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-0 mb-0">
-            <input-update class="h1" placeholder="Enter title" v-bind:edit="editTitle" v-model="theoryName"></input-update>
+            <input-update class="h1" placeholder="Enter title" v-bind:edit="editTitle" v-model="theory.name"></input-update>
+            <img v-if="saving" src="/img/loading.gif">
             <div class="btn-toolbar mb-2 mb-md-0">
               <div class="btn-group mr-2">
                 <button class="btn btn-sm btn-outline-primary" v-on:click="saveTheory">
@@ -213,7 +222,7 @@ const theory = {
           </div>
           <p style="margin:0" class="small border-bottom pb-2 mb-2"><em>Last updated: {{ theoryLastUpdate.toLocaleString() }}</em></p>
           <p>
-          <textarea-update placeholder="Enter description of theory" v-bind:edit="editTitle" v-model="theoryDesc"></textarea-update>
+          <textarea-update placeholder="Enter description of theory" v-bind:edit="editTitle" v-model="theory.description"></textarea-update>
           </p>
           
           <a name="vocabulary" style="display:block;visibility:hidden;position:relative;top:-3em"></a>

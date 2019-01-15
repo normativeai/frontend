@@ -120,8 +120,11 @@ const dashboard = {
         </nav>
 
         <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4">
-          <h1>Dashboard</h1>
-          <hr>
+          <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center mb-0">
+            <h1>Dashboard</h1>
+            <!--<span>Logged in as: {{ user.name }}</span>-->
+          </div>
+          <hr class="mt-0">
           
           <a name="legislatures" style="display:block;visibility:hidden;position:relative;top:-3em"></a>
           <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center mb-4">

@@ -2,7 +2,9 @@ const query = {
   data: function() {
     return {
       query: null,
-      loaded: false,
+      theories: null,
+      loadedQuery: false,
+      loadedTheories: false,
       
       editTitle: false,
       editAssumptions: false,
@@ -19,12 +21,6 @@ const query = {
     /* general stuff */
     back: function() {
       router.push('/dashboard')
-    },
-    doneLoading: function() {
-      this.loaded = true
-      this.$nextTick(function () {
-        feather.replace();
-      })
     },
     saveQuery: function() {
       var self = this;
@@ -110,11 +106,17 @@ const query = {
     }
   },
   computed: {
+    loaded: function() {
+      return this.loadedQuery && this.loadedTheories;
+    },
     queryName: function() {
       return this.query.name
     },
     queryId: function() {
       return this.query._id
+    },
+    queryTheory: function() {
+      return this.query.theory
     },
     queryLastUpdate: function() {
       return new Date(this.query.lastUpdate);
@@ -141,6 +143,13 @@ const query = {
       } else {
         return "cursor: not-allowed"
       }
+    }
+  },
+  watch: {
+    loaded(newValue) {
+      this.$nextTick(function () {
+        feather.replace();
+      })
     }
   },
   template: `
@@ -187,6 +196,12 @@ const query = {
             <img v-if="saving" src="/img/loading.gif">
             
             <div class="btn-toolbar mb-2 mb-md-0">
+              <div class="btn-group mr-2">
+                <select class="form-control">
+                  <option disabled value="" selected>Select theory</option>
+                  <option v-for="t in theories" :key="t._id">{{ t.name }}</option>
+                </select>
+              </div>
               <div class="btn-group mr-2">
                 <button class="btn btn-sm btn-outline-primary" v-on:click="saveQuery">
                 <span data-feather="save"></span>
@@ -300,8 +315,17 @@ const query = {
           self.doEditAssumptions();
           self.doEditGoal();
         }
-        self.doneLoading()
+        self.loadedQuery = true;
       }, nai.handleResponse())
+      
+      nai.getTheories(function(resp) {
+        nai.log('Theory Data retrieved', '[Query]');
+        nai.log(resp.data, '[Query]');
+        self.theories = resp.data;
+        self.loadedTheories = true;
+      }, function(error) {
+        nai.log(error, '[Query]')
+      });
     } else {
       // This should not happen
       nai.log('No id given, aborting.', '[Query]');

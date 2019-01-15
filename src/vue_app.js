@@ -133,7 +133,8 @@ nai = new function () { var lib = this;
     var freshQuery = {
       name: 'New Query',
       description: '',
-      assumptions: [],
+      theory: null,
+      assumptions: [''],
       goal: ''
     };
     this.$http.post('/queries', freshQuery).then(success).catch(fail)
@@ -143,6 +144,11 @@ nai = new function () { var lib = this;
   
   //////////////////////////////////////////////////////
   // Theory-related queries BEGIN
+  lib.getTheories = function(success, fail) {
+    this.log('Get all theories', '[Theory]')
+    this.$http.get('/theories').then(success).catch(fail)
+  }
+  
   lib.getTheory = function(theoryId, success, fail) {
     this.log('Get theory ' + theoryId, '[Theory]')
     this.$http.get('/theories/' + theoryId).then(success).catch(fail)

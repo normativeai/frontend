@@ -244,7 +244,7 @@ const theory = {
           <p>
           <textarea-update placeholder="Enter description of theory" v-bind:edit="editTitle" v-model="theory.description"></textarea-update>
           </p>
-          <alert v-on:dismiss="saveResponse.show = false;" :variant="saveResponse.type" v-show="saveResponse.show" :timeout="saveResponse.timeout">{{ saveResponse.message }}</alert>
+          <alert v-on:dismiss="saveResponse = {};" :variant="saveResponse.type" v-show="saveResponse.show" :timeout="saveResponse.timeout">{{ saveResponse.message }}</alert>
           
           <a name="vocabulary" style="display:block;visibility:hidden;position:relative;top:-3em"></a>
           <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3">
@@ -311,7 +311,7 @@ const theory = {
           </div> 
           <p class="small"><em>A consistency check should be conducted prior to executing any further queries.</em></p>
           
-          <alert v-on:dismiss="consistencyResponse.show = false;" :variant="consistencyResponse.type" v-show="consistencyResponse.show" :timeout="consistencyResponse.timeout">{{ consistencyResponse.message }}</alert>
+          <alert v-on:dismiss="consistencyResponse = {};" :variant="consistencyResponse.type" v-show="consistencyResponse.show" :timeout="consistencyResponse.timeout">{{ consistencyResponse.message }}</alert>
           
           <div class="table-responsive">
             <table class="table table-striped table-sm table-hover" style="table-layout:fixed;">

@@ -3,10 +3,16 @@ const theory = {
     return {
       theory: null,
       loaded: false,
-      saving: false,
+      
+      editTitle: false,
       editVoc: false,
       editFacts: false,
-      editTitle: false
+      
+      saving: false,
+      saveResponse: {show: false, type: '', message: '', timeout: 0},
+      
+      consistencyCheckRunning: false,
+      consistencyResponse: {show: false, type: '', message: '', timeout: 0}
     }
   },
   methods: {
@@ -32,9 +38,11 @@ const theory = {
       this.saving = true;
       nai.$http.put('/theories/' + this.theoryId, updatedTheory).then(function(resp) {
         console.log(resp)
+        self.saveResponse = {show: true, type: 'success', message: 'Theory successfully saved', timeout: 3000};
         self.saving = false;
       }).catch(function(error) {
         console.log(error)
+        self.saveResponse = {show: true, type: 'warning', message: 'Theory not saved, an error occurred: ' + error};
         self.saving = false;
       })
       console.log('Updated theory')
@@ -94,10 +102,15 @@ const theory = {
       this.theoryFormalization.splice(index,1)
     },
     runConsistencyCheck: function() {
+      var self = this;
       nai.checkConsistency(this.theoryId, function(resp) {
         console.log(resp)
+        self.consistencyResponse = {show: true, type: 'info', message: 'Got response, todo'};
+        self.consistencyCheckRunning = false
       }, function(error) {
         console.log(error)
+        self.consistencyResponse = {show: true, type: 'warning', message: 'Error: ' + error};
+        self.consistencyCheckRunning = false
       })
     }
   },
@@ -204,7 +217,9 @@ const theory = {
           <div v-if="loaded">
             <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-0 mb-0">
             <input-update class="h1" placeholder="Enter title" v-bind:edit="editTitle" v-model="theory.name"></input-update>
+            
             <img v-if="saving" src="/img/loading.gif">
+            
             <div class="btn-toolbar mb-2 mb-md-0">
               <div class="btn-group mr-2">
                 <button class="btn btn-sm btn-outline-primary" v-on:click="saveTheory">
@@ -224,6 +239,7 @@ const theory = {
           <p>
           <textarea-update placeholder="Enter description of theory" v-bind:edit="editTitle" v-model="theory.description"></textarea-update>
           </p>
+          <alert v-on:dismiss="saveResponse.show = false;" :variant="saveResponse.type" v-show="saveResponse.show" :timeout="saveResponse.timeout">{{ saveResponse.message }}</alert>
           
           <a name="vocabulary" style="display:block;visibility:hidden;position:relative;top:-3em"></a>
           <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3">
@@ -288,6 +304,9 @@ const theory = {
             </div>
           </div> 
           <p class="small"><em>A consistency check should be conducted prior to executing any further queries.</em></p>
+          
+          <alert v-on:dismiss="consistencyResponse.show = false;" :variant="consistencyResponse.type" v-show="consistencyResponse.show" :timeout="consistencyResponse.timeout">{{ consistencyResponse.message }}</alert>
+          
           <div class="table-responsive">
             <table class="table table-striped table-sm table-hover" style="table-layout:fixed;">
               <thead>

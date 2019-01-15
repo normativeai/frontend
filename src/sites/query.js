@@ -32,6 +32,8 @@ const query = {
         assumptions: this.queryAssumptions,
         goal: this.queryGoal
       }
+      nai.log('save query:')
+      nai.log(updatedQuery);
       // Show save-in-progress icon
       this.saving = true;
       // Call API
@@ -197,9 +199,9 @@ const query = {
             
             <div class="btn-toolbar mb-2 mb-md-0">
               <div class="btn-group mr-2">
-                <select class="form-control">
-                  <option disabled value="" selected>Select theory</option>
-                  <option v-for="t in theories" :key="t._id">{{ t.name }}</option>
+                <select class="form-control" v-model="query.theory">
+                  <option disabled value="">Select theory</option>
+                  <option v-for="t in theories" :key="t._id" v-bind:value="t._id">{{ t.name }}</option>
                 </select>
               </div>
               <div class="btn-group mr-2">
@@ -308,6 +310,12 @@ const query = {
         nai.log('Data retrieved', '[Query]');
         nai.log(resp.data, '[Query]');
         self.query = resp.data;
+        if (!!self.query.theory) {
+          console.log('theory set');
+        } else {
+          console.log('theory not set')
+          self.query.theory = '';
+        }
         // if theory was freshly created, edit=true is set as GET parameter
         // so enable edit mode for all contents
         if (self.$route.query.edit) {

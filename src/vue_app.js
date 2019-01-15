@@ -133,7 +133,6 @@ nai = new function () { var lib = this;
     var freshQuery = {
       name: 'New Query',
       description: '',
-      theory: null,
       assumptions: [''],
       goal: ''
     };

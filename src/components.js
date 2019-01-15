@@ -223,6 +223,54 @@ Vue.component('loading-bar', {
   `
 })
 
+Vue.component('alert', {
+  props: {
+    variant: {
+      type: String,
+      default: 'info' // warning, danger, etc. according to bootstrap
+    },
+    dismissible: {
+      type: Boolean,
+      default: true
+    },
+    timeout: {
+      type: Number,
+      default: null
+    }
+  },
+  data: function() {
+    return {
+      show0: this.hasMessage
+    }
+  },
+  computed: {
+    alertClass: function() {
+      return 'alert-' + this.variant
+    }
+  },
+  methods: {
+    hideAlert: function() {
+      this.$emit('dismiss')
+    }
+  },
+  watch: {
+    timeout(newValue) {
+      if (!!newValue && newValue > 0) {
+        setTimeout(this.hideAlert, this.timeout)
+        console.log("[alert] timeout set")
+      }
+    }
+  },
+  template: `
+    <div class="alert" v-bind:class="alertClass" role="alert">
+      <slot></slot>
+      <button type="button" class="close" data-dismiss="alert" aria-label="Close" style="margin-left:1.25rem" v-on:click="hideAlert" v-if="dismissible">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+  `
+})
+
 ////////////////////////////////////////////////////////////////////
 // Theory card for dashboard
 ////////////////////////////////////////////////////////////////////

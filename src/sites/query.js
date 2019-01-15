@@ -1,0 +1,311 @@
+const query = {
+  data: function() {
+    return {
+      query: null,
+      loaded: false,
+      
+      editTitle: false,
+      editAssumptions: false,
+      editGoal: false,
+      
+      saving: false,
+      saveResponse: {show: false, type: '', message: '', timeout: 0},
+      
+      execRunning: false,
+      execResponse: {show: false, type: '', message: '', timeout: 0}
+    }
+  },
+  methods: {
+    /* general stuff */
+    back: function() {
+      router.push('/dashboard')
+    },
+    doneLoading: function() {
+      this.loaded = true
+      this.$nextTick(function () {
+        feather.replace();
+      })
+    },
+    saveQuery: function() {
+      var self = this;
+      var updatedQuery = {
+        _id: this.queryId,
+        name: this.queryName,
+        theory: this.queryTheory,
+        description: this.queryDesc,
+        assumptions: this.queryAssumptions,
+        goal: this.queryGoal
+      }
+      // Show save-in-progress icon
+      this.saving = true;
+      // Call API
+      nai.saveQuery(updatedQuery, function(resp) {
+        self.saveResponse = {show: true, type: 'success', message: 'Query successfully saved', timeout: 3000};
+        self.saving = false;
+        nai.log('Update successful, response: ', '[Query]')
+        nai.log(resp, '[Query]')
+      }, function(error) {
+        self.saveResponse = {show: true, type: 'warning', message: 'Query not saved, an error occurred: ' + error};
+        self.saving = false;
+        nai.log('Update error, response: ', '[Query]')
+        nai.log(error, '[Query]')
+      });
+      // Disable all editing
+      this.finishedEditTitle()
+      this.finishedEditAssumptions()
+      this.finishedEditGoal()
+    },
+    /* title/description stuff */
+    doEditTitle: function() {
+      this.editTitle = true;
+    },
+    finishedEditTitle: function() {
+      this.editTitle = false;
+    },
+    toggleEditTitle: function() {
+      (this.editTitle) ? this.finishedEditTitle() : this.doEditTitle();
+    },
+    /* assumptions stuff */
+    addLineToAssumptions: function() {
+      this.queryAssumptions.push('');
+      this.$nextTick(function () {
+        feather.replace();
+      })
+      this.doEditAssumptions();
+    },
+    doEditAssumptions: function() {
+      this.editAssumptions = true;
+    },
+    finishedEditAssumptions: function() {
+      this.editAssumptions = false;
+    },
+    toggleEditAssumptions: function() {
+      (this.editAssumptions) ? this.finishedEditAssumptions() : this.doEditAssumptions();
+    },
+    assumptionsDelButtonClick: function(index) {
+      this.queryAssumptions.splice(index,1)
+    },
+    /* goal stuff */
+    doEditGoal: function() {
+      this.editGoal = true;
+    },
+    finishedEditGoal: function() {
+      this.editGoal = false;
+    },
+    toggleEditGoal: function() {
+      (this.editGoal) ? this.finishedEditGoal() : this.doEditGoal();
+    },
+    runQuery: function() {
+      var self = this;
+      this.execRunning = true;
+      nai.execQuery(this.queryId, function(resp) {
+        nai.log(resp, '[Query]')
+        self.execResponse = {show: true, type: 'info', message: 'Got response: ' + resp.data, timeout: 3000};
+        self.execRunning = false
+      }, function(error) {
+        nai.log(error.response, '[Query]')
+        self.execResponse = {show: true, type: 'warning', message: 'Error: ' + error.response.data};
+        self.execRunning = false
+      })
+    }
+  },
+  computed: {
+    queryName: function() {
+      return this.query.name
+    },
+    queryId: function() {
+      return this.query._id
+    },
+    queryLastUpdate: function() {
+      return new Date(this.query.lastUpdate);
+    },
+    queryDesc: function() {
+      return this.query.description
+    },
+    queryAssumptions: function() {
+      return this.query.assumptions
+    },
+    queryGoal: function() {
+      return this.query.goal
+    },
+    assumptionsDelButtonTitle: function() {
+      if (this.editAssumptions) {
+        return "Delete entry"
+      } else {
+        return "Enable edit mode for deleting"
+      }
+    },
+    assumptionsDelButtonStyle: function() {
+      if (this.editAssumptions) {
+        return ""
+      } else {
+        return "cursor: not-allowed"
+      }
+    }
+  },
+  template: `
+    <div class="container-fluid">
+      <div class="row">
+        <nav class="col-md-2 d-none d-md-block bg-light sidebar">
+          <div class="sidebar-sticky">
+            <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-1 mb-1 text-muted" v-on:click="back" style="cursor:pointer">
+              <span data-feather="arrow-left"></span>
+              <a class="d-flex align-items-center text-muted">
+                <span><b>Back to dashboard</b></span>
+              </a>
+            </h6>
+            
+            <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-3 mb-1 text-muted">
+              <span>Contents</span>
+            </h6>
+            <ul class="nav flex-column mb-2">
+              <li class="nav-item">
+                <a class="nav-link" href="#assumptions">
+                  <span data-feather="clipboard"></span>
+                  Assumptions
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="#goal">
+                  <span data-feather="book"></span>
+                  Goal
+                </a>
+              </li>
+            </ul>
+          </div>
+        </nav>
+
+        <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4">
+          <div v-if="!loaded">
+            <h1>Loading query ...</h1>
+            <loading-bar v-if="!loaded"></loading-bar>
+          </div>
+          <div v-if="loaded">
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-0 mb-0">
+            <input-update class="h1" placeholder="Enter title" v-bind:edit="editTitle" v-model="query.name"></input-update>
+            
+            <img v-if="saving" src="/img/loading.gif">
+            
+            <div class="btn-toolbar mb-2 mb-md-0">
+              <div class="btn-group mr-2">
+                <button class="btn btn-sm btn-outline-primary" v-on:click="saveQuery">
+                <span data-feather="save"></span>
+                Save</button>
+                <button class="btn btn-sm btn-outline-primary">
+                <span data-feather="download"></span>
+                Export</button>
+              </div>
+              <button class="btn btn-sm btn-outline-secondary" v-on:click="toggleEditTitle" v-bind:class="{active : editTitle}" v-bind:aria-pressed="editTitle">
+                <span data-feather="edit"></span>
+                Edit title/description
+              </button>
+            </div>
+          </div>
+          <p style="margin:0" class="small border-bottom pb-2 mb-2"><em>Last updated: {{ queryLastUpdate.toLocaleString() }}</em></p>
+          <p>
+          <textarea-update placeholder="Enter description of query" v-bind:edit="editTitle" v-model="query.description"></textarea-update>
+          </p>
+          <alert v-on:dismiss="saveResponse = {};" :variant="saveResponse.type" v-show="saveResponse.show" :timeout="saveResponse.timeout">{{ saveResponse.message }}</alert>
+          
+          <a name="assumptions" style="display:block;visibility:hidden;position:relative;top:-3em"></a>
+          <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3">
+            <h2>Assumptions</h2>
+            <div class="btn-toolbar mb-2 mb-md-0">
+              <div class="btn-group mr-2">
+              <button class="btn btn-sm btn-outline-primary" v-on:click="addLineToAssumptions">
+              <span data-feather="plus"></span>
+              Add entry
+              </button>
+              </div>
+              <button class="btn btn-sm btn-outline-secondary" v-on:click="toggleEditAssumptions" v-bind:class="{active : editAssumptions}" v-bind:aria-pressed="editAssumptions">
+              <span data-feather="edit"></span>
+              Toggle edit
+              </button>
+            </div>
+          </div>
+          <p class="small"><em>Assumptions are contextual information that apply to a certain
+          situation only.</em></p>
+          <div class="">
+            <table class="table table-striped table-sm" style="table-layout:fixed;width:100%">
+              <thead>
+                <tr>
+                  <th style="width:5em">#</th>
+                  <th style="width:60%">Description</th>
+                  <th style="width:40%">Formula</th>
+                  <th style="width:5em;text-align: center">Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="(item, index) in queryAssumptions">
+                  <td>{{ index+1 }}</td>
+                  <td><em><textarea-update placeholder="Enter description" v-bind:edit="editAssumptions"></textarea-update></em></td>
+                  <td><textarea-update placeholder="Enter formula" v-bind:edit="editAssumptions"></textarea-update></td>
+                  <td class="table-secondary" style="text-align: center">
+                    <button type="button" class="btn btn-sm btn-danger" v-bind:disabled="!editAssumptions" v-bind:title="assumptionsDelButtonTitle" v-bind:style="assumptionsDelButtonStyle" v-on:click="assumptionsDelButtonClick(index)"><span data-feather="x"></span></button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          
+          <hr>
+          <a name="goal" style="display:block;visibility:hidden;position:relative;top:-3em"></a>
+          <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3">
+            <h2>Goal</h2>
+            <img v-if="execRunning" src="/img/loading.gif">
+            <div class="btn-toolbar mb-2 mb-md-0">
+              <div class="btn-group mr-2">
+                <button class="btn btn-sm btn-outline-primary" v-on:click="runQuery">
+                  <span data-feather="play"></span>
+                  Execute query
+                </button>
+              </div>
+              <button class="btn btn-sm btn-outline-secondary" v-on:click="toggleEditGoal" v-bind:class="{active : editGoal}" v-bind:aria-pressed="editGoal">
+              <span data-feather="edit"></span>
+              Toggle edit
+              </button>
+            </div>
+          </div> 
+          <p class="small"><em>tba.</em></p>
+          
+          <alert v-on:dismiss="execResponse = {};" :variant="execResponse.type" v-show="execResponse.show" :timeout="execResponse.timeout">{{ execResponse.message }}</alert>
+          
+          <div>
+            <textarea-update placeholder="Enter goal" v-bind:edit="editGoal" v-model="query.goal"></textarea-update>
+          </div>
+        </div>
+          
+          <p>&nbsp;</p>
+        </main>
+        
+      </div>
+    </div>
+  `,
+  mounted: function() {
+    feather.replace();
+  },
+  created: function () {
+    nai.log('Created', '[Query]')
+    var self = this;
+    var queryId = this.$route.params.id
+    if (!!queryId) {
+      nai.getQuery(queryId, function(resp) {
+        nai.log('Data retrieved', '[Query]');
+        nai.log(resp.data, '[Query]');
+        self.query = resp.data;
+        // if theory was freshly created, edit=true is set as GET parameter
+        // so enable edit mode for all contents
+        if (self.$route.query.edit) {
+          self.doEditTitle();
+          self.doEditAssumptions();
+          self.doEditGoal();
+        }
+        self.doneLoading()
+      }, nai.handleResponse())
+    } else {
+      // This should not happen
+      nai.log('No id given, aborting.', '[Query]');
+    }
+  }
+}
+

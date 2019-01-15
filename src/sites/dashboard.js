@@ -48,13 +48,13 @@ const dashboard = {
     onQueryCreateSuccess: function(resp) {
       nai.log('Query created', '[App]');
       nai.log(resp, '[App]');
-      /*if (!!resp.data) {
+      if (!!resp.data) {
         var id = resp.data._id;
-        router.push({ path: '/theory/'+id, query: { edit: true } })
+        router.push({ path: '/query/'+id, query: { edit: true } })
       } else {
         // error handling, unexpected return
-        nai.log('theory creation failed', '[App]')
-      }*/
+        nai.log('query creation failed', '[App]')
+      }
     },
     onQueryCreateFail: function(error) {
       nai.log(error, '[App]')

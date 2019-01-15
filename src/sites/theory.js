@@ -29,24 +29,28 @@ const theory = {
     saveTheory: function() {
       var self = this;
       var updatedTheory = {
+        _id: this.theoryId,
         name: this.theoryName,
         description: this.theoryDesc,
         content: this.theoryContent,
         vocabulary: this.theoryVoc,
         formalization: this.theoryFormalization
       }
+      // Show save-in-progress icon
       this.saving = true;
-      nai.$http.put('/theories/' + this.theoryId, updatedTheory).then(function(resp) {
-        console.log(resp)
+      // Call API
+      nai.saveTheory(updatedTheory, function(resp) {
         self.saveResponse = {show: true, type: 'success', message: 'Theory successfully saved', timeout: 3000};
         self.saving = false;
-      }).catch(function(error) {
-        console.log(error)
+        nai.log('Update successful, response: ', '[Theory]')
+        nai.log(resp, '[Theory]')
+      }, function(error) {
         self.saveResponse = {show: true, type: 'warning', message: 'Theory not saved, an error occurred: ' + error};
         self.saving = false;
-      })
-      console.log('Updated theory')
-      console.log(updatedTheory)
+        nai.log('Update error, response: ', '[Theory]')
+        nai.log(error, '[Theory]')
+      });
+      // Disable all editing
       this.finishedEditTitle()
       this.finishedEditVoc()
       this.finishedEditFacts()
@@ -103,13 +107,14 @@ const theory = {
     },
     runConsistencyCheck: function() {
       var self = this;
+      this.consistencyCheckRunning = true;
       nai.checkConsistency(this.theoryId, function(resp) {
-        console.log(resp)
-        self.consistencyResponse = {show: true, type: 'info', message: 'Got response, todo'};
+        nai.log(resp, '[Theory]')
+        self.consistencyResponse = {show: true, type: 'info', message: 'Got response: ' + resp.data, timeout: 3000};
         self.consistencyCheckRunning = false
       }, function(error) {
-        console.log(error)
-        self.consistencyResponse = {show: true, type: 'warning', message: 'Error: ' + error};
+        nai.log(error.response, '[Theory]')
+        self.consistencyResponse = {show: true, type: 'warning', message: 'Error: ' + error.response.data};
         self.consistencyCheckRunning = false
       })
     }
@@ -195,7 +200,7 @@ const theory = {
               </li>
             </ul>
             
-            <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-3 mb-1 text-muted">
+            <!--<h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-3 mb-1 text-muted">
               <span>Settings</span>
             </h6>
             <ul class="nav flex-column mb-2">
@@ -205,7 +210,7 @@ const theory = {
                   Preferences
                 </a>
               </li>
-            </ul>
+            </ul>-->
           </div>
         </nav>
 
@@ -286,6 +291,7 @@ const theory = {
           <a name="facts" style="display:block;visibility:hidden;position:relative;top:-3em"></a>
           <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3">
             <h2>Fact base</h2>
+            <img v-if="consistencyCheckRunning" src="/img/loading.gif">
             <div class="btn-toolbar mb-2 mb-md-0">
               <div class="btn-group mr-2">
                 <button class="btn btn-sm btn-outline-primary" v-on:click="addLineToFacts">
@@ -342,15 +348,14 @@ const theory = {
     feather.replace();
   },
   created: function () {
-    console.log('theory view created')
-    console.log(this.$route);
+    nai.log('Created', '[Theory]')
     var self = this;
     var theoryId = this.$route.params.id
     if (!!theoryId) {
-      nai.$http.get('/theories/' + theoryId).then(function(resp) {
-        console.log("theory retrieved");
+      nai.getTheory(theoryId, function(resp) {
+        nai.log('Data retrieved', '[Theory]');
+        nai.log(resp.data, '[Theory]');
         self.theory = resp.data;
-        
         // if theory was freshly created, edit=true is set as GET parameter
         // so enable edit mode for all contents
         if (self.$route.query.edit) {
@@ -358,33 +363,12 @@ const theory = {
           self.doEditVoc();
           self.doEditFacts();
         }
-        
         self.doneLoading()
-        console.log(self.theory);
-        console.log(JSON.stringify(self.theory));
-      }).catch(
-        function(error) {
-          if (error.response) {
-          // The request was made and the server responded with a status code
-          // that falls out of the range of 2xx
-          console.log(error.response.data);
-          console.log(error.response.status);
-          console.log(error.response.headers);
-        } else if (error.request) {
-          // The request was made but no response was received
-          // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
-          // http.ClientRequest in node.js
-          console.log(error.request);
-        } else {
-          // Something happened in setting up the request that triggered an Error
-          console.log('Error', error.message);
-        }
-        console.log(error.config);
-        }
-      );
+      }, nai.handleResponse())
     } else {
-      // error handling
-      console.log('no theory id given');      
+      // This should not happen
+      nai.log('No id given, aborting.', '[Theory]');
     }
   }
 }
+

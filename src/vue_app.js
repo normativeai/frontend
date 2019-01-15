@@ -21,6 +21,7 @@
 
 nai = new function () { var lib = this;
   lib.API_URL = 'http://localhost:3000/api/';
+  lib.DEBUG = true;
   
   lib.$http = axios.create({
     baseURL: lib.API_URL,
@@ -28,8 +29,46 @@ nai = new function () { var lib = this;
       'Content-Type': 'application/json'
     }
   });
-
-
+  
+  //////////////////////////////////////////////////////
+  // General purpose stuff BEGIN
+  lib.log = function(message, group) { 
+    if (this.DEBUG) {
+      if (!!group) { console.log(group, message); }
+      else { console.log(message) }
+    }
+  }
+  
+  lib.handleResponse = function(onErrorResponse, onNoResponse, onUnexpected) {
+    return function(error) {
+      if (error.response) {
+        // The request was made and the server responded with a status code
+        // that falls out of the range of 2xx
+        if (!!onErrorResponse) { onErrorResponse(error.response); }
+        else { 
+          console.log(error.response.data);
+          console.log(error.response.status);
+          console.log(error.response.headers);
+        }
+      } else if (error.request) {
+        // The request was made but no response was received
+        // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
+        // http.ClientRequest in node.js
+        if (!!onNoReponse) { onNoResponse(error.request); }
+        else { console.log(error.request) }
+      } else {
+        // Something happened in setting up the request that triggered an Error
+        if (!!onUnexpected) { onUnexpected(error.message); }
+        else { console.log('Error', error.message) }
+      }
+      console.log(error.config);
+    }
+  }
+  // General purpose stuff END
+  //////////////////////////////////////////////////////
+  
+  //////////////////////////////////////////////////////
+  // Login/register stuff BEGIN
   lib.getUserToken = function() {
     return localStorage.getItem('user');
   }
@@ -67,7 +106,11 @@ nai = new function () { var lib = this;
   lib.register = function(data, success, fail) {
     this.$http.post('/signup', data).then(success).catch(fail)
   }
+  // Login/register stuff END
+  //////////////////////////////////////////////////////
   
+  //////////////////////////////////////////////////////
+  // Theory-related queries BEGIN
   lib.createFreshTheory = function(success, fail) {
     var freshTheory = { 
                     name: 'New Theory', 
@@ -78,6 +121,15 @@ nai = new function () { var lib = this;
     this.$http.post('/theories', freshTheory).then(success).catch(fail)
   }
   
+  lib.getTheory = function(theoryId, success, fail) {
+    this.$http.get('/theories/' + theoryId).then(success).catch(fail)
+  }
+  
+  lib.saveTheory = function(theory, success, fail) {
+    var theoryId = theory._id;
+    this.$http.put('/theories/' + theoryId, theory).then(success).catch(fail)
+  }
+  
   lib.deleteTheory = function(theory, success, fail) {
     console.log('delete theory ' + theory._id);
     this.$http.delete('/theories/' + theory._id).then(success).catch(fail)
@@ -86,6 +138,7 @@ nai = new function () { var lib = this;
   lib.checkConsistency = function(theoryId, success, fail) {
     nai.$http.get('/theories/' + theoryId + '/consistency').then(success).catch(fail)
   }
+  // Theory-related queries ENDs
 }
 
 ///////////

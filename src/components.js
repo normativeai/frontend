@@ -257,7 +257,6 @@ Vue.component('alert', {
     timeout(newValue) {
       if (!!newValue && newValue > 0) {
         setTimeout(this.hideAlert, this.timeout)
-        console.log("[alert] timeout set")
       }
     }
   },

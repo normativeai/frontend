@@ -97,21 +97,32 @@ nai = new function () { var lib = this;
     this.$http.defaults.headers.common['Authorization'] = '';
     this.$http.get('/logout').then(function(resp) {
       // nothing
-      console.log('Logout successful!');
+      this.log('Logout successful', '[App]');
     }).catch(function(err) {
-      console.log(err)
+      this.log(err, '[App]')
     });
   }
   
   lib.register = function(data, success, fail) {
+    this.log('Registration called', '[App]');
     this.$http.post('/signup', data).then(success).catch(fail)
   }
   // Login/register stuff END
   //////////////////////////////////////////////////////
   
   //////////////////////////////////////////////////////
+  // Dashboard-related queries BEGIN
+  lib.initDashboard = function(success, fail) {
+    this.log('Init Dashboard', '[App]');
+    this.$http.get('/users').then(success).catch(fail)
+  }
+  // Dashboard-related queries END
+  //////////////////////////////////////////////////////
+  
+  //////////////////////////////////////////////////////
   // Theory-related queries BEGIN
   lib.createFreshTheory = function(success, fail) {
+    this.log('Create fresh theory', '[Theory]')
     var freshTheory = { 
                     name: 'New Theory', 
                     description: '', 
@@ -122,20 +133,23 @@ nai = new function () { var lib = this;
   }
   
   lib.getTheory = function(theoryId, success, fail) {
+    this.log('Get theory ' + theoryId, '[Theory]')
     this.$http.get('/theories/' + theoryId).then(success).catch(fail)
   }
   
   lib.saveTheory = function(theory, success, fail) {
     var theoryId = theory._id;
+    this.log('Save theory ' + theoryId, '[Theory]')
     this.$http.put('/theories/' + theoryId, theory).then(success).catch(fail)
   }
   
   lib.deleteTheory = function(theory, success, fail) {
-    console.log('delete theory ' + theory._id);
+    this.log('Delete theory ' + theory._id, '[Theory]');
     this.$http.delete('/theories/' + theory._id).then(success).catch(fail)
   }
   
   lib.checkConsistency = function(theoryId, success, fail) {
+    this.log('Check consistency of ' + theoryId, '[Theory]');
     nai.$http.get('/theories/' + theoryId + '/consistency').then(success).catch(fail)
   }
   // Theory-related queries ENDs
@@ -195,13 +209,13 @@ var app = new Vue({
   },
   methods: {
     onLogin: function(userdata) {
-      console.log('login successful, set data')
+      nai.log('Login successful, set data', '[App]')
       this.user = userdata;
       nai.setUserToken(userdata);
       router.push('/dashboard');
     },
     doLogout: function() {
-      console.log('logout');
+      nai.log('Logout', '[App]');
       // reset data
       this.user = null;
       nai.logout();

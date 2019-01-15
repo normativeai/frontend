@@ -12,13 +12,14 @@ const dashboard = {
       nai.createFreshTheory(this.onTheoryCreateSuccess, this.onTheoryCreateFail);
     },
     onTheoryCreateSuccess: function(resp) {
-      console.log(resp)
+      nai.log('Theory created', '[App]');
+      nai.log(resp, '[App]');
       if (!!resp.data) {
         var id = resp.data._id;
         router.push({ path: '/theory/'+id, query: { edit: true } })
       } else {
         // error handling, unexpected return
-        console.log('theory creation failed')
+        nai.log('theory creation failed', '[App]')
       }
     },
     onTheoryCreateFail: function(error) {
@@ -32,26 +33,11 @@ const dashboard = {
       return function(resp) {
         // reflect update locally
         self.theories.splice(self.theories.indexOf(theory),1)
-        console.log('Theory ' + theory.name + ' deleted');
+        nai.log('Theory ' + theory.name + ' deleted', '[App]');
       }
     },
     onTheoryDeleteError: function(error) {
-      if (error.response) {
-        // The request was made and the server responded with a status code
-        // that falls out of the range of 2xx
-        console.log(error.response.data);
-        console.log(error.response.status);
-        console.log(error.response.headers);
-      } else if (error.request) {
-        // The request was made but no response was received
-        // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
-        // http.ClientRequest in node.js
-        console.log(error.request);
-      } else {
-        // Something happened in setting up the request that triggered an Error
-        console.log('Error', error.message);
-      }
-      console.log(error.config);
+      nai.handleResponse()(error)
     }
   },
   computed: {
@@ -159,43 +145,22 @@ const dashboard = {
   `,
   created: function () {
     this.$on('delete-theory', this.onTheoryDelete);
-    console.log('dashboard mounted')
-    
+    nai.log('Dashboard mounted', '[App]')
     var self = this;
-    nai.$http.get('/users').then(function(resp) {
-      console.log("user infos loaded");
-      console.log(resp.data)
-      //console.log(JSON.stringify(resp.data))
+    nai.initDashboard(function(resp) {
+      nai.log('User infos loaded', '[App]');
+      nai.log(resp.data, '[App]')
       if (!!resp.data.user) {
         if (!!resp.data.user.theories) {
           self.theories = resp.data.user.theories;
           self.theoriesLoaded = true;
         } else {
-          console.log('could not retrieve theory data')
+          nai.log('could not retrieve theory data', '[App]')
           // error handling
         }
       } else {
-        console.log('could not retrieve user data')
+        nai.log('could not retrieve user data', '[App]')
       }
-    }).catch(
-      function(error) {
-        if (error.response) {
-        // The request was made and the server responded with a status code
-        // that falls out of the range of 2xx
-        console.log(error.response.data);
-        console.log(error.response.status);
-        console.log(error.response.headers);
-      } else if (error.request) {
-        // The request was made but no response was received
-        // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
-        // http.ClientRequest in node.js
-        console.log(error.request);
-      } else {
-        // Something happened in setting up the request that triggered an Error
-        console.log('Error', error.message);
-      }
-      console.log(error.config);
-      }
-    );
+    }, nai.handleResponse())
   }
 }

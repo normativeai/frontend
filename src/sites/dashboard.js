@@ -1,13 +1,14 @@
 const dashboard = {
   data: function() {
     return {
+      dashboardLoaded: false,
       theories: [],
-      theoriesLoaded: false,
-      queries: [],
-      queriesLoaded: false
+      queries: []
     }
   },
   methods: {
+    ////////////////////////////////////////////////
+    // Theory stuff
     createTheory: function() {
       nai.createFreshTheory(this.onTheoryCreateSuccess, this.onTheoryCreateFail);
     },
@@ -38,11 +39,47 @@ const dashboard = {
     },
     onTheoryDeleteError: function(error) {
       nai.handleResponse()(error)
+    },
+    ////////////////////////////////////////////////
+    // Query stuff
+    createQuery: function() {
+      nai.createFreshQuery(this.onQueryCreateSuccess, this.onQueryCreateFail);
+    },
+    onQueryCreateSuccess: function(resp) {
+      nai.log('Query created', '[App]');
+      nai.log(resp, '[App]');
+      /*if (!!resp.data) {
+        var id = resp.data._id;
+        router.push({ path: '/theory/'+id, query: { edit: true } })
+      } else {
+        // error handling, unexpected return
+        nai.log('theory creation failed', '[App]')
+      }*/
+    },
+    onQueryCreateFail: function(error) {
+      nai.log(error, '[App]')
+    },
+    onQueryDelete: function(query) {    
+      nai.deleteQuery(query, this.onQueryDeleteSuccess(query), this.onQueryDeleteError)
+    },
+    onQueryDeleteSuccess: function(query) {
+      var self = this
+      return function(resp) {
+        // reflect update locally
+        self.queries.splice(self.queries.indexOf(query),1)
+        nai.log('Query ' + query.name + ' deleted', '[App]');
+      }
+    },
+    onQueryDeleteError: function(error) {
+      nai.handleResponse()(error)
     }
   },
   computed: {
     theoryRows: function() {
       return Math.ceil(this.theories.length / 3);
+    },
+    queryRows: function() {
+      return Math.ceil(this.queries.length / 3);
     }
   },
   template: `
@@ -103,8 +140,8 @@ const dashboard = {
             </div>
           </div>
           
-          <loading-bar v-if="!theoriesLoaded"></loading-bar>
-          <div v-if="theoriesLoaded">
+          <loading-bar v-if="!dashboardLoaded"></loading-bar>
+          <div v-if="dashboardLoaded">
             <p v-if="theories.length == 0"><em>No legislatures formalized yet. Click on "create new" above,
             to create a new formalization or import a publicly available one.</em></p>
             <div class="row" v-for="i in theoryRows" style="margin-bottom: 2em">
@@ -120,7 +157,7 @@ const dashboard = {
             <h3>Queries</h3>
             <div class="btn-toolbar mb-2 mb-md-0">
               <div class="btn-group mr-2">
-                <button class="btn btn-sm btn-outline-primary">
+                <button class="btn btn-sm btn-outline-primary" v-on:click="createQuery">
                   <span data-feather="plus"></span>
                   Create new
                 </button>
@@ -129,15 +166,20 @@ const dashboard = {
               <span data-feather="trash"></span>
               Remove
               </button>
-              <button class="btn btn-sm btn-outline-secondary float-right">
-                <span data-feather="copy"></span>
-                Import
-              </button>
             </div>
           </div>
-          <p>None yet</p>
           
-          <p>&nbsp;</p>
+          <loading-bar v-if="!dashboardLoaded"></loading-bar>
+          <div v-if="dashboardLoaded">
+            <p v-if="queries.length == 0"><em>No queries yet. Click on "create new" above,
+            to create a new query or import a publicly available one.</em></p>
+            <div class="row" v-for="i in queryRows" style="margin-bottom: 2em">
+              <div class="col-sm-4" v-for="q in queries.slice((i-1) * 3, i * 3)">
+                <query-card v-bind:query="q" :key="q._id"></query-card>
+              </div>
+            </div>
+          </div>
+          
         </main>
         
       </div>
@@ -145,19 +187,16 @@ const dashboard = {
   `,
   created: function () {
     this.$on('delete-theory', this.onTheoryDelete);
+    this.$on('delete-query', this.onQueryDelete);
     nai.log('Dashboard mounted', '[App]')
     var self = this;
     nai.initDashboard(function(resp) {
       nai.log('User infos loaded', '[App]');
       nai.log(resp.data, '[App]')
       if (!!resp.data.user) {
-        if (!!resp.data.user.theories) {
-          self.theories = resp.data.user.theories;
-          self.theoriesLoaded = true;
-        } else {
-          nai.log('could not retrieve theory data', '[App]')
-          // error handling
-        }
+        self.theories = resp.data.user.theories;
+        self.queries = resp.data.user.queries;
+        self.dashboardLoaded = true;
       } else {
         nai.log('could not retrieve user data', '[App]')
       }

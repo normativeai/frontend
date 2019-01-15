@@ -116,22 +116,33 @@ nai = new function () { var lib = this;
     this.log('Init Dashboard', '[App]');
     this.$http.get('/users').then(success).catch(fail)
   }
+  
+  lib.createFreshTheory = function(success, fail) {
+    this.log('Create fresh theory', '[App]');
+    var freshTheory = { 
+      name: 'New Theory', 
+      description: '', 
+      vocabulary: [{symbol: '', original: ''}], 
+      formalization: [{original: '', formula: ''}]
+    };
+    this.$http.post('/theories', freshTheory).then(success).catch(fail)
+  }
+  
+  lib.createFreshQuery = function(success, fail) {
+    this.log('Create fresh query', '[App]');
+    var freshQuery = {
+      name: 'New Query',
+      description: '',
+      assumptions: [],
+      goal: ''
+    };
+    this.$http.post('/queries', freshQuery).then(success).catch(fail)
+  }
   // Dashboard-related queries END
   //////////////////////////////////////////////////////
   
   //////////////////////////////////////////////////////
   // Theory-related queries BEGIN
-  lib.createFreshTheory = function(success, fail) {
-    this.log('Create fresh theory', '[Theory]')
-    var freshTheory = { 
-                    name: 'New Theory', 
-                    description: '', 
-                    vocabulary: [{symbol: '', original: ''}], 
-                    formalization: [{original: '', formula: ''}]
-                  }
-    this.$http.post('/theories', freshTheory).then(success).catch(fail)
-  }
-  
   lib.getTheory = function(theoryId, success, fail) {
     this.log('Get theory ' + theoryId, '[Theory]')
     this.$http.get('/theories/' + theoryId).then(success).catch(fail)
@@ -153,6 +164,27 @@ nai = new function () { var lib = this;
     nai.$http.get('/theories/' + theoryId + '/consistency').then(success).catch(fail)
   }
   // Theory-related queries ENDs
+  //////////////////////////////////////////////////////
+  
+  //////////////////////////////////////////////////////
+  // Query-related queries BEGIN
+  lib.getQuery = function(queryId, success, fail) {
+    this.log('Get query ' + queryId, '[Query]')
+    this.$http.get('/queries/' + queryId).then(success).catch(fail)
+  }
+  
+  lib.saveQuery = function(query, success, fail) {
+    var queryId = query._id;
+    this.log('Save query ' + queryId, '[Query]')
+    this.$http.put('/queries/' + queryId, query).then(success).catch(fail)
+  }
+  
+  lib.deleteQuery = function(query, success, fail) {
+    this.log('Delete query ' + query._id, '[Query]');
+    this.$http.delete('/queries/' + query._id).then(success).catch(fail)
+  }
+  // Queiry-related queries END
+  //////////////////////////////////////////////////////
 }
 
 ///////////

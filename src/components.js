@@ -358,6 +358,90 @@ Vue.component('theory-card', {
   `
 })
 
+Vue.component('query-card', {
+  props: ['query'],
+  data: function() {
+    return {
+      deleteRequested: false
+    }
+  },
+  methods: {
+    deleteMe: function() {
+      this.$parent.$emit('delete-query', this.query)
+    },
+    requestDelete: function() {
+      this.deleteRequested = true;
+      this.$nextTick(function () {
+      feather.replace();
+    })
+    },
+    cancelDelete: function() {
+      this.deleteRequested = false;
+      this.$nextTick(function () {
+        feather.replace();
+      })
+    },
+    open: function() {
+      router.push('/query/'+this.query._id)
+    }
+  },
+  computed: {
+    date: function() {
+      return new Date(this.query.lastUpdate);
+    },
+    updated: function() {
+      return this.date.toLocaleString();
+    },
+    descLimit: function() {return 80 },
+    description: function() {
+      var desc = this.query.description;
+      if (desc.length > this.descLimit) {
+        return desc.substr(0,this.descLimit) + "...";
+      } else {
+        return desc;
+      }
+    }
+  },
+  created: function () {
+    this.$nextTick(function () {
+      feather.replace();
+    })
+  },
+  template: `
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title">{{ query.name }}</h5>
+        <h6 class="card-subtitle mb-2 text-muted">Last edited: {{ updated }}</h6>
+        <p class="card-text">{{ description }}</p>
+        
+        <div class="btn-toolbar mb-2 mb-md-0 d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center">
+          <div class="btn-group mr-2">
+            <button class="btn btn-sm btn-primary" v-on:click="open">
+              <span data-feather="book-open"></span>
+              Open
+            </button>
+          </div>
+          <button class="btn btn-sm btn-outline-danger" v-on:click="requestDelete" v-if="!deleteRequested">
+          <span data-feather="trash"></span>
+          Remove
+          </button>
+          
+          <div class="btn-group ml-2" v-if="deleteRequested">
+            <button class="btn btn-sm btn-danger" v-on:click="deleteMe">
+            <span data-feather="check"></span>
+            Confirm
+            </button>
+            <button class="btn btn-sm btn-secondary" v-on:click="cancelDelete">
+            <span data-feather="x"></span>
+            Cancel
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  `
+})
+
 ////////////////////////////////////////////////////////////////////
 // Obsolete? query entry
 ////////////////////////////////////////////////////////////////////

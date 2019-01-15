@@ -188,6 +188,11 @@ nai = new function () { var lib = this;
     this.log('Delete query ' + query._id, '[Query]');
     this.$http.delete('/queries/' + query._id).then(success).catch(fail)
   }
+  
+  lib.runQuery = function(queryId, success, fail) {
+    this.log('Run query ' + query._id, '[Query]');
+    this.$http.get('/queries/' + queryId + '/exec').then(success).catch(fail)
+  }
   // Queiry-related queries END
   //////////////////////////////////////////////////////
 }

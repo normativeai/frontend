@@ -85,9 +85,6 @@ const home = {
           <a name="furtherinfo" style="display:block;visibility:hidden;position:relative;top:-3em"></a>
           <h3>Further information</h3>
           <p>yada yada</p>
-          
-          
-          <p>&nbsp;</p>
         </main>
         
       </div>

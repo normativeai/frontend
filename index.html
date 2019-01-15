@@ -16,7 +16,9 @@
   <body>
     <div id="root">
       <nav class="navbar navbar-dark fixed-top bg-dark flex-md-nowrap p-0 shadow">
-        <a class="navbar-brand col-sm-3 col-md-2 mr-0" href="/index.html">Normative Reasoning</a>
+        <img src="/img/unilu.png" alt="University of Luxembourg" style="height: 3rem" class="ml-2 mr-0">
+        
+        <a class="navbar-brand col-sm-4 col-md-3" style="text-align:center" href="/index.html">Normative Reasoning</a>
         
         <ul class="navbar-nav px-3">
           <li class="nav-item text-nowrap" v-if="loggedIn">
@@ -26,12 +28,11 @@
         </ul>
       </nav>
       <router-view v-bind:logged-in="loggedIn"></router-view>  
-      <img src="/img/unilu.png" alt="University of Luxembourg" style="z-index:1000;position:fixed;bottom:0;left:0" class="col-sm-3 col-md-2 mb-2">
+      <!--<img src="/img/unilu.png" alt="University of Luxembourg" style="z-index:1000;position:fixed;bottom:0;left:0" class="col-sm-3 col-md-2 mb-2">-->
       
-    </div>
-    
-    <div style="widht:100%; z-index:1000;display:block;position:static;font-size:x-small;float:right" class="mb-2 mr-2"> 
-      <em>Copyright © Université du Luxembourg 2019. All rights reserved. <a href="https://wwwen.uni.lu/legal_notice">Legal notice</a></em>
+      <div style="height:1.8em;background-color:white;position:fixed;font-size:x-small;right:0;bottom:0" class="mb-0 mr-2"> 
+        <em>Copyright © Université du Luxembourg 2019. All rights reserved. <a href="https://wwwen.uni.lu/legal_notice">Legal notice</a></em>
+      </div>
     </div>
     <script>
     feather.replace();

@@ -16,7 +16,7 @@ const dashboard = {
       nai.log('Theory created', '[App]');
       nai.log(resp, '[App]');
       if (!!resp.data) {
-        var id = resp.data._id;
+        var id = resp.data.data._id;
         router.push({ path: '/theory/'+id, query: { edit: true } })
       } else {
         // error handling, unexpected return
@@ -49,7 +49,7 @@ const dashboard = {
       nai.log('Query created', '[App]');
       nai.log(resp, '[App]');
       if (!!resp.data) {
-        var id = resp.data._id;
+        var id = resp.data.data._id;
         router.push({ path: '/query/'+id, query: { edit: true } })
       } else {
         // error handling, unexpected return
@@ -196,9 +196,9 @@ const dashboard = {
     nai.initDashboard(function(resp) {
       nai.log('User infos loaded', '[App]');
       nai.log(resp.data, '[App]')
-      if (!!resp.data.user) {
-        self.theories = resp.data.user.theories;
-        self.queries = resp.data.user.queries;
+      if (!!resp.data.data) {
+        self.theories = resp.data.data.theories;
+        self.queries = resp.data.data.queries;
         self.dashboardLoaded = true;
       } else {
         nai.log('could not retrieve user data', '[App]')

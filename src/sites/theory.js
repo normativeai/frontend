@@ -355,7 +355,7 @@ const theory = {
       nai.getTheory(theoryId, function(resp) {
         nai.log('Data retrieved', '[Theory]');
         nai.log(resp.data, '[Theory]');
-        self.theory = resp.data;
+        self.theory = resp.data.data;
         // if theory was freshly created, edit=true is set as GET parameter
         // so enable edit mode for all contents
         if (self.$route.query.edit) {

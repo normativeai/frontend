@@ -3,6 +3,7 @@ const query = {
     return {
       query: null,
       theories: null,
+      chosenTheory: '',
       loadedQuery: false,
       loadedTheories: false,
       
@@ -27,7 +28,7 @@ const query = {
       var updatedQuery = {
         _id: this.queryId,
         name: this.queryName,
-        theory: this.queryTheory,
+        theory: this.chosenTheory,
         description: this.queryDesc,
         assumptions: this.queryAssumptions,
         goal: this.queryGoal
@@ -95,16 +96,21 @@ const query = {
     },
     runQuery: function() {
       var self = this;
-      this.execRunning = true;
-      nai.runQuery(this.queryId, function(resp) {
-        nai.log(resp, '[Query]')
-        self.execResponse = {show: true, type: 'info', message: 'Got response: ' + resp.data, timeout: 3000};
-        self.execRunning = false
-      }, function(error) {
-        nai.log(error.response, '[Query]')
-        self.execResponse = {show: true, type: 'warning', message: 'Error: ' + error.response.data};
-        self.execRunning = false
-      });
+      if (!!this.chosenTheory) {
+        this.execRunning = true;
+        nai.runQuery(this.queryId, function(resp) {
+          nai.log(resp, '[Query]')
+          self.execResponse = {show: true, type: 'info', message: 'Got response: ' + resp.data, timeout: 3000};
+          self.execRunning = false
+        }, function(error) {
+          nai.log(error.response, '[Query]')
+          self.execResponse = {show: true, type: 'warning', message: 'Error: ' + error.response.data.err, timeout: 3000};
+          self.execRunning = false
+        });
+      } else {
+        nai.log('Theory not chosen, query not possible', '[Query]');
+        self.execResponse = {show: true, type: 'warning', message: 'Cannot execute query, please select theory first.', timeout: 3000};
+      }
     }
   },
   computed: {
@@ -119,6 +125,9 @@ const query = {
     },
     queryTheory: function() {
       return this.query.theory
+    },
+    queryTheoryId: function() {
+      return this.query.theory._id;
     },
     queryLastUpdate: function() {
       return new Date(this.query.lastUpdate);
@@ -199,9 +208,9 @@ const query = {
             
             <div class="btn-toolbar mb-2 mb-md-0">
               <div class="btn-group mr-2">
-                <select class="form-control" v-model="query.theory">
-                  <option disabled value="">Select theory</option>
-                  <option v-for="t in theories" :key="t._id" v-bind:value="t._id">{{ t.name }}</option>
+                <select class="form-control" v-model="chosenTheory">
+                  <option disabled value=''>Choose theory</option>
+                  <option v-for="t in theories" v-bind:key="t._id" v-bind:value="t._id">{{ t.name }}</option>
                 </select>
               </div>
               <div class="btn-group mr-2">
@@ -247,16 +256,16 @@ const query = {
               <thead>
                 <tr>
                   <th style="width:5em">#</th>
-                  <th style="width:60%">Description</th>
-                  <th style="width:40%">Formula</th>
+                  <!--<th style="width:60%">Description</th>-->
+                  <th style="width:100%">Formula</th>
                   <th style="width:5em;text-align: center">Action</th>
                 </tr>
               </thead>
               <tbody>
                 <tr v-for="(item, index) in queryAssumptions">
                   <td>{{ index+1 }}</td>
-                  <td><em><textarea-update placeholder="Enter description" v-bind:edit="editAssumptions"></textarea-update></em></td>
-                  <td><textarea-update placeholder="Enter formula" v-bind:edit="editAssumptions"></textarea-update></td>
+                  <!--<td><em><textarea-update placeholder="Enter description" v-bind:edit="editAssumptions"></textarea-update></em></td>-->
+                  <td><textarea-update placeholder="Enter formula" v-bind:edit="editAssumptions" v-model="queryAssumptions[index]"></textarea-update></td>
                   <td class="table-secondary" style="text-align: center">
                     <button type="button" class="btn btn-sm btn-danger" v-bind:disabled="!editAssumptions" v-bind:title="assumptionsDelButtonTitle" v-bind:style="assumptionsDelButtonStyle" v-on:click="assumptionsDelButtonClick(index)"><span data-feather="x"></span></button>
                   </td>
@@ -283,7 +292,7 @@ const query = {
               </button>
             </div>
           </div> 
-          <p class="small"><em>tba.</em></p>
+          <p class="small"><em>Goal yada yada.</em></p>
           
           <alert v-on:dismiss="execResponse = {};" :variant="execResponse.type" v-show="execResponse.show" :timeout="execResponse.timeout">{{ execResponse.message }}</alert>
           
@@ -309,9 +318,10 @@ const query = {
       nai.getQuery(queryId, function(resp) {
         nai.log('Data retrieved', '[Query]');
         nai.log(resp.data, '[Query]');
-        self.query = resp.data;
+        self.query = resp.data.data;
         if (!!self.query.theory) {
           console.log('theory set');
+          self.chosenTheory = self.query.theory._id;
         } else {
           console.log('theory not set')
           self.query.theory = '';
@@ -329,7 +339,7 @@ const query = {
       nai.getTheories(function(resp) {
         nai.log('Theory Data retrieved', '[Query]');
         nai.log(resp.data, '[Query]');
-        self.theories = resp.data;
+        self.theories = resp.data.data;
         self.loadedTheories = true;
       }, function(error) {
         nai.log(error, '[Query]')

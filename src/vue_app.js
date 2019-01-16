@@ -136,6 +136,7 @@ nai = new function () { var lib = this;
       assumptions: [''],
       goal: ''
     };
+    this.log(freshQuery, '[App]');
     this.$http.post('/queries', freshQuery).then(success).catch(fail)
   }
   // Dashboard-related queries END

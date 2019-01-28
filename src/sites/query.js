@@ -100,11 +100,11 @@ const query = {
         this.execRunning = true;
         nai.runQuery(this.queryId, function(resp) {
           nai.log(resp, '[Query]')
-          self.execResponse = {show: true, type: 'info', message: 'Got response: ' + resp.data.data.result, timeout: 3000};
+          self.execResponse = {show: true, type: 'info', message: 'Got response: ' + resp.data.data.result};
           self.execRunning = false
         }, function(error) {
           nai.log(error.response, '[Query]')
-          self.execResponse = {show: true, type: 'warning', message: 'Error: ' + error.response.data.err, timeout: 3000};
+          self.execResponse = {show: true, type: 'warning', message: 'Error: ' + error.response.data.err};
           self.execRunning = false
         });
       } else {

@@ -292,7 +292,8 @@ const query = {
               </button>
             </div>
           </div> 
-          <p class="small"><em>Goal yada yada.</em></p>
+          <p class="small"><em>The goal is a formula that is assessed for logical consequence from
+           the theory and the contextual assumptions above.</em></p>
           
           <alert v-on:dismiss="execResponse = {};" :variant="execResponse.type" v-show="execResponse.show" :timeout="execResponse.timeout">{{ execResponse.message }}</alert>
           

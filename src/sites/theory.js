@@ -114,7 +114,7 @@ const theory = {
         self.consistencyCheckRunning = false
       }, function(error) {
         nai.log(error.response, '[Theory]')
-        self.consistencyResponse = {show: true, type: 'warning', message: 'Error: ' + error.response.data};
+        self.consistencyResponse = {show: true, type: 'warning', message: '<b>Error</b>: ' + error.response.data.err};
         self.consistencyCheckRunning = false
       })
     }
@@ -311,7 +311,7 @@ const theory = {
           </div> 
           <p class="small"><em>A consistency check should be conducted prior to executing any further queries.</em></p>
           
-          <alert v-on:dismiss="consistencyResponse = {};" :variant="consistencyResponse.type" v-show="consistencyResponse.show" :timeout="consistencyResponse.timeout">{{ consistencyResponse.message }}</alert>
+          <alert v-on:dismiss="consistencyResponse = {};" :variant="consistencyResponse.type" v-show="consistencyResponse.show" :timeout="consistencyResponse.timeout"><div v-html="consistencyResponse.message"></div></alert>
           
           <div class="table-responsive">
             <table class="table table-striped table-sm table-hover" style="table-layout:fixed;">

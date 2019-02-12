@@ -100,11 +100,26 @@ const query = {
         this.execRunning = true;
         nai.runQuery(this.queryId, function(resp) {
           nai.log(resp, '[Query]')
-          self.execResponse = {show: true, type: 'info', message: 'Got response: ' + resp.data.data.result};
+          var data = resp.data.data;
+          if (!!data.result) {
+            if (data.result == 'Theorem') {
+              var msg = 'Goal is a <b>Theorem</b>: It logically follows from the theory and the assumptions.';
+              self.execResponse = {show: true, type: 'success', message: msg}; 
+            } else if (data.result == 'Non-Theorem') {
+              var msg = 'Goal is <b>counter-satisfiable</b>: It does not logically follow from the theory and the assumptions.';
+              self.execResponse = {show: true, type: 'info', message: msg}; 
+            } else {
+              var msg = 'Got unexpected response: ' + resp.data.data.result;
+              self.execResponse = {show: true, type: 'warning', message: msg}; 
+            }
+          } else {
+           var msg = 'Got unexpected response: ' + resp.data.data.result;
+           self.execResponse = {show: true, type: 'warning', message: msg}; 
+          }
           self.execRunning = false
         }, function(error) {
           nai.log(error.response, '[Query]')
-          self.execResponse = {show: true, type: 'warning', message: 'Error: ' + error.response.data.err};
+          self.execResponse = {show: true, type: 'danger', message: '<b>Error</b>: ' + error.response.data.err};
           self.execRunning = false
         });
       } else {
@@ -295,7 +310,7 @@ const query = {
           <p class="small"><em>The goal is a formula that is assessed for logical consequence from
            the theory and the contextual assumptions above.</em></p>
           
-          <alert v-on:dismiss="execResponse = {};" :variant="execResponse.type" v-show="execResponse.show" :timeout="execResponse.timeout">{{ execResponse.message }}</alert>
+          <alert v-on:dismiss="execResponse = {};" :variant="execResponse.type" v-show="execResponse.show" :timeout="execResponse.timeout"><span v-html="execResponse.message"></span></alert>
           
           <div>
             <textarea-update placeholder="Enter goal" v-bind:edit="editGoal" v-model="query.goal"></textarea-update>

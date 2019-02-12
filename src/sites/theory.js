@@ -110,11 +110,23 @@ const theory = {
       this.consistencyCheckRunning = true;
       nai.checkConsistency(this.theoryId, function(resp) {
         nai.log(resp, '[Theory]')
-        self.consistencyResponse = {show: true, type: 'info', message: 'Got response: ' + resp.data, timeout: 3000};
+        var data = resp.data.data;
+        if (!!data.consistent) {
+          if (data.consistent) {
+            var msg = '<b>Consistency check succeeded</b>: Normalization is logically consistent';
+            self.consistencyResponse = {show: true, type: 'success', message: msg, timeout: 3000};
+          } else {
+            var msg = '<b>Consistency check succeeded</b>: Normalization is inconsistent (an intrinsic contradiction could be derived).';
+            self.consistencyResponse = {show: true, type: 'warning', message: msg, timeout: 3000};
+          }
+        } else {
+          var msg = '<b>Consistency check failed</b>: Got unexpected response. ' + data;
+          self.consistencyResponse = {show: true, type: 'info', message: msg, timeout: 3000};
+        }
         self.consistencyCheckRunning = false
       }, function(error) {
         nai.log(error.response, '[Theory]')
-        self.consistencyResponse = {show: true, type: 'warning', message: '<b>Error</b>: ' + error.response.data.err};
+        self.consistencyResponse = {show: true, type: 'danger', message: '<b>Error</b>: ' + error.response.data.err};
         self.consistencyCheckRunning = false
       })
     }
@@ -311,7 +323,7 @@ const theory = {
           </div> 
           <p class="small"><em>A consistency check should be conducted prior to executing any further queries.</em></p>
           
-          <alert v-on:dismiss="consistencyResponse = {};" :variant="consistencyResponse.type" v-show="consistencyResponse.show" :timeout="consistencyResponse.timeout"><div v-html="consistencyResponse.message"></div></alert>
+          <alert v-on:dismiss="consistencyResponse = {};" :variant="consistencyResponse.type" v-show="consistencyResponse.show" :timeout="consistencyResponse.timeout"><span v-html="consistencyResponse.message"></span></alert>
           
           <div class="table-responsive">
             <table class="table table-striped table-sm table-hover" style="table-layout:fixed;">

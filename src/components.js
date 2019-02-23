@@ -79,8 +79,8 @@ Vue.component('login', {
         console.log(error.response.data);
         console.log(error.response.status);
         console.log(error.response.headers);
-        if (!!error.response.data[1]) {
-          this.error = error.response.data[1].message;
+        if (!!error.response.data) {
+          this.error = error.response.data.err;
         } else {
           this.error = 'Unexpected server response: ' + error.response.data
         }

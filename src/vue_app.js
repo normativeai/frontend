@@ -93,14 +93,15 @@ nai = new function () { var lib = this;
   }
 
   lib.logout = function() {
-    localStorage.removeItem('user');
-    this.$http.defaults.headers.common['Authorization'] = '';
+    var self = this;
     this.$http.get('/logout').then(function(resp) {
       // nothing
-      this.log('Logout successful', '[App]');
+      self.log('Logout successful', '[App]');
     }).catch(function(err) {
-      this.log(err, '[App]')
+      self.log(err, '[App]')
     });
+    localStorage.removeItem('user');
+    this.$http.defaults.headers.common['Authorization'] = '';
   }
   
   lib.register = function(data, success, fail) {

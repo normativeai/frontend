@@ -3,6 +3,7 @@ const theory = {
     return {
       theory: null,
       loaded: false,
+      lastSavedTheory: null,
       
       editTitle: false,
       editVoc: false,
@@ -18,7 +19,20 @@ const theory = {
   methods: {
     /* general stuff */
     back: function() {
-      router.push('/dashboard')
+      if (!_.isEqual(this.theory, this.lastSavedTheory)) {
+        nai.log("Theory was changed", "[Theory]")
+        var response = window.confirm("You have unsaved changed. Are you sure you want to leave this page?")
+        if (response) {
+         window.removeEventListener("beforeunload", unloadHandler);
+         nai.log("Event listener removed", "[Theory]");
+         router.push('/dashboard') 
+        }
+      } else {
+        nai.log("Theory unchanged", "[Theory]")
+        window.removeEventListener("beforeunload", unloadHandler);
+        nai.log("Event listener removed", "[Theory]");
+        router.push('/dashboard')
+      }
     },
     doneLoading: function() {
       this.loaded = true
@@ -39,9 +53,11 @@ const theory = {
       // Show save-in-progress icon
       this.saving = true;
       // Call API
+      nai.log('is saved equal to before updated? ' + _.isEqual(self.lastSavedTheory, self.theory))
       nai.saveTheory(updatedTheory, function(resp) {
         self.saveResponse = {show: true, type: 'success', message: 'Theory successfully saved', timeout: 3000};
         self.saving = false;
+        self.lastSavedTheory = _.cloneDeep(self.theory)
         nai.log('Update successful, response: ', '[Theory]')
         nai.log(resp, '[Theory]')
       }, function(error) {
@@ -368,6 +384,7 @@ const theory = {
         nai.log('Data retrieved', '[Theory]');
         nai.log(resp.data, '[Theory]');
         self.theory = resp.data.data;
+        self.lastSavedTheory = _.cloneDeep(self.theory)
         // if theory was freshly created, edit=true is set as GET parameter
         // so enable edit mode for all contents
         if (self.$route.query.edit) {
@@ -381,6 +398,14 @@ const theory = {
       // This should not happen
       nai.log('No id given, aborting.', '[Theory]');
     }
+    unloadHandler = function(event) {
+      if (!_.isEqual(self.theory, self.lastSavedTheory)) {
+        event.preventDefault();
+        event.returnValue = '';
+      }
+    }
+    window.addEventListener("beforeunload", unloadHandler);
+    nai.log('Unload handler created', '[Theory]')
   }
 }
 

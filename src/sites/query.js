@@ -37,7 +37,7 @@ const query = {
         router.push('/dashboard')
       }
     },
-    saveQuery: function() {
+    saveQuery: function(onSuccess, onError) {
       var self = this;
       var updatedQuery = {
         _id: this.queryId,
@@ -58,11 +58,13 @@ const query = {
         self.lastSavedQuery = _.cloneDeep(self.query)
         nai.log('Update successful, response: ', '[Query]')
         nai.log(resp, '[Query]')
+        if (!!onSuccess && onSuccess) { onSuccess() }
       }, function(error) {
         self.saveResponse = {show: true, type: 'warning', message: 'Query not saved, an error occurred: ' + error};
         self.saving = false;
         nai.log('Update error, response: ', '[Query]')
         nai.log(error, '[Query]')
+        if (!!onError && onError) { onError() }
       });
       // Disable all editing
       this.finishedEditTitle()
@@ -112,7 +114,25 @@ const query = {
     runQuery: function() {
       var self = this;
       if (!!this.chosenTheory) {
-        this.execRunning = true;
+        if (!_.isEqual(this.query, this.lastSavedQuery)) {
+          this.saveQuery(function() {
+            self.runQuery0();
+          },
+          function() {
+            var msg = 'Query cannot be executed because there was an error during saving.';
+            self.execResponse = {show: true, type: 'warning', message: msg}; 
+          });
+        } else {
+          this.runQuery0();
+        }
+      } else {
+        nai.log('Theory not chosen, query not possible', '[Query]');
+        self.execResponse = {show: true, type: 'warning', message: 'Cannot execute query, please select theory first.', timeout: 3000};
+      }
+    },
+    runQuery0: function() {
+      var self = this;
+      this.execRunning = true;
         nai.runQuery(this.queryId, function(resp) {
           nai.log(resp, '[Query]')
           var data = resp.data.data;
@@ -137,10 +157,6 @@ const query = {
           self.execResponse = {show: true, type: 'danger', message: '<b>Error</b>: ' + error.response.data.err};
           self.execRunning = false
         });
-      } else {
-        nai.log('Theory not chosen, query not possible', '[Query]');
-        self.execResponse = {show: true, type: 'warning', message: 'Cannot execute query, please select theory first.', timeout: 3000};
-      }
     }
   },
   computed: {
@@ -244,7 +260,7 @@ const query = {
                 </select>
               </div>
               <div class="btn-group mr-2">
-                <button class="btn btn-sm btn-outline-primary" v-on:click="saveQuery">
+                <button class="btn btn-sm btn-outline-primary" v-on:click="saveQuery();">
                 <span data-feather="save"></span>
                 Save</button>
                 <button class="btn btn-sm btn-outline-primary">
@@ -311,7 +327,7 @@ const query = {
             <img v-if="execRunning" src="/img/loading.gif">
             <div class="btn-toolbar mb-2 mb-md-0">
               <div class="btn-group mr-2">
-                <button class="btn btn-sm btn-outline-primary" v-on:click="runQuery">
+                <button class="btn btn-sm btn-outline-primary" v-on:click="runQuery" title="Save query and run it.">
                   <span data-feather="play"></span>
                   Execute query
                 </button>

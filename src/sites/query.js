@@ -2,6 +2,7 @@ const query = {
   data: function() {
     return {
       query: null,
+      lastSavedQuery: null,
       theories: null,
       chosenTheory: '',
       loadedQuery: false,
@@ -21,7 +22,20 @@ const query = {
   methods: {
     /* general stuff */
     back: function() {
-      router.push('/dashboard')
+      if (!_.isEqual(this.query, this.lastSavedQuery)) {
+        nai.log("Query was changed", "[Query]")
+        var response = window.confirm("You have unsaved changed. Are you sure you want to leave this page?")
+        if (response) {
+         window.removeEventListener("beforeunload", unloadHandler);
+         nai.log("Event listener removed", "[Query]");
+         router.push('/dashboard') 
+        }
+      } else {
+        nai.log("Query unchanged", "[Query]")
+        window.removeEventListener("beforeunload", unloadHandler);
+        nai.log("Event listener removed", "[Query]");
+        router.push('/dashboard')
+      }
     },
     saveQuery: function() {
       var self = this;
@@ -41,6 +55,7 @@ const query = {
       nai.saveQuery(updatedQuery, function(resp) {
         self.saveResponse = {show: true, type: 'success', message: 'Query successfully saved', timeout: 3000};
         self.saving = false;
+        self.lastSavedQuery = _.cloneDeep(self.query)
         nai.log('Update successful, response: ', '[Query]')
         nai.log(resp, '[Query]')
       }, function(error) {
@@ -335,6 +350,7 @@ const query = {
         nai.log('Data retrieved', '[Query]');
         nai.log(resp.data, '[Query]');
         self.query = resp.data.data;
+        self.lastSavedQuery = _.cloneDeep(self.query)
         if (!!self.query.theory) {
           console.log('theory set');
           self.chosenTheory = self.query.theory._id;
@@ -364,6 +380,15 @@ const query = {
       // This should not happen
       nai.log('No id given, aborting.', '[Query]');
     }
+    
+    unloadHandler = function(event) {
+      if (!_.isEqual(self.query, self.lastSavedQuery)) {
+        event.preventDefault();
+        event.returnValue = '';
+      }
+    }
+    window.addEventListener("beforeunload", unloadHandler);
+    nai.log('Unload handler created', '[Query]')
   }
 }
 

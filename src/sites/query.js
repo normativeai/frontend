@@ -344,7 +344,7 @@ const query = {
           
           <alert v-on:dismiss="execResponse = {};" :variant="execResponse.type" v-show="execResponse.show" :timeout="execResponse.timeout"><span v-html="execResponse.message"></span></alert>
           
-          <div style="border: 1px solid black; padding: 1em">
+          <div style="border: 1px solid black; padding: 1em; font-family: monospace; font-size: large;">
             <textarea-update placeholder="Enter goal" v-bind:edit="editGoal" v-model="query.goal"></textarea-update>
           </div>
         </div>

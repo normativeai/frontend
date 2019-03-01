@@ -114,6 +114,7 @@ const query = {
     runQuery: function() {
       var self = this;
       if (!!this.chosenTheory) {
+        self.execResponse = {show: false, type: '', message: '', timeout: 0};
         if (!_.isEqual(this.query, this.lastSavedQuery)) {
           this.saveQuery(function() {
             self.runQuery0();
@@ -343,7 +344,7 @@ const query = {
           
           <alert v-on:dismiss="execResponse = {};" :variant="execResponse.type" v-show="execResponse.show" :timeout="execResponse.timeout"><span v-html="execResponse.message"></span></alert>
           
-          <div>
+          <div style="border: 1px solid black; padding: 1em">
             <textarea-update placeholder="Enter goal" v-bind:edit="editGoal" v-model="query.goal"></textarea-update>
           </div>
         </div>

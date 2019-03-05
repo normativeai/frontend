@@ -223,6 +223,10 @@ Vue.component('loading-bar', {
   `
 })
 
+////////////////////////////////////////////////////////////////////
+// General purpose dismissable alert box
+////////////////////////////////////////////////////////////////////
+
 Vue.component('alert', {
   props: {
     variant: {
@@ -269,6 +273,40 @@ Vue.component('alert', {
     </div>
   `
 })
+
+////////////////////////////////////////////////////////////////////
+// General purpose modal
+////////////////////////////////////////////////////////////////////
+
+Vue.component('modal', {
+  template: `
+    <div class="modal-mask">
+      <div class="modal-wrapper">
+        <div class="modal-container">
+
+          <div class="modal-header">
+            <slot name="header">
+            </slot>
+          </div>
+
+          <div class="modal-body">
+            <slot name="body">
+            </slot>
+          </div>
+
+          <div class="modal-footer">
+            <slot name="footer">
+              <button class="modal-default-button" @click="$emit('close')">
+                OK
+              </button>
+            </slot>
+          </div>
+        </div>
+      </div>
+    </div>
+  `
+})
+
 
 ////////////////////////////////////////////////////////////////////
 // Theory card for dashboard
@@ -358,6 +396,11 @@ Vue.component('theory-card', {
   `
 })
 
+
+////////////////////////////////////////////////////////////////////
+// query card for dashboard
+////////////////////////////////////////////////////////////////////
+
 Vue.component('query-card', {
   props: ['query'],
   data: function() {
@@ -442,73 +485,5 @@ Vue.component('query-card', {
   `
 })
 
-////////////////////////////////////////////////////////////////////
-// Obsolete? query entry
-////////////////////////////////////////////////////////////////////
 
-Vue.component('query', {
-  props: ['querydata'],
-  data: function() {
-    return {
-      edit: false
-    }
-  },
-  methods: {
-    doEdit: function() {
-      this.edit = true;
-    },
-    finishedEdit: function() {
-      this.edit = false;
-    },
-    toggleEdit: function() {
-      (this.edit) ? this.finishedEdit() : this.doEdit();
-    },
-    addAssumption: function() {
-      this.querydata.assumptions.push('');
-      this.doEdit();
-    }
-  },
-  mounted: function () {
-    this.$nextTick(function () {
-      feather.replace();
-    })
-  },
-  template: `
-    <div class="card">
-      <div class="card-header">
-        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center">
-          <h5>Query {{querydata.qid}}: <input-update style="display:inline" v-bind:edit="edit" placeholder="Enter title" v-model="querydata.title"></input-update></h5>
-          <div class="btn-toolbar mb-2 mb-md-0">
-            <button class="btn btn-sm btn-outline-primary">
-              <span data-feather="play"></span>
-              Run
-            </button>
-            <button class="btn btn-sm btn-outline-secondary" v-on:click="toggleEdit" v-bind:class="{active : edit}" v-bind:aria-pressed="edit">
-              <span data-feather="edit"></span>
-              Edit
-            </button>
-            <button class="btn btn-sm btn-outline-secondary" v-on:click="$emit('duplicate-query', querydata)">
-              <span data-feather="copy"></span>
-              Duplicate
-            </button>
-          </div>
-        </div>
-      </div>
-      <div class="card-body">
-        <h5 class="card-title">Description</h5>
-        <textarea-update class="card-text" v-bind:edit="edit" placeholder="Enter description" v-model="querydata.description"></textarea-update>
-        <h5 class="card-title">Assumptions <button class="btn btn-sm btn-outline-secondary" v-on:click="addAssumption" >
-              <span data-feather="plus"></span></button></h5>
-        <p class="card-text">
-        <ul>
-          <li v-for="(as,index) in querydata.assumptions">
-          <input-update class="card-text" v-bind:edit="edit" placeholder="Enter assumption" v-model="querydata.assumptions[index]"></input-update></li>
-        </ul>
-        </p>
-        <h5 class="card-title">Goal</h5>
-        <input-update class="card-text" v-bind:edit="edit" placeholder="Enter goal" v-model="querydata.goal"></input-update>
-      </div>
-    </div>
-  `
-})
 

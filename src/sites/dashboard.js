@@ -4,7 +4,8 @@ const dashboard = {
       dashboardLoaded: false,
       theories: [],
       queries: [],
-      error: null
+      error: null,
+      showModal: true
     }
   },
   methods: {
@@ -40,6 +41,9 @@ const dashboard = {
     },
     onTheoryDeleteError: function(error) {
       nai.handleResponse()(error)
+    },
+    showTheoryCloneWindows: function() {
+      // tba
     },
     ////////////////////////////////////////////////
     // Query stuff
@@ -143,9 +147,9 @@ const dashboard = {
                     Create new
                   </button>
                 </div>
-                <button class="btn btn-sm btn-outline-secondary float-right">
+                <button class="btn btn-sm btn-outline-secondary float-right" v-on:click="showTheoryCloneWindows">
                   <span data-feather="copy"></span>
-                  Import
+                  Import/Clone
                 </button>
               </div>
             </div>
@@ -196,6 +200,7 @@ const dashboard = {
         </main>
         
       </div>
+      <modal v-if="showModal">asd</modal>
     </div>
   `,
   created: function () {

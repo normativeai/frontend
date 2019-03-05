@@ -3,7 +3,8 @@ const dashboard = {
     return {
       dashboardLoaded: false,
       theories: [],
-      queries: []
+      queries: [],
+      error: null
     }
   },
   methods: {
@@ -126,59 +127,68 @@ const dashboard = {
           </div>
           <hr class="mt-0">
           
-          <a name="legislatures" style="display:block;visibility:hidden;position:relative;top:-3em"></a>
-          <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center mb-4">
-            <h3>Legislatures</h3>
-            <div class="btn-toolbar mb-2 mb-md-0">
-              <div class="btn-group mr-2">
-                <button class="btn btn-sm btn-outline-primary" v-on:click="createTheory">
-                  <span data-feather="plus"></span>
-                  Create new
+          <alert variant="danger" v-show="error">
+            <span v-html="error"></span>
+          </alert>
+          
+          
+          <div v-if="theories">
+            <a name="legislatures" style="display:block;visibility:hidden;position:relative;top:-3em"></a>
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center mb-4">
+              <h3>Legislatures</h3>
+              <div class="btn-toolbar mb-2 mb-md-0">
+                <div class="btn-group mr-2">
+                  <button class="btn btn-sm btn-outline-primary" v-on:click="createTheory">
+                    <span data-feather="plus"></span>
+                    Create new
+                  </button>
+                </div>
+                <button class="btn btn-sm btn-outline-secondary float-right">
+                  <span data-feather="copy"></span>
+                  Import
                 </button>
               </div>
-              <button class="btn btn-sm btn-outline-secondary float-right">
-                <span data-feather="copy"></span>
-                Import
-              </button>
             </div>
-          </div>
-          
-          <loading-bar v-if="!dashboardLoaded"></loading-bar>
-          <div v-if="dashboardLoaded">
-            <p v-if="theories.length == 0"><em>No legislatures formalized yet. Click on "create new" above,
-            to create a new formalization or import a publicly available one.</em></p>
-            <div class="row" v-for="i in theoryRows" style="margin-bottom: 2em">
-              <div class="col-sm-4" v-for="t in theories.slice((i-1) * 3, i * 3)">
-                <theory-card v-bind:theory="t" :key="t._id"></theory-card>
+            
+            <loading-bar v-if="!dashboardLoaded"></loading-bar>
+            <div v-if="dashboardLoaded">
+              <p v-if="theories.length == 0"><em>No legislatures formalized yet. Click on "create new" above,
+              to create a new formalization or import a publicly available one.</em></p>
+              <div class="row" v-for="i in theoryRows" style="margin-bottom: 2em">
+                <div class="col-sm-4" v-for="t in theories.slice((i-1) * 3, i * 3)">
+                  <theory-card v-bind:theory="t" :key="t._id"></theory-card>
+                </div>
               </div>
             </div>
           </div>
           
-          <hr>
-          <a name="queries" style="display:block;visibility:hidden;position:relative;top:-3em"></a>
-          <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center">
-            <h3>Queries</h3>
-            <div class="btn-toolbar mb-2 mb-md-0">
-              <div class="btn-group mr-2">
-                <button class="btn btn-sm btn-outline-primary" v-on:click="createQuery">
-                  <span data-feather="plus"></span>
-                  Create new
+          <div v-if="queries">
+            <hr>
+            <a name="queries" style="display:block;visibility:hidden;position:relative;top:-3em"></a>
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center">
+              <h3>Queries</h3>
+              <div class="btn-toolbar mb-2 mb-md-0">
+                <div class="btn-group mr-2">
+                  <button class="btn btn-sm btn-outline-primary" v-on:click="createQuery">
+                    <span data-feather="plus"></span>
+                    Create new
+                  </button>
+                </div>
+                <button class="btn btn-sm btn-outline-secondary">
+                <span data-feather="trash"></span>
+                Remove
                 </button>
               </div>
-              <button class="btn btn-sm btn-outline-secondary">
-              <span data-feather="trash"></span>
-              Remove
-              </button>
             </div>
-          </div>
-          
-          <loading-bar v-if="!dashboardLoaded"></loading-bar>
-          <div v-if="dashboardLoaded">
-            <p v-if="queries.length == 0"><em>No queries yet. Click on "create new" above,
-            to create a new query or import a publicly available one.</em></p>
-            <div class="row" v-for="i in queryRows" style="margin-bottom: 2em">
-              <div class="col-sm-4" v-for="q in queries.slice((i-1) * 3, i * 3)">
-                <query-card v-bind:query="q" :key="q._id"></query-card>
+            
+            <loading-bar v-if="!dashboardLoaded"></loading-bar>
+            <div v-if="dashboardLoaded">
+              <p v-if="queries.length == 0"><em>No queries yet. Click on "create new" above,
+              to create a new query or import a publicly available one.</em></p>
+              <div class="row" v-for="i in queryRows" style="margin-bottom: 2em">
+                <div class="col-sm-4" v-for="q in queries.slice((i-1) * 3, i * 3)">
+                  <query-card v-bind:query="q" :key="q._id"></query-card>
+                </div>
               </div>
             </div>
           </div>
@@ -203,6 +213,13 @@ const dashboard = {
       } else {
         nai.log('could not retrieve user data', '[App]')
       }
-    }, nai.handleResponse())
+    }, nai.handleResponse(null, function(error) {
+        self.dashboardLoaded = true;
+        self.error = `<b>Error</b>: Could not connect to NAI back-end. 
+                     Please try to reload and contact the system
+                     administrator if this problem persists.`
+        self.queries = null;
+        self.theories = null
+      }, null))
   }
 }

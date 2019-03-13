@@ -127,7 +127,7 @@ const dashboard = {
           </div>
           <hr class="mt-0">
           
-          <alert variant="danger" v-show="error">
+          <alert variant="danger" v-show="error" :dismissible="false">
             <span v-html="error"></span>
           </alert>
           

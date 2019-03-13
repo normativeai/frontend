@@ -168,7 +168,7 @@ const query = {
       nai.checkQueryConsistency(this.queryId, function(resp) {
         nai.log(resp, '[Query]')
         var data = resp.data.data;
-        if (!!data.consistent) {
+        if (! _.isUndefined(data.consistent)) {
           if (data.consistent) {
             var msg = '<b>Consistency check succeeded</b>: Normalization and query assumptions are logically consistent';
             self.consistencyResponse = {show: true, type: 'success', message: msg, timeout: 3000};

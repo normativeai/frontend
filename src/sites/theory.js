@@ -4,14 +4,14 @@ const theory = {
       theory: null,
       loaded: false,
       lastSavedTheory: null,
-      
+
       editTitle: false,
       editVoc: false,
       editFacts: false,
-      
+
       saving: false,
       saveResponse: {show: false, type: '', message: '', timeout: 0},
-      
+
       consistencyCheckRunning: false,
       consistencyResponse: {show: false, type: '', message: '', timeout: 0}
     }
@@ -25,7 +25,7 @@ const theory = {
         if (response) {
          window.removeEventListener("beforeunload", unloadHandler);
          nai.log("Event listener removed", "[Theory]");
-         router.push('/dashboard') 
+         router.push('/dashboard')
         }
       } else {
         nai.log("Theory unchanged", "[Theory]")
@@ -127,7 +127,7 @@ const theory = {
       nai.checkConsistency(this.theoryId, function(resp) {
         nai.log(resp, '[Theory]')
         var data = resp.data.data;
-        if (!!data.consistent) {
+        if (! _.isUndefined(data.consistent)) {
           if (data.consistent) {
             var msg = '<b>Consistency check succeeded</b>: Normalization is logically consistent';
             self.consistencyResponse = {show: true, type: 'success', message: msg, timeout: 3000};
@@ -209,7 +209,7 @@ const theory = {
                 <span><b>Back to dashboard</b></span>
               </a>
             </h6>
-            
+
             <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-3 mb-1 text-muted">
               <span>Contents</span>
             </h6>
@@ -227,7 +227,7 @@ const theory = {
                 </a>
               </li>
             </ul>
-            
+
             <!--<h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-3 mb-1 text-muted">
               <span>Settings</span>
             </h6>
@@ -250,9 +250,9 @@ const theory = {
           <div v-if="loaded">
             <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-0 mb-0">
             <input-update class="h1" placeholder="Enter title" v-bind:edit="editTitle" v-model="theory.name"></input-update>
-            
+
             <img v-if="saving" src="/img/loading.gif">
-            
+
             <div class="btn-toolbar mb-2 mb-md-0">
               <div class="btn-group mr-2">
                 <button class="btn btn-sm btn-outline-primary" v-on:click="saveTheory">
@@ -273,7 +273,7 @@ const theory = {
           <textarea-update placeholder="Enter description of theory" v-bind:edit="editTitle" v-model="theory.description"></textarea-update>
           </p>
           <alert v-on:dismiss="saveResponse = {};" :variant="saveResponse.type" v-show="saveResponse.show" :timeout="saveResponse.timeout">{{ saveResponse.message }}</alert>
-          
+
           <a name="vocabulary" style="display:block;visibility:hidden;position:relative;top:-3em"></a>
           <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3">
             <h2>Vocabulary</h2>
@@ -314,7 +314,7 @@ const theory = {
               </tbody>
             </table>
           </div>
-          
+
           <hr>
           <a name="facts" style="display:block;visibility:hidden;position:relative;top:-3em"></a>
           <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3">
@@ -336,11 +336,11 @@ const theory = {
                 Run consistency check
               </button>
             </div>
-          </div> 
+          </div>
           <p class="small"><em>A consistency check should be conducted prior to executing any further queries.</em></p>
-          
+
           <alert v-on:dismiss="consistencyResponse = {};" :variant="consistencyResponse.type" v-show="consistencyResponse.show" :timeout="consistencyResponse.timeout"><span v-html="consistencyResponse.message"></span></alert>
-          
+
           <div class="table-responsive">
             <table class="table table-striped table-sm table-hover" style="table-layout:fixed;">
               <thead>
@@ -365,10 +365,10 @@ const theory = {
             </table>
           </div>
         </div>
-          
+
           <p>&nbsp;</p>
         </main>
-        
+
       </div>
     </div>
   `,

@@ -311,6 +311,7 @@ const query = {
           <a name="assumptions" style="display:block;visibility:hidden;position:relative;top:-3em"></a>
           <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3">
             <h2>Assumptions</h2>
+            <img v-if="consistencyCheckRunning" src="/img/loading.gif">
             <div class="btn-toolbar mb-2 mb-md-0">
               <div class="btn-group mr-2">
               <button class="btn btn-sm btn-outline-primary" v-on:click="addLineToAssumptions">

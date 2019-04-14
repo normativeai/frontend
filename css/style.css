@@ -104,3 +104,14 @@ body {
   border-color: transparent;
   box-shadow: 0 0 0 3px rgba(255, 255, 255, .25);
 }
+
+tr.tr-disabled {
+  background: repeating-linear-gradient(
+  45deg,
+  #f0f0f0,
+  #f0f0f0 10px,
+  #e3e3e3 10px,
+  #e3e3e3 20px
+) !important;
+  color:#b1b1b1;
+}

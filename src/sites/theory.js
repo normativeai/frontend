@@ -346,15 +346,24 @@ const theory = {
               <thead>
                 <tr>
                   <th style="width:2em">#</th>
-                  <th style="width:60%">Statement</th>
+                  <th style="width:60%">Description</th>
                   <th style="width:40%">Formula</th>
                   <th style="width:10em; text-align: center">Actions</th>
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="(item, index) in theoryFormalization" :key="item._id">
-                  <td>{{ index+1 }}</td>
-                  <td><em><textarea-update placeholder="Enter Description (or leave empty if constructed from fact)" v-bind:edit="editFacts" v-model="item.original"></textarea-update></em></td>
+                <tr v-for="(item, index) in theoryFormalization" :key="item._id" v-bind:class="{'tr-disabled': !item.active}">
+                  <td style="padding:0;border-right:1px solid black">
+                    <span style="display:block;font-size:xx-small">
+                      <span style="padding:1px;border-right: 1px solid gray; border-bottom: 1px solid gray;">{{ index+1 }}</span>
+                    </span>
+                    <span style="display:block;margin-top:0.2em;margin-left:0.5em">
+                      <input class="form-check" type="checkbox" v-model="item.active">
+                    </span>
+                  </td>
+                  <td style="border-right:1px solid black">
+                    <em><textarea-update placeholder="Enter Description (or leave empty if constructed from fact)" v-bind:edit="editFacts" v-model="item.original"></textarea-update></em>
+                  </td>
                   <td><textarea-update placeholder="Enter fact" v-bind:edit="editFacts" v-model="item.formula"></textarea-update></td>
                   <td class="table-secondary" style="text-align: center">
                     <button title="Check for logical independence" type="button" class="btn btn-sm btn-secondary"><span data-feather="activity"></span></button>

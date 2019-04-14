@@ -145,7 +145,7 @@ const dashboard = {
                 </div>
                 <button class="btn btn-sm btn-outline-secondary float-right">
                   <span data-feather="copy"></span>
-                  Import
+                  Import/Clone
                 </button>
               </div>
             </div>

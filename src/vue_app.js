@@ -22,30 +22,30 @@
 nai = new function () { var lib = this;
   lib.API_URL = 'http://localhost:3000/api/';
   lib.DEBUG = true;
-  
+
   lib.$http = axios.create({
     baseURL: lib.API_URL,
     headers: {
       'Content-Type': 'application/json'
     }
   });
-  
+
   //////////////////////////////////////////////////////
   // General purpose stuff BEGIN
-  lib.log = function(message, group) { 
+  lib.log = function(message, group) {
     if (this.DEBUG) {
       if (!!group) { console.log(group, message); }
       else { console.log(message) }
     }
   }
-  
+
   lib.handleResponse = function(onErrorResponse, onNoResponse, onUnexpected) {
     return function(error) {
       if (error.response) {
         // The request was made and the server responded with a status code
         // that falls out of the range of 2xx
         if (!!onErrorResponse) { onErrorResponse(error.response); }
-        else { 
+        else {
           console.log(error.response.data);
           console.log(error.response.status);
           console.log(error.response.headers);
@@ -66,19 +66,19 @@ nai = new function () { var lib = this;
   }
   // General purpose stuff END
   //////////////////////////////////////////////////////
-  
+
   //////////////////////////////////////////////////////
   // Login/register stuff BEGIN
   lib.getUserToken = function() {
     return localStorage.getItem('user');
   }
-  
+
   lib.setUserToken = function(data) {
     var enc = JSON.stringify(data);
     localStorage.setItem('user', enc);
     this.setAPIToken(data.auth);
   }
-  
+
   lib.setAPIToken = function(token) {
     this.$http.defaults.headers.common['Authorization'] = 'Bearer ' + token;
   }
@@ -87,7 +87,7 @@ nai = new function () { var lib = this;
     var auth = localStorage.getItem('user');
     return !!auth;
   }
-  
+
   lib.login = function(data, success, failed) {
     this.$http.post('/login', data).then(success).catch(failed);
   }
@@ -103,32 +103,32 @@ nai = new function () { var lib = this;
     localStorage.removeItem('user');
     this.$http.defaults.headers.common['Authorization'] = '';
   }
-  
+
   lib.register = function(data, success, fail) {
     this.log('Registration called', '[App]');
     this.$http.post('/signup', data).then(success).catch(fail)
   }
   // Login/register stuff END
   //////////////////////////////////////////////////////
-  
+
   //////////////////////////////////////////////////////
   // Dashboard-related queries BEGIN
   lib.initDashboard = function(success, fail) {
     this.log('Init Dashboard', '[App]');
     this.$http.get('/users').then(success).catch(fail)
   }
-  
+
   lib.createFreshTheory = function(success, fail) {
     this.log('Create fresh theory', '[App]');
-    var freshTheory = { 
-      name: 'New Theory', 
-      description: '', 
-      vocabulary: [{symbol: '', original: ''}], 
+    var freshTheory = {
+      name: 'New Theory',
+      description: '',
+      vocabulary: [{symbol: '', original: ''}],
       formalization: [{original: '', formula: ''}]
     };
     this.$http.post('/theories', freshTheory).then(success).catch(fail)
   }
-  
+
   lib.createFreshQuery = function(success, fail) {
     this.log('Create fresh query', '[App]');
     var freshQuery = {
@@ -142,59 +142,64 @@ nai = new function () { var lib = this;
   }
   // Dashboard-related queries END
   //////////////////////////////////////////////////////
-  
+
   //////////////////////////////////////////////////////
   // Theory-related queries BEGIN
   lib.getTheories = function(success, fail) {
     this.log('Get all theories', '[Theory]')
     this.$http.get('/theories').then(success).catch(fail)
   }
-  
+
   lib.getTheory = function(theoryId, success, fail) {
     this.log('Get theory ' + theoryId, '[Theory]')
     this.$http.get('/theories/' + theoryId).then(success).catch(fail)
   }
-  
+
   lib.saveTheory = function(theory, success, fail) {
     var theoryId = theory._id;
     this.log('Save theory ' + theoryId, '[Theory]')
     this.$http.put('/theories/' + theoryId, theory).then(success).catch(fail)
   }
-  
+
   lib.deleteTheory = function(theory, success, fail) {
     this.log('Delete theory ' + theory._id, '[Theory]');
     this.$http.delete('/theories/' + theory._id).then(success).catch(fail)
   }
-  
+
   lib.checkConsistency = function(theoryId, success, fail) {
     this.log('Check consistency of ' + theoryId, '[Theory]');
     nai.$http.get('/theories/' + theoryId + '/consistency').then(success).catch(fail)
   }
   // Theory-related queries ENDs
   //////////////////////////////////////////////////////
-  
+
   //////////////////////////////////////////////////////
   // Query-related queries BEGIN
   lib.getQuery = function(queryId, success, fail) {
     this.log('Get query ' + queryId, '[Query]')
     this.$http.get('/queries/' + queryId).then(success).catch(fail)
   }
-  
+
   lib.saveQuery = function(query, success, fail) {
     var queryId = query._id;
     this.log('Save query ' + queryId, '[Query]')
     this.$http.put('/queries/' + queryId, query).then(success).catch(fail)
   }
-  
+
   lib.deleteQuery = function(query, success, fail) {
     this.log('Delete query ' + query._id, '[Query]');
     this.$http.delete('/queries/' + query._id).then(success).catch(fail)
   }
-  
+
   lib.runQuery = function(queryId, success, fail) {
     this.log('Run query ' + query._id, '[Query]');
     this.$http.get('/queries/' + queryId + '/exec').then(success).catch(fail)
   }
+  lib.checkQueryConsistency = function(queryId, success, fail) {
+    this.log('Check consistency of ' + queryId, '[Query]');
+    nai.$http.get('/queries/' + queryId + '/consistency').then(success).catch(fail)
+  }
+
   // Queiry-related queries END
   //////////////////////////////////////////////////////
 }
@@ -220,7 +225,7 @@ const router = new VueRouter({
     //{ path: '/theory', component: theory, meta: { requiresAuth: true } },
     { path: '/theory/:id', component: theory, meta: { requiresAuth: true } },
     { path: '/query/:id', component: query, meta: { requiresAuth: true } },
-    
+
     // default catch all
     { path: '*', redirect: '/' }
   ]
@@ -244,7 +249,7 @@ router.beforeEach((to, from, next) => {
 var app = new Vue({
   el: '#root',
   data: {
-    user: null 
+    user: null
   },
   router,
   computed: {
@@ -275,14 +280,14 @@ var app = new Vue({
     if (nai.isLoggedIn()) {
       try {
         var data = JSON.parse(nai.getUserToken());
-        this.user = data 
+        this.user = data
         nai.setAPIToken(data.auth);
       } catch(e) {
         console.log(e)
         nai.logout();
       }
     }
-    
+
     if (this.loggedIn && this.$route.path == '/') {
       router.push('/dashboard');
     } else {

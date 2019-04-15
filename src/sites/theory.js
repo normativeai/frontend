@@ -4,14 +4,14 @@ const theory = {
       theory: null,
       loaded: false,
       lastSavedTheory: null,
-      
+
       editTitle: false,
       editVoc: false,
       editFacts: false,
-      
+
       saving: false,
       saveResponse: {show: false, type: '', message: '', timeout: 0},
-      
+
       consistencyCheckRunning: false,
       consistencyResponse: {show: false, type: '', message: '', timeout: 0}
     }
@@ -25,7 +25,7 @@ const theory = {
         if (response) {
          window.removeEventListener("beforeunload", unloadHandler);
          nai.log("Event listener removed", "[Theory]");
-         router.push('/dashboard') 
+         router.push('/dashboard')
         }
       } else {
         nai.log("Theory unchanged", "[Theory]")
@@ -40,7 +40,7 @@ const theory = {
         feather.replace();
       })
     },
-    saveTheory: function() {
+    saveTheory: function(onSuccess, onError) {
       var self = this;
       var updatedTheory = {
         _id: this.theoryId,
@@ -60,11 +60,13 @@ const theory = {
         self.lastSavedTheory = _.cloneDeep(self.theory)
         nai.log('Update successful, response: ', '[Theory]')
         nai.log(resp, '[Theory]')
+        if (!!onSuccess) { onSuccess() } // Run passed callback if existent
       }, function(error) {
         self.saveResponse = {show: true, type: 'warning', message: 'Theory not saved, an error occurred: ' + error};
         self.saving = false;
         nai.log('Update error, response: ', '[Theory]')
         nai.log(error, '[Theory]')
+        if (!!onError) { onError() } // Run passed callback if existent
       });
       // Disable all editing
       this.finishedEditTitle()
@@ -123,11 +125,31 @@ const theory = {
     },
     runConsistencyCheck: function() {
       var self = this;
+      // Hide previous response if still showing
+      self.consistencyResponse = {show: false, type: '', message: '', timeout: 0};
+      // check if we need to save the theory first
+      if (!_.isEqual(this.theory, this.lastSavedTheory)) {
+        // latest version not saved to backend, so update first
+        this.saveTheory(function() {
+            self.runConsistencyCheck0();
+          },
+          function() {
+            var msg = 'Consistency check cannot be conducted because there was an error during saving.';
+            self.consistencyResponse = {show: true, type: 'danger', message: msg};
+          }
+        );
+      } else {
+        // no local changes, so run consistency check
+        this.runConsistencyCheck0();
+      }
+    },
+    runConsistencyCheck0: function() {
+      var self = this;
       this.consistencyCheckRunning = true;
       nai.checkConsistency(this.theoryId, function(resp) {
         nai.log(resp, '[Theory]')
         var data = resp.data.data;
-        if (!!data.consistent) {
+        if (! _.isUndefined(data.consistent)) {
           if (data.consistent) {
             var msg = '<b>Consistency check succeeded</b>: Normalization is logically consistent';
             self.consistencyResponse = {show: true, type: 'success', message: msg, timeout: 3000};
@@ -209,7 +231,7 @@ const theory = {
                 <span><b>Back to dashboard</b></span>
               </a>
             </h6>
-            
+
             <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-3 mb-1 text-muted">
               <span>Contents</span>
             </h6>
@@ -227,7 +249,7 @@ const theory = {
                 </a>
               </li>
             </ul>
-            
+
             <!--<h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-3 mb-1 text-muted">
               <span>Settings</span>
             </h6>
@@ -250,12 +272,12 @@ const theory = {
           <div v-if="loaded">
             <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-0 mb-0">
             <input-update class="h1" placeholder="Enter title" v-bind:edit="editTitle" v-model="theory.name"></input-update>
-            
+
             <img v-if="saving" src="/img/loading.gif">
-            
+
             <div class="btn-toolbar mb-2 mb-md-0">
               <div class="btn-group mr-2">
-                <button class="btn btn-sm btn-outline-primary" v-on:click="saveTheory">
+                <button class="btn btn-sm btn-outline-primary" v-on:click="saveTheory();">
                 <span data-feather="save"></span>
                 Save</button>
                 <button class="btn btn-sm btn-outline-primary">
@@ -273,7 +295,7 @@ const theory = {
           <textarea-update placeholder="Enter description of theory" v-bind:edit="editTitle" v-model="theory.description"></textarea-update>
           </p>
           <alert v-on:dismiss="saveResponse = {};" :variant="saveResponse.type" v-show="saveResponse.show" :timeout="saveResponse.timeout">{{ saveResponse.message }}</alert>
-          
+
           <a name="vocabulary" style="display:block;visibility:hidden;position:relative;top:-3em"></a>
           <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3">
             <h2>Vocabulary</h2>
@@ -298,7 +320,7 @@ const theory = {
             <table class="table table-striped table-sm" style="table-layout:fixed;width:100%">
               <thead>
                 <tr>
-                  <th style="width:5em">Symbol</th>
+                  <th style="width:7em">Symbol</th>
                   <th style="width:100%">Description</th>
                   <th style="width:5em;text-align: center">Action</th>
                 </tr>
@@ -314,7 +336,7 @@ const theory = {
               </tbody>
             </table>
           </div>
-          
+
           <hr>
           <a name="facts" style="display:block;visibility:hidden;position:relative;top:-3em"></a>
           <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3">
@@ -336,25 +358,34 @@ const theory = {
                 Run consistency check
               </button>
             </div>
-          </div> 
+          </div>
           <p class="small"><em>A consistency check should be conducted prior to executing any further queries.</em></p>
-          
+
           <alert v-on:dismiss="consistencyResponse = {};" :variant="consistencyResponse.type" v-show="consistencyResponse.show" :timeout="consistencyResponse.timeout"><span v-html="consistencyResponse.message"></span></alert>
-          
+
           <div class="table-responsive">
             <table class="table table-striped table-sm table-hover" style="table-layout:fixed;">
               <thead>
                 <tr>
                   <th style="width:2em">#</th>
-                  <th style="width:60%">Statement</th>
+                  <th style="width:60%">Description</th>
                   <th style="width:40%">Formula</th>
                   <th style="width:10em; text-align: center">Actions</th>
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="(item, index) in theoryFormalization" :key="item._id">
-                  <td>{{ index+1 }}</td>
-                  <td><em><textarea-update placeholder="Enter Description (or leave empty if constructed from fact)" v-bind:edit="editFacts" v-model="item.original"></textarea-update></em></td>
+                <tr v-for="(item, index) in theoryFormalization" :key="item._id" v-bind:class="{'tr-disabled': !item.active}">
+                  <td style="padding:0;border-right:1px solid black">
+                    <span style="display:block;font-size:xx-small">
+                      <span style="padding:1px;border-right: 1px solid gray; border-bottom: 1px solid gray;">{{ index+1 }}</span>
+                    </span>
+                    <span style="display:block;margin-top:0.2em;margin-left:0.5em">
+                      <input class="form-check" type="checkbox" v-model="item.active">
+                    </span>
+                  </td>
+                  <td style="border-right:1px solid black">
+                    <em><textarea-update placeholder="Enter Description (or leave empty if constructed from fact)" v-bind:edit="editFacts" v-model="item.original"></textarea-update></em>
+                  </td>
                   <td><textarea-update placeholder="Enter fact" v-bind:edit="editFacts" v-model="item.formula"></textarea-update></td>
                   <td class="table-secondary" style="text-align: center">
                     <button title="Check for logical independence" type="button" class="btn btn-sm btn-secondary"><span data-feather="activity"></span></button>
@@ -365,10 +396,10 @@ const theory = {
             </table>
           </div>
         </div>
-          
+
           <p>&nbsp;</p>
         </main>
-        
+
       </div>
     </div>
   `,

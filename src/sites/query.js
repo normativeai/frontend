@@ -7,16 +7,19 @@ const query = {
       chosenTheory: '',
       loadedQuery: false,
       loadedTheories: false,
-      
+
       editTitle: false,
       editAssumptions: false,
       editGoal: false,
-      
+
       saving: false,
       saveResponse: {show: false, type: '', message: '', timeout: 0},
-      
+
       execRunning: false,
-      execResponse: {show: false, type: '', message: '', timeout: 0}
+      execResponse: {show: false, type: '', message: '', timeout: 0},
+
+      consistencyCheckRunning: false,
+      consistencyResponse: {show: false, type: '', message: '', timeout: 0},
     }
   },
   methods: {
@@ -28,7 +31,7 @@ const query = {
         if (response) {
          window.removeEventListener("beforeunload", unloadHandler);
          nai.log("Event listener removed", "[Query]");
-         router.push('/dashboard') 
+         router.push('/dashboard')
         }
       } else {
         nai.log("Query unchanged", "[Query]")
@@ -121,7 +124,7 @@ const query = {
           },
           function() {
             var msg = 'Query cannot be executed because there was an error during saving.';
-            self.execResponse = {show: true, type: 'warning', message: msg}; 
+            self.execResponse = {show: true, type: 'warning', message: msg};
           });
         } else {
           this.runQuery0();
@@ -140,17 +143,17 @@ const query = {
           if (!!data.result) {
             if (data.result == 'Theorem') {
               var msg = 'Goal is a <b>Theorem</b>: It logically follows from the theory and the assumptions.';
-              self.execResponse = {show: true, type: 'success', message: msg}; 
+              self.execResponse = {show: true, type: 'success', message: msg};
             } else if (data.result == 'Non-Theorem') {
               var msg = 'Goal is <b>counter-satisfiable</b>: It does not logically follow from the theory and the assumptions.';
-              self.execResponse = {show: true, type: 'info', message: msg}; 
+              self.execResponse = {show: true, type: 'info', message: msg};
             } else {
               var msg = 'Got unexpected response: ' + resp.data.data.result;
-              self.execResponse = {show: true, type: 'warning', message: msg}; 
+              self.execResponse = {show: true, type: 'warning', message: msg};
             }
           } else {
            var msg = 'Got unexpected response: ' + resp.data.data.result;
-           self.execResponse = {show: true, type: 'warning', message: msg}; 
+           self.execResponse = {show: true, type: 'warning', message: msg};
           }
           self.execRunning = false
         }, function(error) {
@@ -158,6 +161,31 @@ const query = {
           self.execResponse = {show: true, type: 'danger', message: '<b>Error</b>: ' + error.response.data.err};
           self.execRunning = false
         });
+    },
+    runConsistencyCheck: function() {
+      var self = this;
+      this.consistencyCheckRunning = true;
+      nai.checkQueryConsistency(this.queryId, function(resp) {
+        nai.log(resp, '[Query]')
+        var data = resp.data.data;
+        if (! _.isUndefined(data.consistent)) {
+          if (data.consistent) {
+            var msg = '<b>Consistency check succeeded</b>: Normalization and query assumptions are logically consistent';
+            self.consistencyResponse = {show: true, type: 'success', message: msg, timeout: 3000};
+          } else {
+            var msg = '<b>Consistency check succeeded</b>: Normalization and query assumptions are inconsistent (an intrinsic contradiction could be derived).';
+            self.consistencyResponse = {show: true, type: 'warning', message: msg, timeout: 3000};
+          }
+        } else {
+          var msg = '<b>Consistency check failed</b>: Got unexpected response. ' + data;
+          self.consistencyResponse = {show: true, type: 'info', message: msg, timeout: 3000};
+        }
+        self.consistencyCheckRunning = false
+      }, function(error) {
+        nai.log(error.response, '[Query]')
+        self.consistencyResponse = {show: true, type: 'danger', message: '<b>Error</b>: ' + error.response.data.err};
+        self.consistencyCheckRunning = false
+      })
     }
   },
   computed: {
@@ -221,7 +249,7 @@ const query = {
                 <span><b>Back to dashboard</b></span>
               </a>
             </h6>
-            
+
             <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-3 mb-1 text-muted">
               <span>Contents</span>
             </h6>
@@ -250,9 +278,9 @@ const query = {
           <div v-if="loaded">
             <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-0 mb-0">
             <input-update class="h1" placeholder="Enter title" v-bind:edit="editTitle" v-model="query.name"></input-update>
-            
+
             <img v-if="saving" src="/img/loading.gif">
-            
+
             <div class="btn-toolbar mb-2 mb-md-0">
               <div class="btn-group mr-2">
                 <select class="form-control" v-model="chosenTheory">
@@ -279,10 +307,11 @@ const query = {
           <textarea-update placeholder="Enter description of query" v-bind:edit="editTitle" v-model="query.description"></textarea-update>
           </p>
           <alert v-on:dismiss="saveResponse = {};" :variant="saveResponse.type" v-show="saveResponse.show" :timeout="saveResponse.timeout">{{ saveResponse.message }}</alert>
-          
+
           <a name="assumptions" style="display:block;visibility:hidden;position:relative;top:-3em"></a>
           <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3">
             <h2>Assumptions</h2>
+            <img v-if="consistencyCheckRunning" src="/img/loading.gif">
             <div class="btn-toolbar mb-2 mb-md-0">
               <div class="btn-group mr-2">
               <button class="btn btn-sm btn-outline-primary" v-on:click="addLineToAssumptions">
@@ -294,10 +323,15 @@ const query = {
               <span data-feather="edit"></span>
               Toggle edit
               </button>
+              <button class="btn btn-sm btn-outline-secondary float-right" v-on:click="runConsistencyCheck">
+                <span data-feather="play"></span>
+                Run assumptions consistency check
+              </button>
             </div>
           </div>
           <p class="small"><em>Assumptions are contextual information that apply to a certain
           situation only.</em></p>
+          <alert v-on:dismiss="consistencyResponse = {};" :variant="consistencyResponse.type" v-show="consistencyResponse.show" :timeout="consistencyResponse.timeout"><span v-html="consistencyResponse.message"></span></alert>
           <div class="">
             <table class="table table-striped table-sm" style="table-layout:fixed;width:100%">
               <thead>
@@ -320,7 +354,7 @@ const query = {
               </tbody>
             </table>
           </div>
-          
+
           <hr>
           <a name="goal" style="display:block;visibility:hidden;position:relative;top:-3em"></a>
           <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3">
@@ -338,20 +372,20 @@ const query = {
               Toggle edit
               </button>
             </div>
-          </div> 
+          </div>
           <p class="small"><em>The goal is a formula that is assessed for logical consequence from
            the theory and the contextual assumptions above.</em></p>
-          
+
           <alert v-on:dismiss="execResponse = {};" :variant="execResponse.type" v-show="execResponse.show" :timeout="execResponse.timeout"><span v-html="execResponse.message"></span></alert>
-          
+
           <div style="border: 1px solid black; padding: 1em; font-family: monospace; font-size: large;">
             <textarea-update placeholder="Enter goal" v-bind:edit="editGoal" v-model="query.goal"></textarea-update>
           </div>
         </div>
-          
+
           <p>&nbsp;</p>
         </main>
-        
+
       </div>
     </div>
   `,
@@ -384,7 +418,7 @@ const query = {
         }
         self.loadedQuery = true;
       }, nai.handleResponse())
-      
+
       nai.getTheories(function(resp) {
         nai.log('Theory Data retrieved', '[Query]');
         nai.log(resp.data, '[Query]');
@@ -397,7 +431,7 @@ const query = {
       // This should not happen
       nai.log('No id given, aborting.', '[Query]');
     }
-    
+
     unloadHandler = function(event) {
       if (!_.isEqual(self.query, self.lastSavedQuery)) {
         event.preventDefault();

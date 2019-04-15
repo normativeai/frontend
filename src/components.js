@@ -279,6 +279,7 @@ Vue.component('alert', {
 ////////////////////////////////////////////////////////////////////
 
 Vue.component('modal', {
+  props: ['name'],
   template: `
     <div class="modal-mask">
       <div class="modal-wrapper">
@@ -296,8 +297,11 @@ Vue.component('modal', {
 
           <div class="modal-footer">
             <slot name="footer">
-              <button class="modal-default-button" @click="$emit('close')">
+              <button class="modal-default-button" @click="$parent.$emit('modal-ok', this.name)">
                 OK
+              </button>
+              <button class="modal-default-button" @click="$parent.$emit('modal-cancel', this.name)">
+                Cancel
               </button>
             </slot>
           </div>
@@ -337,6 +341,9 @@ Vue.component('theory-card', {
     },
     open: function() {
       router.push('/theory/'+this.theory._id)
+    },
+    clone: function() {
+      this.$parent.$emit('clone-theory', this.theory)
     }
   },
   computed: {
@@ -369,13 +376,17 @@ Vue.component('theory-card', {
         <p class="card-text">{{ description }}</p>
         
         <div class="btn-toolbar mb-2 mb-md-0 d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center">
-          <div class="btn-group mr-2">
+          <div class="btn-group mr-2 mb-1">
             <button class="btn btn-sm btn-primary" v-on:click="open">
               <span data-feather="book-open"></span>
               Open
             </button>
           </div>
-          <button class="btn btn-sm btn-outline-danger" v-on:click="requestDelete" v-if="!deleteRequested">
+          <button class="btn btn-sm btn-outline-secondary mb-1" v-on:click="clone">
+          <span data-feather="copy"></span>
+          Clone
+          </button>
+          <button class="btn btn-sm btn-outline-danger mb-1" v-on:click="requestDelete" v-if="!deleteRequested">
           <span data-feather="trash"></span>
           Remove
           </button>

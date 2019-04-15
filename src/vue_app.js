@@ -128,6 +128,12 @@ nai = new function () { var lib = this;
     };
     this.$http.post('/theories', freshTheory).then(success).catch(fail)
   }
+  
+  lib.cloneTheory = function(theory, success, fail) {
+    this.log('Create new theory from clone', '[App]');
+    var theoryId = theory._id
+    this.$http.post('/theories/'+theoryId).then(success).catch(fail)
+  }
 
   lib.createFreshQuery = function(success, fail) {
     this.log('Create fresh query', '[App]');

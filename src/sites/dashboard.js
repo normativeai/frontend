@@ -5,7 +5,7 @@ const dashboard = {
       theories: [],
       queries: [],
       error: null,
-      showModal: true
+      showModal: false
     }
   },
   methods: {
@@ -42,8 +42,30 @@ const dashboard = {
     onTheoryDeleteError: function(error) {
       nai.handleResponse()(error)
     },
-    showTheoryCloneWindows: function() {
-      // tba
+    onTheoryClone: function(theory) {
+      nai.cloneTheory(theory, this.onTheoryCloneSuccess(theory), this.onTheoryCloneError)
+    },
+    onTheoryCloneSuccess: function(theory) {
+      var self = this
+      return function(resp) {
+        nai.log('Theory created', '[App]');
+        nai.log(resp, '[App]');
+        if (!!resp.data) {
+          var newTheory = {
+            name: theory.name,
+            description: theory.description,
+            _id: resp.data.data.theory._id,
+            lastUpdate: new Date()
+          };
+          self.theories.push(newTheory);
+        } else {
+          // error handling, unexpected return
+          nai.log('unexpected theory creation response', '[App]')
+        }
+      }
+    },
+    onTheoryCloneError: function(error) {
+      nai.handleResponse()(error)
     },
     ////////////////////////////////////////////////
     // Query stuff
@@ -77,6 +99,20 @@ const dashboard = {
     },
     onQueryDeleteError: function(error) {
       nai.handleResponse()(error)
+    },
+    /////////////////////
+    /////////////////////
+    onCloneModalFinish: function() {
+      nai.log("modal finish");
+      
+      this.showModal = false;
+    },
+    onCloneModalCancel: function() {
+      nai.log("modal cancel");
+      this.showModal = false;
+    },
+    showTheoryCloneWindows: function() {
+      //this.showModal = true;
     }
   },
   computed: {
@@ -148,8 +184,8 @@ const dashboard = {
                   </button>
                 </div>
                 <button class="btn btn-sm btn-outline-secondary float-right" v-on:click="showTheoryCloneWindows">
-                  <span data-feather="copy"></span>
-                  Import/Clone
+                  <span data-feather="corner-right-down"></span>
+                  Import
                 </button>
               </div>
             </div>
@@ -200,12 +236,15 @@ const dashboard = {
         </main>
         
       </div>
-      <modal v-if="showModal">asd</modal>
+      <modal v-if="showModal" name="clone"></modal>
     </div>
   `,
   created: function () {
     this.$on('delete-theory', this.onTheoryDelete);
+    this.$on('clone-theory', this.onTheoryClone);
     this.$on('delete-query', this.onQueryDelete);
+    this.$on('modal-ok', this.onCloneModalFinish);
+    this.$on('modal-cancel', this.onCloneModalCancel);
     nai.log('Dashboard mounted', '[App]')
     var self = this;
     nai.initDashboard(function(resp) {

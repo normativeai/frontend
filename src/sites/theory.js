@@ -40,7 +40,7 @@ const theory = {
         feather.replace();
       })
     },
-    saveTheory: function() {
+    saveTheory: function(onSuccess, onError) {
       var self = this;
       var updatedTheory = {
         _id: this.theoryId,
@@ -60,11 +60,13 @@ const theory = {
         self.lastSavedTheory = _.cloneDeep(self.theory)
         nai.log('Update successful, response: ', '[Theory]')
         nai.log(resp, '[Theory]')
+        if (!!onSuccess) { onSuccess() } // Run passed callback if existent
       }, function(error) {
         self.saveResponse = {show: true, type: 'warning', message: 'Theory not saved, an error occurred: ' + error};
         self.saving = false;
         nai.log('Update error, response: ', '[Theory]')
         nai.log(error, '[Theory]')
+        if (!!onError) { onError() } // Run passed callback if existent
       });
       // Disable all editing
       this.finishedEditTitle()
@@ -122,6 +124,26 @@ const theory = {
       this.theoryFormalization.splice(index,1)
     },
     runConsistencyCheck: function() {
+      var self = this;
+      // Hide previous response if still showing
+      self.consistencyResponse = {show: false, type: '', message: '', timeout: 0};
+      // check if we need to save the theory first
+      if (!_.isEqual(this.theory, this.lastSavedTheory)) {
+        // latest version not saved to backend, so update first
+        this.saveTheory(function() {
+            self.runConsistencyCheck0();
+          },
+          function() {
+            var msg = 'Consistency check cannot be conducted because there was an error during saving.';
+            self.consistencyResponse = {show: true, type: 'danger', message: msg};
+          }
+        );
+      } else {
+        // no local changes, so run consistency check
+        this.runConsistencyCheck0();
+      }
+    },
+    runConsistencyCheck0: function() {
       var self = this;
       this.consistencyCheckRunning = true;
       nai.checkConsistency(this.theoryId, function(resp) {
@@ -255,7 +277,7 @@ const theory = {
 
             <div class="btn-toolbar mb-2 mb-md-0">
               <div class="btn-group mr-2">
-                <button class="btn btn-sm btn-outline-primary" v-on:click="saveTheory">
+                <button class="btn btn-sm btn-outline-primary" v-on:click="saveTheory();">
                 <span data-feather="save"></span>
                 Save</button>
                 <button class="btn btn-sm btn-outline-primary">
@@ -298,7 +320,7 @@ const theory = {
             <table class="table table-striped table-sm" style="table-layout:fixed;width:100%">
               <thead>
                 <tr>
-                  <th style="width:5em">Symbol</th>
+                  <th style="width:7em">Symbol</th>
                   <th style="width:100%">Description</th>
                   <th style="width:5em;text-align: center">Action</th>
                 </tr>

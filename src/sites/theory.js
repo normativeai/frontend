@@ -105,7 +105,7 @@ const theory = {
     },
     /* fact stuff */
     addLineToFacts: function() {
-      this.theoryFormalization.push({forumla: '', original: ''});
+      this.theoryFormalization.push({forumla: '', original: '', active: true});
       this.$nextTick(function () {
         feather.replace();
       })

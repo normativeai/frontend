@@ -512,12 +512,16 @@ Vue.component('quill', {
   },
   props: ['value','maxheight'],
   methods: {
+    confirmAnnotation: function(range, color) {
+      console.log('mark range with color in quill')
+      this.quill.formatText(range.index, range.length, 'background', color)
+    },
     annotate: function() {
       var range = this.quill.getSelection()
       if (!!range) {
         if (range.length > 0) {
           var text = this.quill.getText(range.index, range.length);
-          this.$parent.$emit('theory-annotate', text)
+          this.$parent.$emit('theory-annotate', range, text)
         }
       }
       
@@ -604,3 +608,35 @@ Vue.component('quill', {
   `
 })
 
+Vue.component('annotateview', {
+  data: function() {
+    return {
+      formalization: ''
+    }
+  },
+  props: ['data'],
+  methods: {
+    confirm: function() {
+      this.$parent.$emit('annotate-confirm', this.data, this.formalization)
+    },
+    cancel: function() {
+      this.$parent.$emit('annotate-cancel')
+    }
+  },
+  template: `
+    <div style="width:250px;border:1px solid black">
+      <h1 class="small">Annotate</h1>
+      <label>Original text</label>
+      <input type="text" :value="data.original"></input>
+      <label>Formalization</label>
+      <input type="text" v-model="formalization"></input>
+      <div class="btn-toolbar d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center" style="display:block">
+        <div class="btn-group">
+          <button class="btn btn-small btn-success" v-on:click="confirm">V</button>
+        </div>
+        <div class="btn-group">
+          <button class="btn btn-small btn-danger" v-on:click="cancel">X</button>
+        </div>
+      </div>
+    </div>`
+})

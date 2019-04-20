@@ -13,7 +13,10 @@ const theory = {
       saveResponse: {show: false, type: '', message: '', timeout: 0},
 
       consistencyCheckRunning: false,
-      consistencyResponse: {show: false, type: '', message: '', timeout: 0}
+      consistencyResponse: {show: false, type: '', message: '', timeout: 0},
+      
+      showAnnotateWindow: false,
+      annotationWindowData: null
     }
   },
   methods: {
@@ -168,8 +171,24 @@ const theory = {
         self.consistencyCheckRunning = false
       })
     },
-    onTheoryAnnotate: function(range, text) {
+    onTheoryAnnotateRequest: function(range, text) {
       console.log("annotate from theory: " + text)
+      var data = { original: text, range: range }
+      this.annotationWindowData = data
+      this.showAnnotateWindow = true
+    },
+    onTheoryAnnotate: function(data, formalization) {
+      console.log('Confirm annotation')
+      this.theoryFormalization.push({formula: formalization, original: data.original, active: true});
+      this.$nextTick(function () {
+        feather.replace();
+      })
+      this.showAnnotateWindow = false
+      this.$refs.quillel.confirmAnnotation(data.range, 'blue')
+      console.log('done')
+    },
+    onTheoryAnnotateCancel: function() {
+      this.showAnnotateWindow = false
     }
   },
   computed: {
@@ -299,9 +318,11 @@ const theory = {
           </p>
           <alert v-on:dismiss="saveResponse = {};" :variant="saveResponse.type" v-show="saveResponse.show" :timeout="saveResponse.timeout">{{ saveResponse.message }}</alert>
           
+          <annotateview v-if="showAnnotateWindow" v-bind:data="annotationWindowData"></annotateview>
+          
           <a name="original" style="display:block;visibility:hidden;position:relative;top:-3em"></a>
           <h2>Text input</h2>
-          <quill v-model="theory.content" maxheight="300px"></quill>
+          <quill ref="quillel" v-model="theory.content" maxheight="300px"></quill>
 
           <hr>
           <a name="vocabulary" style="display:block;visibility:hidden;position:relative;top:-3em"></a>
@@ -414,7 +435,9 @@ const theory = {
   mounted: function() {
     feather.replace();
     
-    this.$on('theory-annotate', this.onTheoryAnnotate);
+    this.$on('theory-annotate', this.onTheoryAnnotateRequest);
+    this.$on('annotate-confirm', this.onTheoryAnnotate);
+    this.$on('annotate-cancel', this.onTheoryAnnotateCancel);
   },
   created: function () {
     nai.log('Created', '[Theory]')

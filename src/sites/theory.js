@@ -167,6 +167,9 @@ const theory = {
         self.consistencyResponse = {show: true, type: 'danger', message: '<b>Error</b>: ' + error.response.data.err};
         self.consistencyCheckRunning = false
       })
+    },
+    onTheoryAnnotate: function(range, text) {
+      console.log("annotate from theory: " + text)
     }
   },
   computed: {
@@ -295,7 +298,12 @@ const theory = {
           <textarea-update placeholder="Enter description of theory" v-bind:edit="editTitle" v-model="theory.description"></textarea-update>
           </p>
           <alert v-on:dismiss="saveResponse = {};" :variant="saveResponse.type" v-show="saveResponse.show" :timeout="saveResponse.timeout">{{ saveResponse.message }}</alert>
+          
+          <a name="original" style="display:block;visibility:hidden;position:relative;top:-3em"></a>
+          <h2>Text input</h2>
+          <quill v-model="theory.content" maxheight="300px"></quill>
 
+          <hr>
           <a name="vocabulary" style="display:block;visibility:hidden;position:relative;top:-3em"></a>
           <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3">
             <h2>Vocabulary</h2>
@@ -405,6 +413,8 @@ const theory = {
   `,
   mounted: function() {
     feather.replace();
+    
+    this.$on('theory-annotate', this.onTheoryAnnotate);
   },
   created: function () {
     nai.log('Created', '[Theory]')

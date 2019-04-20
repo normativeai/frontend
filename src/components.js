@@ -498,5 +498,109 @@ Vue.component('query-card', {
   `
 })
 
+////////////////////////////////////////////////////////////////////
+// Quill component
+////////////////////////////////////////////////////////////////////
 
+Vue.component('quill', {
+  data: function() {
+    return {
+      quill: null,
+      content0: '',
+      options: { theme: "snow", modules: {toolbar: '#quilltoolbar'} }
+    }
+  },
+  props: ['value','maxheight'],
+  methods: {
+    annotate: function() {
+      var range = this.quill.getSelection()
+      if (!!range) {
+        if (range.length > 0) {
+          var text = this.quill.getText(range.index, range.length);
+          this.$parent.$emit('theory-annotate', text)
+        }
+      }
+      
+    }
+  },
+  computed: {
+    styleObject: function() {
+      if (!!this.maxheight) {
+        return { maxHeight: this.maxheight, overflowY: "auto" }
+      } else {
+        return {}
+      }
+    }
+  },
+  mounted: function() {
+    this.quill = new Quill(this.$refs.editor, this.options)
+    
+    this.quill.enable(false)
+    if (this.value) { this.quill.pasteHTML(this.value) }
+    this.quill.enable(true)
+    
+    this.quill.on('text-change', (delta, oldDelta, source) => {
+            let html = this.$refs.editor.children[0].innerHTML
+            const quill = this.quill
+            const text = this.quill.getText()
+            if (html === '<p><br></p>') html = ''
+            this.content0 = html
+            this.$emit('input', this.content0)
+          })
+          
+     //this.$refs.quillannotate.addEventListener('click', function() {
+     // console.log("annotate")
+     //});
+  },
+  beforeDestroy: function() {
+    this.quill = null
+    delete this.quill
+  },
+  watch: {
+    value(newVal,oldVal) {
+      if (newVal && newVal !== this.content0) {
+        this.content0 = newVal
+        this.quill.pasteHTML(newVal)
+      }
+    }
+  },
+  template: `
+    <div>
+      <div id="quilltoolbar" >
+        <span class="ql-formats">
+          <select class="ql-header" title="Headings">
+            <option value="1"></option>
+            <option value="2"></option>
+            <option value="3"></option>
+            <option selected></option>
+          </select>
+        </span>
+        <span class="ql-formats">
+          <button class="ql-bold" title="Bold"></button>
+          <button class="ql-italic" title="Italic"></button>
+          <button class="ql-underline" title="Underline"></button>
+          <button class="ql-strike" title="Strike"></button>
+        </span>
+        <span class="ql-formats">
+          <button class="ql-list" value="ordered" title="Ordered list"></button>
+          <button class="ql-list" value="bullet" title="Bullet list"></button>
+          <button class="ql-indent" value="-1" title="Decrease indent"></button>
+          <button class="ql-indent" value="+1" title="Increase indent"></button>
+        </span>
+        <span class="ql-formats">
+          <button class="ql-script" value="sub" title="Subscript"></button>
+          <button class="ql-script" value="super" title="Superscript"></button>
+        </span>
+        <span class="ql-formats">
+          <button class="ql-clean" title="Clean formatting"></button>
+        </span>
+        <span style=""></span>
+        <span class="ql-formats" style="float:right">
+          <button ref="quillannotate" title="Annotate" v-on:click="annotate"><span data-feather="tag"></span></button>
+        </span>
+      </div>
+      <div ref="editor" v-bind:style="styleObject"></div>
+    </div>
+  `
+})
 

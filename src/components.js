@@ -371,17 +371,12 @@ Vue.component('theory-card', {
   template: `
     <div class="card">
       <div class="card-body">
-        <h5 class="card-title">{{ theory.name }}</h5>
-        <h6 class="card-subtitle mb-2 text-muted">Last edited: {{ updated }}</h6>
+        <h4 class="card-title">{{ theory.name }}</h4>
+        <h6 class="card-subtitle small mb-0 text-muted">Last edited: {{ updated }}</h6>
+        <hr class="my-1">
         <p class="card-text">{{ description }}</p>
         
         <div class="btn-toolbar mb-2 mb-md-0 d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center">
-          <div class="btn-group mr-2 mb-1">
-            <button class="btn btn-sm btn-primary" v-on:click="open">
-              <span data-feather="book-open"></span>
-              Open
-            </button>
-          </div>
           <button class="btn btn-sm btn-outline-secondary mb-1" v-on:click="clone">
           <span data-feather="copy"></span>
           Clone
@@ -391,7 +386,7 @@ Vue.component('theory-card', {
           Remove
           </button>
           
-          <div class="btn-group ml-2" v-if="deleteRequested">
+          <div class="btn-group" v-if="deleteRequested">
             <button class="btn btn-sm btn-danger" v-on:click="deleteMe">
             <span data-feather="check"></span>
             Confirm
@@ -399,6 +394,13 @@ Vue.component('theory-card', {
             <button class="btn btn-sm btn-secondary" v-on:click="cancelDelete">
             <span data-feather="x"></span>
             Cancel
+            </button>
+          </div>
+        </div>
+        <div class="btn-toolbar" role="toolbar">
+          <div class="btn-group btn-block" role="group">
+            <button type="button" class="btn btn-sm btn-primary btn-block" v-on:click="open">
+              <span data-feather="book-open"></span> Open
             </button>
           </div>
         </div>

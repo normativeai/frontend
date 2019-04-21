@@ -303,17 +303,25 @@ const theory = {
             <loading-bar v-if="!loaded"></loading-bar>
           </div>
           <div v-if="loaded">
-            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-0 mb-0">
-            <input-update class="h1" placeholder="Enter title" v-bind:edit="editTitle" v-model="theory.name"></input-update>
+          <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-0 mb-0">
+            <input-update class="h1 mb-0" placeholder="Enter title" v-bind:edit="editTitle" v-model="theory.name"></input-update>
 
             <img v-if="saving" src="/img/loading.gif">
 
             <div class="btn-toolbar mb-2 mb-md-0">
               <div class="btn-group mr-2">
                 <button class="btn btn-sm btn-outline-primary" v-on:click="saveTheory();" :disabled="saving">
-                  <span data-feather="save"></span>
-                  Save</button>
-                <button class="btn btn-sm btn-outline-primary">
+                  <template v-if="!saving">
+                    <icon-save></icon-save>
+                    Save
+                  </template>
+                  <template v-else>
+                    <div class="spinner-border text-primary" role="status">
+                      <span class="sr-only">Saving...</span>
+                    </div>
+                  </template>
+                </button>
+                <button class="btn btn-sm btn-outline-primary" disabled>
                 <span data-feather="download"></span>
                 Export</button>
               </div>
@@ -323,7 +331,7 @@ const theory = {
               </button>
             </div>
           </div>
-          <p style="margin:0" class="small border-bottom pb-2 mb-2"><em>Last updated: {{ theoryLastUpdate.toLocaleString() }}</em></p>
+          <p style="margin:0" class="small border-bottom pb-0 mb-1"><em>Last updated: {{ theoryLastUpdate.toLocaleString() }}</em></p>
           <p>
           <textarea-update placeholder="Enter description of theory" v-bind:edit="editTitle" v-model="theory.description"></textarea-update>
           </p>

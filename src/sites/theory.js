@@ -16,7 +16,11 @@ const theory = {
       consistencyResponse: {show: false, type: '', message: '', timeout: 0},
       
       showAnnotateWindow: false,
-      annotationWindowData: null
+      annotationWindowData: null,
+      annotationColors: ['#5C97BF','#00AA55','#F64747','#B381B3','#1BA39C','#FF00FF',
+                         '#D252B2','#D46A43','#00A4A6','#D4533B','#939393','#AA8F00',
+                         '#D47500','#E26A6A','#009FD4','#5D995D'],
+      lastAnnotationColor: -1
     }
   },
   methods: {
@@ -107,6 +111,12 @@ const theory = {
       this.theoryVoc.splice(index,1)
     },
     /* fact stuff */
+    toggleSelectAll: function() {
+      var toggle = this.$refs.selectAllBox.checked
+      for (let f of this.theoryFormalization) {
+        f.active = toggle
+      }
+    },
     addLineToFacts: function() {
       this.theoryFormalization.push({forumla: '', original: '', active: true});
       this.$nextTick(function () {
@@ -184,7 +194,8 @@ const theory = {
         feather.replace();
       })
       this.showAnnotateWindow = false
-      this.$refs.quillel.confirmAnnotation(data.range, 'blue')
+      this.lastAnnotationColor = (this.lastAnnotationColor+1) % this.annotationColors.length
+      this.$refs.quillel.confirmAnnotation(data.range, this.annotationColors[this.lastAnnotationColor])
       console.log('done')
     },
     onTheoryAnnotateCancel: function() {
@@ -299,9 +310,16 @@ const theory = {
 
             <div class="btn-toolbar mb-2 mb-md-0">
               <div class="btn-group mr-2">
-                <button class="btn btn-sm btn-outline-primary" v-on:click="saveTheory();">
-                <span data-feather="save"></span>
-                Save</button>
+                <button class="btn btn-sm btn-outline-primary" v-on:click="saveTheory();" :disabled="saving">
+                <span v-if="saving">
+                  <span data-feather="save"></span>
+                  Save</button>
+                </span>
+                <span v-if="!saving">
+                  <div class="spinner-border text-success" role="status">
+  <span class="sr-only">Loading...</span>
+</div>
+                </span>
                 <button class="btn btn-sm btn-outline-primary">
                 <span data-feather="download"></span>
                 Export</button>
@@ -316,7 +334,7 @@ const theory = {
           <p>
           <textarea-update placeholder="Enter description of theory" v-bind:edit="editTitle" v-model="theory.description"></textarea-update>
           </p>
-          <alert v-on:dismiss="saveResponse = {};" :variant="saveResponse.type" v-show="saveResponse.show" :timeout="saveResponse.timeout">{{ saveResponse.message }}</alert>
+          <alert v-on:dismiss="saveResponse.show = false;" :variant="saveResponse.type" v-show="saveResponse.show" :timeout="saveResponse.timeout" style="position:absolute; top:150px; right:100px">{{ saveResponse.message }}</alert>
           
           <annotateview v-if="showAnnotateWindow" v-bind:data="annotationWindowData"></annotateview>
           
@@ -396,7 +414,7 @@ const theory = {
             <table class="table table-striped table-sm table-hover" style="table-layout:fixed;">
               <thead>
                 <tr>
-                  <th style="width:2em">#</th>
+                  <th style="width:2em;text-align:center;vertical-align:center;border-right:1px solid black"><input type="checkbox" v-on:click="toggleSelectAll" checked="checked" ref="selectAllBox" title="Toggle select all"></th>
                   <th style="width:60%">Description</th>
                   <th style="width:40%">Formula</th>
                   <th style="width:10em; text-align: center">Actions</th>

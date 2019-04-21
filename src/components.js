@@ -265,12 +265,14 @@ Vue.component('alert', {
     }
   },
   template: `
+    <transition name="slide-fade">
     <div class="alert" v-bind:class="alertClass" role="alert">
       <slot></slot>
       <button type="button" class="close" data-dismiss="alert" aria-label="Close" style="margin-left:1.25rem" v-on:click="hideAlert" v-if="dismissible">
         <span aria-hidden="true">&times;</span>
       </button>
     </div>
+    </transition>
   `
 })
 
@@ -369,7 +371,7 @@ Vue.component('theory-card', {
     })
   },
   template: `
-    <div class="card">
+    <div class="card" style="background-color:#f4f4f4">
       <div class="card-body">
         <h4 class="card-title">{{ theory.name }}</h4>
         <h6 class="card-subtitle small mb-0 text-muted">Last edited: {{ updated }}</h6>
@@ -386,7 +388,7 @@ Vue.component('theory-card', {
           Remove
           </button>
           
-          <div class="btn-group" v-if="deleteRequested">
+          <div class="btn-group btn-group-sm" v-if="deleteRequested">
             <button class="btn btn-sm btn-danger" v-on:click="deleteMe">
             <span data-feather="check"></span>
             Confirm
@@ -399,7 +401,7 @@ Vue.component('theory-card', {
         </div>
         <div class="btn-toolbar" role="toolbar">
           <div class="btn-group btn-block" role="group">
-            <button type="button" class="btn btn-sm btn-primary btn-block" v-on:click="open">
+            <button type="button" class="btn btn-primary btn-block" v-on:click="open">
               <span data-feather="book-open"></span> Open
             </button>
           </div>
@@ -464,25 +466,20 @@ Vue.component('query-card', {
     })
   },
   template: `
-    <div class="card">
+    <div class="card" style="background-color:#f4f4f4">
       <div class="card-body">
-        <h5 class="card-title">{{ query.name }}</h5>
-        <h6 class="card-subtitle mb-2 text-muted">Last edited: {{ updated }}</h6>
+        <h4 class="card-title">{{ query.name }}</h4>
+        <h6 class="card-subtitle small mb-0 text-muted">Last edited: {{ updated }}</h6>
+        <hr class="my-1">
         <p class="card-text">{{ description }}</p>
         
-        <div class="btn-toolbar mb-2 mb-md-0 d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center">
-          <div class="btn-group mr-2">
-            <button class="btn btn-sm btn-primary" v-on:click="open">
-              <span data-feather="book-open"></span>
-              Open
-            </button>
-          </div>
-          <button class="btn btn-sm btn-outline-danger" v-on:click="requestDelete" v-if="!deleteRequested">
+        <div class="btn-toolbar mb-2 mb-md-0 d-flex flex-wrap flex-md-nowrap align-items-center">
+          <button class="btn btn-sm btn-outline-danger mb-1" v-on:click="requestDelete" v-if="!deleteRequested">
           <span data-feather="trash"></span>
           Remove
           </button>
           
-          <div class="btn-group ml-2" v-if="deleteRequested">
+          <div class="btn-group mb-1" v-if="deleteRequested">
             <button class="btn btn-sm btn-danger" v-on:click="deleteMe">
             <span data-feather="check"></span>
             Confirm
@@ -490,6 +487,13 @@ Vue.component('query-card', {
             <button class="btn btn-sm btn-secondary" v-on:click="cancelDelete">
             <span data-feather="x"></span>
             Cancel
+            </button>
+          </div>
+        </div>
+        <div class="btn-toolbar" role="toolbar">
+          <div class="btn-group btn-block" role="group">
+            <button type="button" class="btn btn-primary btn-block" v-on:click="open">
+              <span data-feather="book-open"></span> Open
             </button>
           </div>
         </div>
@@ -551,10 +555,6 @@ Vue.component('quill', {
             this.content0 = html
             this.$emit('input', this.content0)
           })
-          
-     //this.$refs.quillannotate.addEventListener('click', function() {
-     // console.log("annotate")
-     //});
   },
   beforeDestroy: function() {
     this.quill = null
@@ -594,9 +594,6 @@ Vue.component('quill', {
         <span class="ql-formats">
           <button class="ql-script" value="sub" title="Subscript"></button>
           <button class="ql-script" value="super" title="Superscript"></button>
-        </span>
-        <span class="ql-formats">
-          <button class="ql-clean" title="Clean formatting"></button>
         </span>
         <span style=""></span>
         <span class="ql-formats" style="float:right">

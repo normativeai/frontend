@@ -311,15 +311,8 @@ const theory = {
             <div class="btn-toolbar mb-2 mb-md-0">
               <div class="btn-group mr-2">
                 <button class="btn btn-sm btn-outline-primary" v-on:click="saveTheory();" :disabled="saving">
-                <span v-if="saving">
                   <span data-feather="save"></span>
                   Save</button>
-                </span>
-                <span v-if="!saving">
-                  <div class="spinner-border text-success" role="status">
-  <span class="sr-only">Loading...</span>
-</div>
-                </span>
                 <button class="btn btn-sm btn-outline-primary">
                 <span data-feather="download"></span>
                 Export</button>
@@ -336,7 +329,7 @@ const theory = {
           </p>
           <alert v-on:dismiss="saveResponse.show = false;" :variant="saveResponse.type" v-show="saveResponse.show" :timeout="saveResponse.timeout" style="position:absolute; top:150px; right:100px">{{ saveResponse.message }}</alert>
           
-          <annotateview v-if="showAnnotateWindow" v-bind:data="annotationWindowData"></annotateview>
+          <annotateview v-if="showAnnotateWindow" v-bind:data="annotationWindowData" style="position:fixed; top:200px; left:15%; z-index:1000"></annotateview>
           
           <a name="original" style="display:block;visibility:hidden;position:relative;top:-3em"></a>
           <h2>Text input</h2>

@@ -621,19 +621,41 @@ Vue.component('annotateview', {
     }
   },
   template: `
-    <div style="width:250px;border:1px solid black">
-      <h1 class="small">Annotate</h1>
-      <label>Original text</label>
-      <input type="text" :value="data.original"></input>
-      <label>Formalization</label>
-      <input type="text" v-model="formalization"></input>
-      <div class="btn-toolbar d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center" style="display:block">
-        <div class="btn-group">
-          <button class="btn btn-small btn-success" v-on:click="confirm">V</button>
-        </div>
-        <div class="btn-group">
-          <button class="btn btn-small btn-danger" v-on:click="cancel">X</button>
-        </div>
+    <div class="card w-75" style="background-color:#f4f4f4;">
+      <div class="card-header">
+        <ul class="nav nav-tabs card-header-tabs">
+          <li class="nav-item">
+            <a class="nav-link active" href="#">General</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Details</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">More ...</a>
+          </li>
+        </ul>
+      </div>
+      <div class="card-body">
+        <h5 class="card-title mb-0">Add annotation</h5>
+        <hr class="my-1 mb-2">
+        <form>
+          <div class="form-group">
+            <label for="annotateview-original">Original text</label>
+            <input type="text" class="form-control" id="annotateview-original" :value="data.original">
+          </div>
+          <div class="form-group">
+            <label for="annotateview-formula">Formula</label>
+            <input type="text" class="form-control" id="annotateview-formula" placeholder="Add formula here ..." v-model="formalization">
+          </div>
+          <div class="btn-toolbar">
+            <div class="btn-group mr-2">
+              <button class="btn btn-small btn-success" v-on:click="confirm">Annotate</button>
+            </div>
+            <div class="btn-group">
+              <button class="btn btn-small btn-outline-danger" v-on:click="cancel">Cancel</button>
+            </div>
+          </div>
+        </form>
       </div>
     </div>`
 })

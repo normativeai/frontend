@@ -176,6 +176,11 @@ nai = new function () { var lib = this;
     this.log('Check consistency of ' + theoryId, '[Theory]');
     nai.$http.get('/theories/' + theoryId + '/consistency').then(success).catch(fail)
   }
+  
+  lib.checkIndependence = function(theoryId, itemId, success, fail) {
+    this.log('Check independence of ' + itemId + ' (from '+ theoryId +')', '[Theory]');
+    nai.$http.get('/theories/' + theoryId + '/independent/' + itemId).then(success).catch(fail)
+  }
   // Theory-related queries ENDs
   //////////////////////////////////////////////////////
 

@@ -15,6 +15,9 @@ const theory = {
       consistencyCheckRunning: false,
       consistencyResponse: {show: false, type: '', message: '', timeout: 0},
       
+      independenceCheckRunning: false,
+      independenceResponse: {show: false, type: '', message: '', timeout: 0},
+      
       showAnnotateWindow: false,
       annotationWindowData: null,
       annotationColors: ['#5C97BF','#00AA55','#F64747','#B381B3','#1BA39C','#FF00FF',
@@ -179,6 +182,52 @@ const theory = {
         nai.log(error.response, '[Theory]')
         self.consistencyResponse = {show: true, type: 'danger', message: '<b>Error</b>: ' + error.response.data.err};
         self.consistencyCheckRunning = false
+      })
+    },
+    runIndependenceCheck: function(item) {
+      var self = this;
+      nai.log('Independence check requested from user. Item: ' + item._id, '[Theory]')
+      // Hide previous response if still showing
+      self.independenceCheckResponse = {show: false, type: '', message: '', timeout: 0};
+      // check if we need to save the theory first
+      if (!_.isEqual(this.theory, this.lastSavedTheory)) {
+        // latest version not saved to backend, so update first
+        this.saveTheory(function() {
+            self.runIndependenceCheck0(item);
+          },
+          function() {
+            var msg = 'Consistency check cannot be conducted because there was an error during saving.';
+            self.independenceCheckResponse = {show: true, type: 'danger', message: msg};
+          }
+        );
+      } else {
+        // no local changes, so run consistency check
+        this.runIndependenceCheck0(item);
+      }
+    },
+    runIndependenceCheck0: function(item) {
+      var self = this
+      this.independenceCheckRunning = true
+      nai.checkIndependence(this.theoryId, item._id,  function(resp) {
+        nai.log(resp, '[Theory]')
+        var data = resp.data.data;
+        if (! _.isUndefined(data.independent)) {
+          if (data.independent) {
+            var msg = '<b>Independence check succeeded</b>: Normalization is logically independent from theory';
+            self.independenceResponse = {show: true, type: 'success', message: msg, timeout: 3000};
+          } else {
+            var msg = '<b>Independence check succeeded</b>: Normalization is not logically independent from theory (the fact can already be derived from the remaining theory).';
+            self.independenceResponse = {show: true, type: 'warning', message: msg, timeout: 3000};
+          }
+        } else {
+          var msg = '<b>Independence check failed</b>: Got unexpected response. ' + data;
+          self.independenceResponse = {show: true, type: 'info', message: msg, timeout: 3000};
+        }
+        self.independenceCheckRunning = false
+      }, function(error) {
+        nai.log(error.response, '[Theory]')
+        self.independenceResponse = {show: true, type: 'danger', message: '<b>Error</b>: ' + error.response.data.err};
+        self.independenceCheckRunning = false
       })
     },
     onTheoryAnnotateRequest: function(range, text) {
@@ -390,6 +439,7 @@ const theory = {
           <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3">
             <h2>Fact base</h2>
             <img v-if="consistencyCheckRunning" src="/img/loading.gif">
+            <img v-if="independenceCheckRunning" src="/img/loading.gif">
             <div class="btn-toolbar mb-2 mb-md-0">
               <div class="btn-group mr-2">
                 <button class="btn btn-sm btn-outline-primary" v-on:click="addLineToFacts">
@@ -410,6 +460,7 @@ const theory = {
           <p class="small"><em>A consistency check should be conducted prior to executing any further queries.</em></p>
 
           <alert v-on:dismiss="consistencyResponse = {};" :variant="consistencyResponse.type" v-show="consistencyResponse.show" :timeout="consistencyResponse.timeout"><span v-html="consistencyResponse.message"></span></alert>
+          <alert v-on:dismiss="independenceResponse = {};" :variant="independenceResponse.type" v-show="independenceResponse.show" :timeout="independenceResponse.timeout"><span v-html="independenceResponse.message"></span></alert>
 
           <div class="table-responsive">
             <table class="table table-striped table-sm table-hover" style="table-layout:fixed;">
@@ -436,7 +487,7 @@ const theory = {
                   </td>
                   <td><textarea-update placeholder="Enter fact" v-bind:edit="editFacts" v-model="item.formula"></textarea-update></td>
                   <td class="table-secondary" style="text-align: center">
-                    <button title="Check for logical independence" type="button" class="btn btn-sm btn-secondary"><span data-feather="activity"></span></button>
+                    <button title="Check for logical independence" type="button" class="btn btn-sm btn-secondary" v-on:click="runIndependenceCheck(item)"><span data-feather="activity"></span></button>
                     <button title="Remove fact" type="button" class="btn btn-sm btn-danger" v-on:click="factDelButtonClick(index)" v-bind:disabled="!editFacts" v-bind:title="factDelButtonTitle" v-bind:style="factDelButtonStyle"><span data-feather="x"></span></button>
                   </td>
                 </tr>

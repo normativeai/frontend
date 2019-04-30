@@ -221,6 +221,19 @@ const theory = {
         self.independenceCheckRunning = false
       })
     },
+    registerAnnotator: function() {
+      var self = this;
+      this.$refs.quillel.onEvent('selection-change', function(range, oldRange, source) {
+      if (range) {
+        if (range.length == 0) {
+          document.getElementById('debug').innerHTML = 'just click ( '+ range.index +' )'
+        } else {
+        var text = self.$refs.quillel.getText(range.index, range.length);
+        document.getElementById('debug').innerHTML = text;
+        }
+      }
+    });
+    },
     onTheoryAnnotateRequest: function(range, text) {
       console.log("annotate from theory: " + text)
       var data = { original: text, range: range }
@@ -232,7 +245,8 @@ const theory = {
       this.theoryFormalization.push({formula: formalization, original: data.original, active: true});
       this.showAnnotateWindow = false
       this.lastAnnotationColor = (this.lastAnnotationColor+1) % this.annotationColors.length
-      this.$refs.quillel.confirmAnnotation(data.range, this.annotationColors[this.lastAnnotationColor])
+      console.log('mark range with color in quill')
+      this.$refs.quillel.formatText(data.range.index, data.range.length, 'background', this.annotationColors[this.lastAnnotationColor])
       console.log('done')
     },
     onTheoryAnnotateCancel: function() {
@@ -351,9 +365,7 @@ const theory = {
                     Save
                   </template>
                   <template v-else>
-                    <div class="spinner-border text-primary" role="status">
-                      <span class="sr-only">Saving...</span>
-                    </div>
+                    <bs-spinner type="primary"></bs-spinner>
                   </template>
                 </button>
                 <button class="btn btn-sm btn-outline-primary" disabled>
@@ -376,7 +388,10 @@ const theory = {
           
           <a name="original" style="display:block;visibility:hidden;position:relative;top:-3em"></a>
           <h2>Text input</h2>
-          <quill ref="quillel" v-model="theory.content" maxheight="300px"></quill>
+          <div id="debug">
+            
+          </div>
+          <quill ref="quillel" @hook:mounted="registerAnnotator" v-model="theory.content" maxheight="300px"></quill>
 
           <hr>
           <a name="vocabulary" style="display:block;visibility:hidden;position:relative;top:-3em"></a>
@@ -526,4 +541,3 @@ const theory = {
     nai.log('Unload handler created', '[Theory]')
   }
 }
-

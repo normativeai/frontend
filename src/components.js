@@ -16,6 +16,28 @@ Vue.component('feather-icon', {
   `
 })
 
+////////////////////////////////////////////////////////////////////
+// Wrapper for bootstrap (save/load) spinner
+////////////////////////////////////////////////////////////////////
+
+Vue.component('bs-spinner', {
+  props: {
+    type: {
+      type: String,
+      required: true
+    }
+  },
+  computed: {
+    spinnerClass: function() {
+      return 'spinner-border spinner-border-sm text-' + this.variant
+    }
+  },
+  template: `
+    <div :class="spinnerClass" role="status">
+      <span class="sr-only">Loading...</span>
+    </div>
+  `
+})
 
 ////////////////////////////////////////////////////////////////////
 // Updatable <input>
@@ -535,10 +557,6 @@ Vue.component('quill', {
   },
   props: ['value','maxheight'],
   methods: {
-    confirmAnnotation: function(range, color) {
-      console.log('mark range with color in quill')
-      this.quill.formatText(range.index, range.length, 'background', color)
-    },
     annotate: function() {
       var range = this.quill.getSelection()
       if (!!range) {
@@ -547,8 +565,23 @@ Vue.component('quill', {
           this.$parent.$emit('theory-annotate', range, text)
         }
       }
-      
-    }
+    },
+    ///////// Quill API port
+    // Event
+    onEvent: function(event, callback) { return this.quill.on(event, callback) },
+    // Content
+    getText: function(index) { return this.quill.getText(index) },
+    getText: function(index, length) { return this.quill.getText(index, length) },
+    // Format
+    formatText: function(index, length, source) { 
+      if (source) { return this.quill.formatText(index, length, source) }
+      else { return this.quill.formatText(index, length, 'api') } },
+    formatText: function(index, length, format, value, source) { 
+      if (source) { return this.quill.formatText(index, length, format, value, source) }
+      else { return this.quill.formatText(index, length, format, value, 'api') } },
+    formatText: function(index, length, formats, source) { 
+      if (source) { return this.quill.formatText(index, length, formats, source) }
+      else { return this.quill.formatText(index, length, formats, 'api') } }
   },
   computed: {
     styleObject: function() {
@@ -616,7 +649,7 @@ Vue.component('quill', {
         </span>
         <span style=""></span>
         <span class="ql-formats" style="float:right">
-          <button ref="quillannotate" title="Annotate" v-on:click="annotate"><span data-feather="tag"></span></button>
+          <button ref="quillannotate" title="Annotate" v-on:click="annotate"><feather-icon icon="tag"></feather-icon></button>
         </span>
       </div>
       <div ref="editor" v-bind:style="styleObject"></div>

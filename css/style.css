@@ -8,10 +8,16 @@ body {
   height: 100%;
 }
 
+
 .feather {
   width: 16px;
   height: 16px;
   vertical-align: text-bottom;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  fill: none;
 }
 
 /*

@@ -343,8 +343,6 @@ const theory = {
           <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-0 mb-0">
             <input-update class="h1 mb-0" placeholder="Enter title" v-bind:edit="editTitle" v-model="theory.name"></input-update>
 
-            <img v-if="saving" src="/img/loading.gif">
-
             <div class="btn-toolbar mb-2 mb-md-0">
               <div class="btn-group mr-2">
                 <button class="btn btn-sm btn-outline-primary" v-on:click="saveTheory();" :disabled="saving">
@@ -372,7 +370,7 @@ const theory = {
           <p>
           <textarea-update placeholder="Enter description of theory" v-bind:edit="editTitle" v-model="theory.description"></textarea-update>
           </p>
-          <alert v-on:dismiss="saveResponse.show = false;" :variant="saveResponse.type" v-show="saveResponse.show" :timeout="saveResponse.timeout" style="position:absolute; top:150px; right:100px">{{ saveResponse.message }}</alert>
+          <alert v-on:dismiss="saveResponse.show = false;saveResponse.timeout = null" :variant="saveResponse.type" v-show="saveResponse.show" :timeout="saveResponse.timeout" style="position:absolute; top:150px; right:100px">{{ saveResponse.message }}</alert>
           
           <annotateview v-if="showAnnotateWindow" v-bind:data="annotationWindowData" style="position:fixed; top:200px; left:15%; z-index:1000"></annotateview>
           

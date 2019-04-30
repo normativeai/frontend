@@ -349,7 +349,7 @@ const theory = {
               <div class="btn-group mr-2">
                 <button class="btn btn-sm btn-outline-primary" v-on:click="saveTheory();" :disabled="saving">
                   <template v-if="!saving">
-                    <icon-save></icon-save>
+                    <feather-icon icon="save"></feather-icon>
                     Save
                   </template>
                   <template v-else>

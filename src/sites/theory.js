@@ -46,9 +46,6 @@ const theory = {
     },
     doneLoading: function() {
       this.loaded = true
-      this.$nextTick(function () {
-        feather.replace();
-      })
     },
     saveTheory: function(onSuccess, onError) {
       var self = this;
@@ -96,9 +93,6 @@ const theory = {
     /* vocabulary stuff */
     addLineToVoc: function() {
       this.theoryVoc.push({symbol: '', original: ''});
-      this.$nextTick(function () {
-        feather.replace();
-      })
       this.doEditVoc();
     },
     doEditVoc: function() {
@@ -122,9 +116,6 @@ const theory = {
     },
     addLineToFacts: function() {
       this.theoryFormalization.push({forumla: '', original: '', active: true});
-      this.$nextTick(function () {
-        feather.replace();
-      })
       this.doEditFacts();
     },
     doEditFacts: function() {
@@ -239,9 +230,6 @@ const theory = {
     onTheoryAnnotate: function(data, formalization) {
       console.log('Confirm annotation')
       this.theoryFormalization.push({formula: formalization, original: data.original, active: true});
-      this.$nextTick(function () {
-        feather.replace();
-      })
       this.showAnnotateWindow = false
       this.lastAnnotationColor = (this.lastAnnotationColor+1) % this.annotationColors.length
       this.$refs.quillel.confirmAnnotation(data.range, this.annotationColors[this.lastAnnotationColor])
@@ -308,7 +296,7 @@ const theory = {
         <nav class="col-md-2 d-none d-md-block bg-light sidebar">
           <div class="sidebar-sticky">
             <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-1 mb-1 text-muted" v-on:click="back" style="cursor:pointer">
-              <span data-feather="arrow-left"></span>
+              <feather-icon icon="arrow-left"></feather-icon>
               <a class="d-flex align-items-center text-muted">
                 <span><b>Back to dashboard</b></span>
               </a>
@@ -320,13 +308,13 @@ const theory = {
             <ul class="nav flex-column mb-2">
               <li class="nav-item">
                 <a class="nav-link" href="#vocabulary">
-                  <span data-feather="clipboard"></span>
+                  <feather-icon icon="clipboard"></feather-icon>
                   Vocabulary
                 </a>
               </li>
               <li class="nav-item">
                 <a class="nav-link" href="#facts">
-                  <span data-feather="book"></span>
+                  <feather-icon icon="book"></feather-icon>
                   Formalization
                 </a>
               </li>
@@ -338,7 +326,7 @@ const theory = {
             <ul class="nav flex-column mb-2">
               <li class="nav-item">
                 <a class="nav-link">
-                  <span data-feather="settings"></span>
+                  <feather-icon icon="settings"></feather-icon>
                   Preferences
                 </a>
               </li>
@@ -371,11 +359,11 @@ const theory = {
                   </template>
                 </button>
                 <button class="btn btn-sm btn-outline-primary" disabled>
-                <span data-feather="download"></span>
+                <feather-icon icon="download"></feather-icon>
                 Export</button>
               </div>
               <button class="btn btn-sm btn-outline-secondary" v-on:click="toggleEditTitle" v-bind:class="{active : editTitle}" v-bind:aria-pressed="editTitle">
-                <span data-feather="edit"></span>
+                <feather-icon icon="edit"></feather-icon>
                 Edit title/description
               </button>
             </div>
@@ -399,12 +387,12 @@ const theory = {
             <div class="btn-toolbar mb-2 mb-md-0">
               <div class="btn-group mr-2">
               <button class="btn btn-sm btn-outline-primary" v-on:click="addLineToVoc">
-              <span data-feather="plus"></span>
+              <feather-icon icon="plus"></feather-icon>
               Add entry
               </button>
               </div>
               <button class="btn btn-sm btn-outline-secondary" v-on:click="toggleEditVoc" v-bind:class="{active : editVoc}" v-bind:aria-pressed="editVoc">
-              <span data-feather="edit"></span>
+              <feather-icon icon="edit"></feather-icon>
               Toggle edit
               </button>
             </div>
@@ -427,7 +415,7 @@ const theory = {
                   <td><input-update placeholder="Enter symbol" v-bind:edit="editVoc" v-model="item.symbol"></input-update></td>
                   <td><em><textarea-update placeholder="Enter description" v-bind:edit="editVoc" v-model="item.original"></textarea-update></em></td>
                   <td class="table-secondary" style="text-align: center">
-                    <button type="button" class="btn btn-sm btn-danger" v-bind:disabled="!editVoc" v-bind:title="vocDelButtonTitle" v-bind:style="vocDelButtonStyle" v-on:click="vocDelButtonClick(index)"><span data-feather="x"></span></button>
+                    <button type="button" class="btn btn-sm btn-danger" v-bind:disabled="!editVoc" v-bind:title="vocDelButtonTitle" v-bind:style="vocDelButtonStyle" v-on:click="vocDelButtonClick(index)"><feather-icon icon="x"></feather-icon></button>
                   </td>
                 </tr>
               </tbody>
@@ -443,16 +431,16 @@ const theory = {
             <div class="btn-toolbar mb-2 mb-md-0">
               <div class="btn-group mr-2">
                 <button class="btn btn-sm btn-outline-primary" v-on:click="addLineToFacts">
-                  <span data-feather="plus"></span>
+                  <feather-icon icon="plus"></feather-icon>
                   Add fact
                 </button>
               </div>
               <button class="btn btn-sm btn-outline-secondary" v-on:click="toggleEditFacts" v-bind:class="{active : editFacts}" v-bind:aria-pressed="editFacts">
-              <span data-feather="edit"></span>
+              <feather-icon icon="edit"></feather-icon>
               Toggle edit
               </button>
               <button class="btn btn-sm btn-outline-secondary float-right" v-on:click="runConsistencyCheck">
-                <span data-feather="play"></span>
+                <feather-icon icon="play"></feather-icon>
                 Run consistency check
               </button>
             </div>
@@ -487,8 +475,8 @@ const theory = {
                   </td>
                   <td><textarea-update placeholder="Enter fact" v-bind:edit="editFacts" v-model="item.formula"></textarea-update></td>
                   <td class="table-secondary" style="text-align: center">
-                    <button title="Check for logical independence" type="button" class="btn btn-sm btn-secondary" v-on:click="runIndependenceCheck(item)"><span data-feather="activity"></span></button>
-                    <button title="Remove fact" type="button" class="btn btn-sm btn-danger" v-on:click="factDelButtonClick(index)" v-bind:disabled="!editFacts" v-bind:title="factDelButtonTitle" v-bind:style="factDelButtonStyle"><span data-feather="x"></span></button>
+                    <button title="Check for logical independence" type="button" class="btn btn-sm btn-secondary" v-on:click="runIndependenceCheck(item)"><feather-icon icon="activity"></feather-icon></button>
+                    <button title="Remove fact" type="button" class="btn btn-sm btn-danger" v-on:click="factDelButtonClick(index)" v-bind:disabled="!editFacts" v-bind:title="factDelButtonTitle" v-bind:style="factDelButtonStyle"><feather-icon icon="x"></feather-icon></button>
                   </td>
                 </tr>
               </tbody>
@@ -502,9 +490,7 @@ const theory = {
       </div>
     </div>
   `,
-  mounted: function() {
-    feather.replace();
-    
+  mounted: function() {    
     this.$on('theory-annotate', this.onTheoryAnnotateRequest);
     this.$on('annotate-confirm', this.onTheoryAnnotate);
     this.$on('annotate-cancel', this.onTheoryAnnotateCancel);

@@ -547,6 +547,42 @@ Vue.component('query-card', {
 // Quill component
 ////////////////////////////////////////////////////////////////////
 
+let Inline = Quill.import('blots/inline');
+
+class FactBlot extends Inline {
+  static create(id) {
+    let node = super.create();
+    node.setAttribute('class', 'annotator-fact');
+    node.setAttribute('id', id);
+    return node;
+  }
+  
+  static formats(node) {
+    return node.getAttribute('id')
+  }
+  
+  format(name, value) {
+    if (name === FactBlot.blotName && value) {
+      this.domNode.setAttribute('class', 'annotator-fact');
+      this.domNode.setAttribute('id', value);
+    } else {
+      super.format(name, value);
+    }
+  }
+  
+  formats() {
+    let formats = super.formats();
+    formats[FactBlot.blotName] = FactBlot.formats(this.domNode);
+    return formats;
+  }
+}
+FactBlot.blotName = 'fact';
+FactBlot.tagName = 'span';
+Inline.order.push('fact'); // See https://stackoverflow.com/questions/43267123/quilljs-parchment-controlling-nesting-order
+
+Quill.register(FactBlot)
+
+
 Vue.component('quill', {
   data: function() {
     return {
@@ -557,44 +593,85 @@ Vue.component('quill', {
   },
   props: ['value','maxheight'],
   methods: {
-    annotate: function() {
+    annotateFact: function() {
       var range = this.quill.getSelection()
       if (!!range) {
         if (range.length > 0) {
           var text = this.quill.getText(range.index, range.length);
-          this.$parent.$emit('theory-annotate', range, text)
+          var bounds = this.quill.getBounds(range.index, range.length);
+          this.$parent.$emit('theory-annotate', range, text, bounds)
         }
       }
     },
-    ///////// Quill API port
-    // Event
-    onEvent: function(event, callback) { return this.quill.on(event, callback) },
-    // Content
-    getText: function(index) { return this.quill.getText(index) },
-    getText: function(index, length) { return this.quill.getText(index, length) },
-    // Format
-    formatText: function(index, length, source) { 
-      if (source) { return this.quill.formatText(index, length, source) }
-      else { return this.quill.formatText(index, length, 'api') } },
-    formatText: function(index, length, format, value, source) { 
-      if (source) { return this.quill.formatText(index, length, format, value, source) }
-      else { return this.quill.formatText(index, length, format, value, 'api') } },
-    formatText: function(index, length, formats, source) { 
-      if (source) { return this.quill.formatText(index, length, formats, source) }
-      else { return this.quill.formatText(index, length, formats, 'api') } }
+    annotateTerm: function() {},
+    annotateConnective: function() {}
   },
   computed: {
+    get: function() { return this.quill }, // Quill API port by passing quill object to the outside
     styleObject: function() {
       if (!!this.maxheight) {
         return { maxHeight: this.maxheight, overflowY: "auto" }
       } else {
         return {}
       }
+    },
+    annotateButtonDisabled: function() { 
+      if (!!this.quill) {
+        var range = this.quill.getSelection()
+        if (!!range) {
+          if (range.length > 0) {
+            //var format = this.quill.getFormat(range.index, range.length);
+            var ops = this.quill.getContents(range.index, range.length).ops;
+            return _.some(ops, function(e){return _.has(e, 'attributes.fact')})
+          } else {
+            return true;
+          }
+        } else {
+          return true;
+        }
+      } else {
+        return true;
+      }
+    },
+    termButtonDisabled: function() { 
+      if (!!this.quill) {
+        var range = this.quill.getSelection()
+        if (!!range) {
+          if (range.length > 0) {
+            var format = this.quill.getFormat(range.index, range.length);
+            return !!!format.fact
+          } else {
+            return true;
+          }
+        } else {
+          return true;
+        }
+      } else {
+        return true;
+      }
+    },
+    connectiveButtonDisabled: function() { 
+      if (!!this.quill) {
+        var range = this.quill.getSelection()
+        if (!!range) {
+          if (range.length > 0) {
+            var format = this.quill.getFormat(range.index, range.length);
+            return !!!format.fact
+          } else {
+            return true;
+          }
+        } else {
+          return true;
+        }
+      } else {
+        return true;
+      }
     }
   },
   mounted: function() {
+    var self = this;
     this.quill = new Quill(this.$refs.editor, this.options)
-    
+    quill = this.quill
     this.quill.enable(false)
     if (this.value) { this.quill.pasteHTML(this.value) }
     this.quill.enable(true)
@@ -607,6 +684,23 @@ Vue.component('quill', {
             this.content0 = html
             this.$emit('input', this.content0)
           })
+    // Disable text editing in annotated text parts. This would only cause trouble.
+    // We don't like trouble.
+    this.quill.on('selection-change', function(range, oldRange, source) {
+      if (!!range) {
+        if (range.length > 0) {
+          // use getContent to see if any part with annotations is overlapped. if yes, forbid editing
+          var ops = self.quill.getContents(range.index, range.length).ops;
+          if (_.some(ops, function(e){return _.has(e, 'attributes.fact')})) { self.quill.disable() }
+          else { self.quill.enable(); self.quill.focus() }
+        } else {
+          // use getFormat to see if at the cursor position we are inside a annotation. if yes, forbig editing
+          var format = self.quill.getFormat(range, 0);
+          if (!!format.fact) { self.quill.disable() }
+          else { self.quill.enable(); self.quill.focus() }
+        }
+      }
+    });
   },
   beforeDestroy: function() {
     this.quill = null
@@ -649,7 +743,24 @@ Vue.component('quill', {
         </span>
         <span style=""></span>
         <span class="ql-formats" style="float:right">
-          <button ref="quillannotate" title="Annotate" v-on:click="annotate"><feather-icon icon="tag"></feather-icon></button>
+          <button type="button" class="btn btn-primary-outline btn-sm mr-2 annotator-button" :disabled="annotateButtonDisabled"
+                  title="Annotate" 
+                  ref="quillannotate" v-on:click="annotateFact">
+            <feather-icon icon="tag"></feather-icon>
+            <span style="font-size:x-small;margin-top:0;padding-top:0;position:relative;top:-7px;font-variant:small-caps">Tag</span>
+          </button>
+          <button type="button" class="btn btn-primary-outline btn-sm mr-2" :disabled="termButtonDisabled"
+                  title="Specify as term"
+                  ref="quillannotateterm"  v-on:click="annotateTerm">
+            <feather-icon icon="bookmark"></feather-icon>
+            <span style="font-size:x-small;margin-top:0;padding-top:0;position:relative;top:-7px;left:-2px;font-variant:small-caps">Term</span>
+          </button>
+          <button type="button" class="btn btn-primary-outline btn-sm" :disabled="connectiveButtonDisabled"
+                  title="Specify as connective"
+                  ref="quillannotateconnective" v-on:click="annotateConnective">
+            <feather-icon icon="git-commit"></feather-icon>
+            <span style="font-size:x-small;margin-top:0;padding-top:0;position:relative;top:-7px;left:-2px;font-variant:small-caps">Conn.</span>
+          </button>
         </span>
       </div>
       <div ref="editor" v-bind:style="styleObject"></div>

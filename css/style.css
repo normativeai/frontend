@@ -20,6 +20,18 @@ body {
   fill: none;
 }
 
+.annotator-fact {
+  background-color: #f1f1f1;
+  border-radius: 5px;
+  padding: 0.25rem;
+  border-bottom: 2px dotted #7c7c7c;
+  line-height: 1.5rem;
+}
+
+.ql-snow.ql-toolbar button:disabled, .ql-snow .ql-toolbar button:disabled {
+  cursor: not-allowed;
+}
+
 /*
  * Sidebar
  */

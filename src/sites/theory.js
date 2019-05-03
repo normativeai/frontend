@@ -223,18 +223,21 @@ const theory = {
     },
     registerAnnotator: function() {
       var self = this;
-      this.$refs.quillel.onEvent('selection-change', function(range, oldRange, source) {
+      // debug test
+      this.$refs.annotator.get.on('selection-change', function(range, oldRange, source) {
       if (range) {
         if (range.length == 0) {
-          document.getElementById('debug').innerHTML = 'just click ( '+ range.index +' )'
+          document.getElementById('debug').innerHTML = 'click (index: '+ range.index +')'
         } else {
-        var text = self.$refs.quillel.getText(range.index, range.length);
-        document.getElementById('debug').innerHTML = text;
+          var text = self.$refs.annotator.get.getText(range.index, range.length);
+          //document.getElementById('debug').innerHTML = text;
+          document.getElementById('debug').innerHTML = text + ' (index: '+range.index+', length: '+range.length+')';
         }
       }
     });
+    // debug test end
     },
-    onTheoryAnnotateRequest: function(range, text) {
+    onTheoryAnnotateRequest: function(range, text, bounds) {
       console.log("annotate from theory: " + text)
       var data = { original: text, range: range }
       this.annotationWindowData = data
@@ -246,7 +249,9 @@ const theory = {
       this.showAnnotateWindow = false
       this.lastAnnotationColor = (this.lastAnnotationColor+1) % this.annotationColors.length
       console.log('mark range with color in quill')
-      this.$refs.quillel.formatText(data.range.index, data.range.length, 'background', this.annotationColors[this.lastAnnotationColor])
+      //this.$refs.annotator.get.formatText(data.range.index, data.range.length, 'background', this.annotationColors[this.lastAnnotationColor])
+      var id = 'fact' + Math.round(Math.random()*9999999999); // TODO
+      this.$refs.annotator.get.formatText(data.range.index, data.range.length, 'fact', id)
       console.log('done')
     },
     onTheoryAnnotateCancel: function() {
@@ -388,11 +393,8 @@ const theory = {
           
           <a name="original" style="display:block;visibility:hidden;position:relative;top:-3em"></a>
           <h2>Text input</h2>
-          <div id="debug">
-            
-          </div>
-          <quill ref="quillel" @hook:mounted="registerAnnotator" v-model="theory.content" maxheight="300px"></quill>
-
+          <quill ref="annotator" @hook:mounted="registerAnnotator" v-model="theory.content" maxheight="300px" spellcheck="false"></quill>
+          <div id="debug"></div>
           <hr>
           <a name="vocabulary" style="display:block;visibility:hidden;position:relative;top:-3em"></a>
           <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3">

@@ -128,6 +128,21 @@ const theory = {
       (this.editFacts) ? this.finishedEditFacts() : this.doEditFacts();
     },
     factDelButtonClick: function(index) {
+      console.log('delete fact: ');
+      let item = this.theoryFormalization[index];
+      console.log(item);
+      // delete annotation in quill
+      let quill = this.$refs.annotator.get;
+      let el = document.getElementById(item._id);
+      if (el) {
+        let blot = Quill.find(el);
+        if (blot) {
+          let index = quill.getIndex(blot);
+          let length = el.textContent.length;
+          quill.updateContents(new Delta().retain(index).retain(length, {fact: false}));
+        }
+      }
+      // remove from fact list
       this.theoryFormalization.splice(index,1)
     },
     runConsistencyCheck: function() {
@@ -237,22 +252,34 @@ const theory = {
     });
     // debug test end
     },
-    onTheoryAnnotateRequest: function(range, text, bounds) {
-      console.log("annotate from theory: " + text)
-      var data = { original: text, range: range }
-      this.annotationWindowData = data
-      this.showAnnotateWindow = true
+    /* This method is called if any annotation is requested in quill. */
+    onTheoryAnnotateRequest: function(typ, range, text, bounds) {
+      console.log('annotate '+ typ +' from theory: ' + text)
+      switch (typ) {
+        case 'fact':
+          let id = 'fact' + Math.round(Math.random()*9999999999); // FIXME: Cannot save theory
+          let entry = {_id: id, formula: '', original:  text, active: true};
+          this.theoryFormalization.push(entry);
+          this.$refs.annotator.get.formatText(range.index, range.length, 'fact', id)
+          break;
+        case 'term':
+        case 'connective':
+          var data = { original: text, range: range, typ: typ }
+          this.annotationWindowData = data
+          this.showAnnotateWindow = true
+          break;
+      }
     },
     onTheoryAnnotate: function(data, formalization) {
       console.log('Confirm annotation')
-      this.theoryFormalization.push({formula: formalization, original: data.original, active: true});
       this.showAnnotateWindow = false
-      this.lastAnnotationColor = (this.lastAnnotationColor+1) % this.annotationColors.length
-      console.log('mark range with color in quill')
+      //this.theoryFormalization.push({formula: formalization, original: data.original, active: true});
+      //this.lastAnnotationColor = (this.lastAnnotationColor+1) % this.annotationColors.length
+      //console.log('mark range with color in quill')
       //this.$refs.annotator.get.formatText(data.range.index, data.range.length, 'background', this.annotationColors[this.lastAnnotationColor])
-      var id = 'fact' + Math.round(Math.random()*9999999999); // TODO
-      this.$refs.annotator.get.formatText(data.range.index, data.range.length, 'fact', id)
-      console.log('done')
+      //var id = 'fact' + Math.round(Math.random()*9999999999); // TODO
+      //this.$refs.annotator.get.formatText(data.range.index, data.range.length, 'fact', id)
+      //console.log('done')
     },
     onTheoryAnnotateCancel: function() {
       this.showAnnotateWindow = false
@@ -488,7 +515,7 @@ const theory = {
                   <td style="border-right:1px solid black">
                     <em><textarea-update placeholder="Enter Description (or leave empty if constructed from fact)" v-bind:edit="editFacts" v-model="item.original"></textarea-update></em>
                   </td>
-                  <td><textarea-update placeholder="Enter fact" v-bind:edit="editFacts" v-model="item.formula"></textarea-update></td>
+                  <td><textarea-update placeholder="Formula will be constructed from annotation ..." v-bind:edit="editFacts" v-model="item.formula"></textarea-update></td>
                   <td class="table-secondary" style="text-align: center">
                     <button title="Check for logical independence" type="button" class="btn btn-sm btn-secondary" v-on:click="runIndependenceCheck(item)"><feather-icon icon="activity"></feather-icon></button>
                     <button title="Remove fact" type="button" class="btn btn-sm btn-danger" v-on:click="factDelButtonClick(index)" v-bind:disabled="!editFacts" v-bind:title="factDelButtonTitle" v-bind:style="factDelButtonStyle"><feather-icon icon="x"></feather-icon></button>

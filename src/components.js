@@ -548,6 +548,7 @@ Vue.component('query-card', {
 ////////////////////////////////////////////////////////////////////
 
 let Inline = Quill.import('blots/inline');
+let Delta = Quill.import('delta');
 
 class FactBlot extends Inline {
   static create(id) {
@@ -599,12 +600,30 @@ Vue.component('quill', {
         if (range.length > 0) {
           var text = this.quill.getText(range.index, range.length);
           var bounds = this.quill.getBounds(range.index, range.length);
-          this.$parent.$emit('theory-annotate', range, text, bounds)
+          this.$parent.$emit('theory-annotate', 'fact', range, text, bounds)
         }
       }
     },
-    annotateTerm: function() {},
-    annotateConnective: function() {}
+    annotateTerm: function() {
+      var range = this.quill.getSelection()
+      if (!!range) {
+        if (range.length > 0) {
+          var text = this.quill.getText(range.index, range.length);
+          var bounds = this.quill.getBounds(range.index, range.length);
+          this.$parent.$emit('theory-annotate', 'term', range, text, bounds)
+        }
+      }
+    },
+    annotateConnective: function() {
+      var range = this.quill.getSelection()
+      if (!!range) {
+        if (range.length > 0) {
+          var text = this.quill.getText(range.index, range.length);
+          var bounds = this.quill.getBounds(range.index, range.length);
+          this.$parent.$emit('theory-annotate', 'connective', range, text, bounds)
+        }
+      }
+    }
   },
   computed: {
     get: function() { return this.quill }, // Quill API port by passing quill object to the outside
@@ -620,7 +639,7 @@ Vue.component('quill', {
         var range = this.quill.getSelection()
         if (!!range) {
           if (range.length > 0) {
-            //var format = this.quill.getFormat(range.index, range.length);
+            // Disable if range contains fact
             var ops = this.quill.getContents(range.index, range.length).ops;
             return _.some(ops, function(e){return _.has(e, 'attributes.fact')})
           } else {

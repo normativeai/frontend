@@ -790,45 +790,126 @@ Vue.component('quill', {
 Vue.component('annotateview', {
   data: function() {
     return {
-      formalization: ''
+      active: 'term',
+      selectedTerm: '',
+      newTerm: '',
+      selectedConnective: ''
     }
   },
   props: ['data'],
   methods: {
     confirm: function() {
-      this.$parent.$emit('annotate-confirm', this.data, this.formalization)
+      this.$parent.$emit('annotate-confirm', this.active, this.data)
     },
     cancel: function() {
       this.$parent.$emit('annotate-cancel')
+    },
+    switchTo: function(tab) {
+      this.active = tab
+    }
+  },
+  computed: {
+    termSelectDisabled: function() {
+      return this.newTerm != '';
+    },
+    connectives: function() {
+      return [
+        {description: 'Negation', symbol: '~', arity: 1},
+        {description: 'Permission', symbol: 'Pm', arity: 1},
+        {description: 'Obligation', symbol: 'Ob', arity: 1},
+        {description: 'Ideality', symbol: 'Id', arity: 1},
+        {description: 'Ought-implies', symbol: 'O>', arity: 2},
+        {description: 'permittedly-implies', symbol: 'P>', arity: 2},
+        {description: 'Conjunction', symbol: 'And', arity: 2},
+        {description: 'Disjunction', symbol: 'Or', arity: 2},
+        {description: 'Implication', symbol: 'Implies', arity: 2},
+        {description: 'Equivalence', symbol: 'Iff', arity: 2}
+      ];
     }
   },
   template: `
-    <div class="card w-75">
+    <div class="card w-50">
       <div class="card-header">
         <ul class="nav nav-tabs card-header-tabs">
           <li class="nav-item">
-            <a class="nav-link active" href="#">General</a>
+            <a v-on:click="switchTo('term')" v-bind:class="{'nav-link': true, 'active': active == 'term'}" style="cursor:pointer"><feather-icon icon="bookmark"></feather-icon> Term</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Details</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">More ...</a>
+            <a v-on:click="switchTo('connective')" v-bind:class="{'nav-link': true, 'active': active == 'connective'}" style="cursor:pointer"><feather-icon icon="git-commit"></feather-icon> Connective</a>
           </li>
         </ul>
       </div>
-      <div class="card-body">
-        <h5 class="card-title mb-0">Add annotation</h5>
+      <div class="card-body" v-if="active == 'term'">
+        <h6 class="card-title mb-0 font-weight-bold">Annotate as term</h6>
         <hr class="my-1 mb-2">
-        <div class="form-group">
-          <label for="annotateview-original">Original text</label>
-          <input type="text" class="form-control" id="annotateview-original" :value="data.original">
+        <div class="form-group row">
+          <label for="annotateview-original" class="col-sm-2 col-form-label">Text</label>
+          <div class="col-sm-10">
+            <input type="text" class="form-control form-control-sm" id="annotateview-original" :value="data.original" readonly>
+          </div>
         </div>
-        <div class="form-group">
-          <label for="annotateview-formula">Formula</label>
-          <input type="text" class="form-control" id="annotateview-formula" placeholder="Add formula here ..." v-model="formalization">
+        <div class="form-group row mb-0">
+          <label for="annotateview-term" class="col-sm-2 col-form-label">Term</label>
+          <div class="col-sm-10">
+            <select class="form-control form-control-sm" id="annotateview-term" :disabled="termSelectDisabled" v-model="selectedTerm">
+              <option selected value="">Choose from existing terms ... </option>
+              <option v-for="term in data.terms" v-bind:title="term.original">{{ term.symbol }}</option>
+            </select>
+          </div>
         </div>
+        <div class="row">
+          <div class="col-sm-2"></div>
+          <div class="col-sm-10"><div class="float-center">... or <label for="annotateview-newterm" class="font-weight-bold">add new term</label>:</div></div>
+        </div>
+        <div class="form-group row">
+          <div class="col-sm-2"></div>
+          <div class="col-sm-10">
+            <input type="text" class="form-control form-control-sm" id="annotateview-newterm" v-model="newTerm" placeholder="Type new term name ...">
+          </div>
+        </div>
+        <!--<div class="row">
+          <div class="col-sm-2"></div>
+          <div class="col-sm-10"><div class="float-right">... or <a>add new term</a></div></div>
+        </div>-->
         <div class="btn-toolbar">
+          <div class="btn-group mr-2">
+            <button class="btn btn-small btn-success" v-on:click="confirm">Annotate</button>
+          </div>
+          <div class="btn-group">
+            <button class="btn btn-small btn-outline-danger" v-on:click="cancel">Cancel</button>
+          </div>
+        </div>
+      </div>
+      <div class="card-body" v-if="active == 'connective'">
+        <h6 class="card-title mb-0 font-weight-bold">Annotate as connective</h6>
+        <hr class="my-1 mb-2">
+        <div class="form-group row">
+          <label for="annotateview-original" class="col-sm-2 col-form-label">Text</label>
+          <div class="col-sm-10">
+            <input type="text" class="form-control form-control-sm" id="annotateview-original" :value="data.original" readonly>
+          </div>
+        </div>
+        <div class="form-group row">
+          <label for="annotateview-connective" class="col-sm-2 col-form-label">Connective</label>
+          <div class="col-sm-10">
+            <select class="form-control form-control-sm" id="annotateview-connective" v-model="selectedConnective">
+              <option selected value="">Choose connective ... </option>
+              <option v-for="(conn,index) in connectives" :value="index" v-bind:title="conn.description">{{ conn.symbol }}</option>
+            </select>
+          </div>
+        </div>
+        <template v-if="selectedConnective">
+        <div class="form-group row mb-0" v-for="i in connectives[selectedConnective].arity">
+          <label for="annotateview-connective-argument" class="col-sm-2 col-form-label">Argument {{ i }}</label>
+          <div class="col-sm-10">
+            <select class="form-control form-control-sm" id="annotateview-connective-argument">
+              <option selected value="">Choose from existing terms ... </option>
+              <option v-for="term in data.terms" v-bind:title="term.original">{{ term.symbol }}</option>
+            </select>
+          </div>
+        </div>
+        </template>
+        <div class="btn-toolbar mt-3">
           <div class="btn-group mr-2">
             <button class="btn btn-small btn-success" v-on:click="confirm">Annotate</button>
           </div>

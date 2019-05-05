@@ -579,10 +579,27 @@ class FactBlot extends Inline {
 }
 FactBlot.blotName = 'fact';
 FactBlot.tagName = 'span';
+
+class TermBlot extends Inline {
+  static create(id) {
+    let node = super.create();
+    node.classList.add('annotator-term');
+    node.classList.add('annotator-term-'+id);
+    return node;
+  }
+  
+  static formats(node) {
+    let attr = node.getAttribute('class')
+    return attr;
+  }
+}
+TermBlot.blotName = 'term';
+TermBlot.tagName = 'span';
+
+Inline.order.push('term');
 Inline.order.push('fact'); // See https://stackoverflow.com/questions/43267123/quilljs-parchment-controlling-nesting-order
-
 Quill.register(FactBlot)
-
+Quill.register(TermBlot)
 
 Vue.component('quill', {
   data: function() {

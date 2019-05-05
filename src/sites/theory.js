@@ -279,6 +279,8 @@ const theory = {
             this.theoryVoc.push(term);
           }
           // TODO: Add format to quill
+          let id = data.term;
+          this.$refs.annotator.get.formatText(request.range.index, request.range.length, 'term', id)
           break;
         case 'connective':
           // TODO: Add format to quill

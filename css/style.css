@@ -28,6 +28,11 @@ body {
   line-height: 1.5rem;
 }
 
+.annotator-term {
+  background-color: red;
+  border-radius: 1px;
+}
+
 .ql-snow.ql-toolbar button:disabled, .ql-snow .ql-toolbar button:disabled {
   cursor: not-allowed;
 }

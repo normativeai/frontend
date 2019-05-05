@@ -799,7 +799,22 @@ Vue.component('annotateview', {
   props: ['data'],
   methods: {
     confirm: function() {
-      this.$parent.$emit('annotate-confirm', this.active, this.data)
+      let info = {typ: this.active};
+      switch (this.active) {
+        case 'term':
+          if (!!this.newTerm) {
+            info.term = this.newTerm;
+            info.fresh = true;
+          } else {
+            info.term = this.selectedTerm;
+            info.fresh = false;
+          }
+          break;
+        case 'connective':
+          info.connective = this.selectedConnective
+          break
+      }
+      this.$parent.$emit('annotate-confirm', info, this.data)
     },
     cancel: function() {
       this.$parent.$emit('annotate-cancel')
@@ -825,6 +840,11 @@ Vue.component('annotateview', {
         {description: 'Implication', symbol: 'Implies', arity: 2},
         {description: 'Equivalence', symbol: 'Iff', arity: 2}
       ];
+    }
+  },
+  created: function() {
+    if (!!this.data.active) {
+      this.active = this.data.active;
     }
   },
   template: `

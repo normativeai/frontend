@@ -251,9 +251,9 @@ const theory = {
       }
     });
     // debug test end
-    },
+    }
     /* This method is called if any annotation is requested in quill. */
-    onTheoryAnnotateRequest: function(typ, range, text, bounds) {
+    /*onTheoryAnnotateRequest: function(typ, range, text, bounds) {
       console.log('annotate '+ typ +' from theory: ' + text)
       switch (typ) {
         case 'fact':
@@ -297,7 +297,7 @@ const theory = {
     },
     onTheoryAnnotateCancel: function() {
       this.showAnnotateWindow = false
-    }
+    }*/
   },
   computed: {
     theoryName: function() {
@@ -547,9 +547,9 @@ const theory = {
     </div>
   `,
   mounted: function() {    
-    this.$on('theory-annotate', this.onTheoryAnnotateRequest);
+    /*this.$on('theory-annotate', this.onTheoryAnnotateRequest);
     this.$on('annotate-confirm', this.onTheoryAnnotate);
-    this.$on('annotate-cancel', this.onTheoryAnnotateCancel);
+    this.$on('annotate-cancel', this.onTheoryAnnotateCancel);*/
   },
   created: function () {
     nai.log('Created', '[Theory]')

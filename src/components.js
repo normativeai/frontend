@@ -550,41 +550,34 @@ Vue.component('query-card', {
 let Inline = Quill.import('blots/inline');
 let Delta = Quill.import('delta');
 
-class FactBlot extends Inline {
-  static create(id) {
+class ConnectiveBlot extends Inline {
+  static create(data) {
     let node = super.create();
-    node.setAttribute('class', 'annotator-fact');
-    node.setAttribute('id', id);
+    node.classList.add('annotator-connective');
+    node.classList.add('annotator-connective-' + data.connective);
+    node.setAttribute('id', data.id);
     return node;
   }
   
   static formats(node) {
-    return node.getAttribute('id')
-  }
-  
-  format(name, value) {
-    if (name === FactBlot.blotName && value) {
-      this.domNode.setAttribute('class', 'annotator-fact');
-      this.domNode.setAttribute('id', value);
-    } else {
-      super.format(name, value);
+    var classNames = node.getAttribute('class').split(/\s+/);
+    for (var i = 0, len = classNames.length; i < len; i++) {
+      var className = classNames[i];
+      if (className.indexOf('annotator-connective-') === 0) {
+        return {id: node.getAttribute('id'), connective: className.replace('annotator-connective-', '')};
+      }
     }
-  }
-  
-  formats() {
-    let formats = super.formats();
-    formats[FactBlot.blotName] = FactBlot.formats(this.domNode);
-    return formats;
+    return null;
   }
 }
-FactBlot.blotName = 'fact';
-FactBlot.tagName = 'span';
+ConnectiveBlot.blotName = 'connective';
+ConnectiveBlot.tagName = 'span';
 
 class TermBlot extends Inline {
-  static create(id) {
+  static create(data) {
     let node = super.create();
     node.classList.add('annotator-term');
-    node.classList.add('annotator-term-'+id);
+    node.classList.add('annotator-term-'+data.id);
     return node;
   }
   
@@ -597,8 +590,8 @@ TermBlot.blotName = 'term';
 TermBlot.tagName = 'span';
 
 Inline.order.push('term');
-Inline.order.push('fact'); // See https://stackoverflow.com/questions/43267123/quilljs-parchment-controlling-nesting-order
-Quill.register(FactBlot)
+Inline.order.push('connective'); // See https://stackoverflow.com/questions/43267123/quilljs-parchment-controlling-nesting-order
+Quill.register(ConnectiveBlot)
 Quill.register(TermBlot)
 
 Vue.component('quill', {
@@ -640,6 +633,21 @@ Vue.component('quill', {
           this.$parent.$emit('theory-annotate', 'connective', range, text, bounds)
         }
       }
+    },
+    showConnectiveDropdown: function() {
+      this.$refs.editorConnectiveDropdown.style.display = 'block'
+    },
+    hideConnectiveDropdown: function() {
+      this.$refs.editorConnectiveDropdown.style.display = 'none'
+    },
+    generateUUID: function() {
+      var d = new Date().getTime();
+      var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+          var r = (d + Math.random()*16)%16 | 0;
+          d = Math.floor(d/16);
+          return (c=='x' ? r : (r&0x3|0x8)).toString(16);
+      });
+      return uuid;
     }
   },
   computed: {
@@ -651,56 +659,26 @@ Vue.component('quill', {
         return {}
       }
     },
-    annotateButtonDisabled: function() { 
-      if (!!this.quill) {
-        var range = this.quill.getSelection()
-        if (!!range) {
-          if (range.length > 0) {
-            // Disable if range contains fact
-            var ops = this.quill.getContents(range.index, range.length).ops;
-            return _.some(ops, function(e){return _.has(e, 'attributes.fact')})
-          } else {
-            return true;
-          }
-        } else {
-          return true;
-        }
-      } else {
-        return true;
-      }
+    connectives: function() {
+      return [
+        {name: 'neg', description: 'Negation', symbol: '~', arity: 1},
+        {name: 'perm', description: 'Permission', symbol: 'Pm', arity: 1},
+        {name: 'ob', description: 'Obligation', symbol: 'Ob', arity: 1},
+        {name: 'id', description: 'Ideality', symbol: 'Id', arity: 1},
+        {name: 'oimpl', description: 'Ought-implies', symbol: 'O>', arity: 2},
+        {name: 'pimpl', description: 'permittedly-implies', symbol: 'P>', arity: 2},
+        {name: 'conj', description: 'Conjunction', symbol: 'And', arity: 2},
+        {name: 'disj', description: 'Disjunction', symbol: 'Or', arity: 2},
+        {name: 'impl', description: 'Implication', symbol: 'Implies', arity: 2},
+        {name: 'iff', description: 'Equivalence', symbol: 'Iff', arity: 2}
+      ];
     },
-    termButtonDisabled: function() { 
+    annotateButtonsDisabled: function() { 
       if (!!this.quill) {
         var range = this.quill.getSelection()
         if (!!range) {
-          if (range.length > 0) {
-            var format = this.quill.getFormat(range.index, range.length);
-            return !!!format.fact
-          } else {
-            return true;
-          }
-        } else {
-          return true;
-        }
-      } else {
-        return true;
-      }
-    },
-    connectiveButtonDisabled: function() { 
-      if (!!this.quill) {
-        var range = this.quill.getSelection()
-        if (!!range) {
-          if (range.length > 0) {
-            var format = this.quill.getFormat(range.index, range.length);
-            return !!!format.fact
-          } else {
-            return true;
-          }
-        } else {
-          return true;
-        }
-      } else {
-        return true;
+          return !(range.length > 0);
+        } else return true;
       }
     }
   },
@@ -777,26 +755,22 @@ Vue.component('quill', {
           <button class="ql-script" value="sub" title="Subscript"></button>
           <button class="ql-script" value="super" title="Superscript"></button>
         </span>
-        <span style=""></span>
-        <span class="ql-formats" style="float:right">
-          <button type="button" class="btn btn-primary-outline btn-sm mr-2 annotator-button" :disabled="annotateButtonDisabled"
-                  title="Annotate" 
-                  ref="quillannotate" v-on:click="annotateFact">
-            <feather-icon icon="tag"></feather-icon>
-            <span style="font-size:x-small;margin-top:0;padding-top:0;position:relative;top:-7px;font-variant:small-caps">Tag</span>
-          </button>
-          <button type="button" class="btn btn-primary-outline btn-sm mr-2" :disabled="termButtonDisabled"
-                  title="Specify as term"
-                  ref="quillannotateterm"  v-on:click="annotateTerm">
+        <span class="ql-formats float-right">
+          <button type="button" class="btn btn-primary-outline btn-sm mr-2" :disabled="annotateButtonsDisabled"
+                  title="Specify as term" style="border: 1px solid gray; width: unset"
+                  v-on:click="annotateTerm">
             <feather-icon icon="bookmark"></feather-icon>
-            <span style="font-size:x-small;margin-top:0;padding-top:0;position:relative;top:-7px;left:-2px;font-variant:small-caps">Term</span>
+            <span class="small ml-1" style="font-variant:small-caps">Term</span>
           </button>
-          <button type="button" class="btn btn-primary-outline btn-sm" :disabled="connectiveButtonDisabled"
-                  title="Specify as connective"
-                  ref="quillannotateconnective" v-on:click="annotateConnective">
-            <feather-icon icon="git-commit"></feather-icon>
-            <span style="font-size:x-small;margin-top:0;padding-top:0;position:relative;top:-7px;left:-2px;font-variant:small-caps">Conn.</span>
-          </button>
+          <div class="dropdown" style="display: inline-block">
+            <button @click="showConnectiveDropdown" @blur.prevent="hideConnectiveDropdown" :disabled="annotateButtonsDisabled" class="btn btn-primary-outline btn-sm dropdown-toggle" type="button" style="width:unset; border: 1px solid gray" title="Annotate as complex statement">
+               <feather-icon icon="git-commit"></feather-icon> <span class="small ml-1" style="">Connective</span>
+            </button>
+            <div ref="editorConnectiveDropdown" class="dropdown-menu dropdown-menu-right" style="top: 30px">
+              <h6 class="dropdown-header">Connectives</h6>
+              <a class="dropdown-item small" href="#" v-on:mousedown="annotateConnective(conn.name)" v-for="conn in connectives">{{ conn.description }}</a>
+            </div>
+          </div>
         </span>
       </div>
       <div ref="editor" v-bind:style="styleObject"></div>

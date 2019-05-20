@@ -604,33 +604,31 @@ Vue.component('quill', {
   },
   props: ['value','maxheight'],
   methods: {
-    annotateFact: function() {
-      var range = this.quill.getSelection()
-      if (!!range) {
-        if (range.length > 0) {
-          var text = this.quill.getText(range.index, range.length);
-          var bounds = this.quill.getBounds(range.index, range.length);
-          this.$parent.$emit('theory-annotate', 'fact', range, text, bounds)
-        }
-      }
-    },
     annotateTerm: function() {
       var range = this.quill.getSelection()
       if (!!range) {
         if (range.length > 0) {
           var text = this.quill.getText(range.index, range.length);
           var bounds = this.quill.getBounds(range.index, range.length);
-          this.$parent.$emit('theory-annotate', 'term', range, text, bounds)
+          //this.$parent.$emit('theory-annotate', 'term', range, text, bounds)
+          let data = {id: this.generateUUID()};
+          this.quill.formatText(range.index, range.length, 'term', data)
+          console.log('done annotation:' + range.index + " " + range.length)
         }
       }
     },
-    annotateConnective: function() {
+    annotateConnective: function(conn) {
+      console.log('annotation')
       var range = this.quill.getSelection()
       if (!!range) {
         if (range.length > 0) {
-          var text = this.quill.getText(range.index, range.length);
-          var bounds = this.quill.getBounds(range.index, range.length);
-          this.$parent.$emit('theory-annotate', 'connective', range, text, bounds)
+          let data = {id: this.generateUUID(), connective: conn};
+          this.quill.formatText(range.index, range.length, 'connective', data)
+          console.log('done annotation:' + range.index + " " + range.length)
+          //let text = this.quill.getText(range.index, range.length);
+          //let bounds = this.quill.getBounds(range.index, range.length);
+          //let data = {text: text, bounds: bounds, range: range, type: 'connective', connective: connective};
+          //this.$parent.$emit('theory-annotate', data)
         }
       }
     },

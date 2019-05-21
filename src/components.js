@@ -797,7 +797,7 @@ Vue.component('quill', {
       if (!!this.maxheight) {
         return { maxHeight: this.maxheight, overflowY: "auto" }
       } else {
-        return {}
+        return { height: "290px"}
       }
     },
     connectives: function() {

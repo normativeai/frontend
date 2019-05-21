@@ -18,12 +18,12 @@ const theory = {
       independenceCheckRunning: false,
       independenceResponse: {show: false, type: '', message: '', timeout: 0},
       
-      showAnnotateWindow: false,
-      annotationWindowData: null,
       annotationColors: ['#5C97BF','#00AA55','#F64747','#B381B3','#1BA39C','#FF00FF',
                          '#D252B2','#D46A43','#00A4A6','#D4533B','#939393','#AA8F00',
                          '#D47500','#E26A6A','#009FD4','#5D995D'],
-      lastAnnotationColor: -1
+      lastAnnotationColor: -1,
+      
+      activeTab: 0
     }
   },
   methods: {
@@ -432,29 +432,28 @@ const theory = {
           
           <ul class="nav nav-tabs">
             <li class="nav-item">
-              <a class="nav-link active" href="#">Annotation</a>
+              <a :class="{'nav-link': true, 'active': activeTab == 0}" href="#" @click="activeTab = 0;">Annotation</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="#">Vocabulary</a>
+              <a :class="{'nav-link': true, 'active': activeTab == 1}" href="#" @click="activeTab = 1;">Vocabulary</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="#">Formalization</a>
+              <a :class="{'nav-link': true, 'active': activeTab == 2}" href="#" @click="activeTab = 2;">Formalization</a>
             </li>
             <li class="nav-item">
               <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Advanced</a>
             </li>
           </ul>
-          <div class="nav-content" style="border-left:1px solid #dee2e6; border-right:1px solid #dee2e6;padding:1rem .5rem;">
+          <div class="nav-content" style="border-left:1px solid #dee2e6; border-right:1px solid #dee2e6;padding:1rem .5rem;"
+            v-if="activeTab == 0">
             <a name="original" style="display:block;visibility:hidden;position:relative;top:-3em"></a>
             <h4>Annotation Editor</h4>
             <quill ref="annotator" @hook:mounted="registerAnnotator" v-model="theory.content" spellcheck="false" v-bind:terms="theoryVoc"></quill>
             <div id="debug"></div>
-            <hr>          
           </div>
-          
-          
-          <!--<a name="vocabulary" style="display:block;visibility:hidden;position:relative;top:-3em"></a>
-          <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3">
+          <div class="nav-content" style="border-left:1px solid #dee2e6; border-right:1px solid #dee2e6;padding:1rem .5rem;"
+           v-if="activeTab == 1">
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3">
             <h2>Vocabulary</h2>
             <div class="btn-toolbar mb-2 mb-md-0">
               <div class="btn-group mr-2">
@@ -468,92 +467,95 @@ const theory = {
               Toggle edit
               </button>
             </div>
-          </div>
-          <p class="small"><em>Defining the vocabulary explicitly is not strictly necessary, however strongly advised.
-          It helps keeping an overview of the used symbols and their intended meaning for the
-          fact base and queries. The contents of this table do not alter the formalization; they
-          are used for extended GUI features.</em></p>
-          <div class="">
-            <table class="table table-striped table-sm" style="table-layout:fixed;width:100%">
-              <thead>
-                <tr>
-                  <th style="width:7em">Symbol</th>
-                  <th style="width:100%">Description</th>
-                  <th style="width:5em;text-align: center">Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="(item, index) in theoryVoc" :key="item._id">
-                  <td><input-update placeholder="Enter symbol" v-bind:edit="editVoc" v-model="item.symbol"></input-update></td>
-                  <td><em><textarea-update placeholder="Enter description" v-bind:edit="editVoc" v-model="item.original"></textarea-update></em></td>
-                  <td class="table-secondary" style="text-align: center">
-                    <button type="button" class="btn btn-sm btn-danger" v-bind:disabled="!editVoc" v-bind:title="vocDelButtonTitle" v-bind:style="vocDelButtonStyle" v-on:click="vocDelButtonClick(index)"><feather-icon icon="x"></feather-icon></button>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-
-          <hr>
-          <a name="facts" style="display:block;visibility:hidden;position:relative;top:-3em"></a>
-          <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3">
-            <h2>Fact base</h2>
-            <img v-if="consistencyCheckRunning" src="/img/loading.gif">
-            <img v-if="independenceCheckRunning" src="/img/loading.gif">
-            <div class="btn-toolbar mb-2 mb-md-0">
-              <div class="btn-group mr-2">
-                <button class="btn btn-sm btn-outline-primary" v-on:click="addLineToFacts">
-                  <feather-icon icon="plus"></feather-icon>
-                  Add fact
-                </button>
-              </div>
-              <button class="btn btn-sm btn-outline-secondary" v-on:click="toggleEditFacts" v-bind:class="{active : editFacts}" v-bind:aria-pressed="editFacts">
-              <feather-icon icon="edit"></feather-icon>
-              Toggle edit
-              </button>
-              <button class="btn btn-sm btn-outline-secondary float-right" v-on:click="runConsistencyCheck">
-                <feather-icon icon="play"></feather-icon>
-                Run consistency check
-              </button>
+            </div>
+            <p class="small"><em>Defining the vocabulary explicitly is not strictly necessary, however strongly advised.
+            It helps keeping an overview of the used symbols and their intended meaning for the
+            fact base and queries. The contents of this table do not alter the formalization; they
+            are used for extended GUI features.</em></p>
+            <div class="">
+              <table class="table table-striped table-sm" style="table-layout:fixed;width:100%">
+                <thead>
+                  <tr>
+                    <th style="width:7em">Symbol</th>
+                    <th style="width:100%">Description</th>
+                    <th style="width:5em;text-align: center">Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="(item, index) in theoryVoc" :key="item._id">
+                    <td><input-update placeholder="Enter symbol" v-bind:edit="editVoc" v-model="item.symbol"></input-update></td>
+                    <td><em><textarea-update placeholder="Enter description" v-bind:edit="editVoc" v-model="item.original"></textarea-update></em></td>
+                    <td class="table-secondary" style="text-align: center">
+                      <button type="button" class="btn btn-sm btn-danger" v-bind:disabled="!editVoc" v-bind:title="vocDelButtonTitle" v-bind:style="vocDelButtonStyle" v-on:click="vocDelButtonClick(index)"><feather-icon icon="x"></feather-icon></button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
           </div>
-          <p class="small"><em>A consistency check should be conducted prior to executing any further queries.</em></p>
+          <div class="nav-content" style="border-left:1px solid #dee2e6; border-right:1px solid #dee2e6;padding:1rem .5rem;"
+           v-if="activeTab == 2">
+           
+             <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3">
+              <h2>Fact base</h2>
+              <img v-if="consistencyCheckRunning" src="/img/loading.gif">
+              <img v-if="independenceCheckRunning" src="/img/loading.gif">
+              <div class="btn-toolbar mb-2 mb-md-0">
+                <div class="btn-group mr-2">
+                  <button class="btn btn-sm btn-outline-primary" v-on:click="addLineToFacts">
+                    <feather-icon icon="plus"></feather-icon>
+                    Add fact
+                  </button>
+                </div>
+                <button class="btn btn-sm btn-outline-secondary" v-on:click="toggleEditFacts" v-bind:class="{active : editFacts}" v-bind:aria-pressed="editFacts">
+                <feather-icon icon="edit"></feather-icon>
+                Toggle edit
+                </button>
+                <button class="btn btn-sm btn-outline-secondary float-right" v-on:click="runConsistencyCheck">
+                  <feather-icon icon="play"></feather-icon>
+                  Run consistency check
+                </button>
+              </div>
+            </div>
+            <p class="small"><em>A consistency check should be conducted prior to executing any further queries.</em></p>
 
-          <alert v-on:dismiss="consistencyResponse.show = false;" :variant="consistencyResponse.type" v-show="consistencyResponse.show" :timeout="consistencyResponse.timeout"><span v-html="consistencyResponse.message"></span></alert>
-          <alert v-on:dismiss="independenceResponse.show = false;" :variant="independenceResponse.type" v-show="independenceResponse.show" :timeout="independenceResponse.timeout"><span v-html="independenceResponse.message"></span></alert>
+            <alert v-on:dismiss="consistencyResponse.show = false;" :variant="consistencyResponse.type" v-show="consistencyResponse.show" :timeout="consistencyResponse.timeout"><span v-html="consistencyResponse.message"></span></alert>
+            <alert v-on:dismiss="independenceResponse.show = false;" :variant="independenceResponse.type" v-show="independenceResponse.show" :timeout="independenceResponse.timeout"><span v-html="independenceResponse.message"></span></alert>
 
-          <div class="table-responsive">
-            <table class="table table-striped table-sm table-hover" style="table-layout:fixed;">
-              <thead>
-                <tr>
-                  <th style="width:2em;text-align:center;vertical-align:center;border-right:1px solid black"><input type="checkbox" v-on:click="toggleSelectAll" checked="checked" ref="selectAllBox" title="Toggle select all"></th>
-                  <th style="width:60%">Description</th>
-                  <th style="width:40%">Formula</th>
-                  <th style="width:10em; text-align: center">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="(item, index) in theoryFormalization" :key="item._id" v-bind:class="{'tr-disabled': !item.active}">
-                  <td style="padding:0;border-right:1px solid black">
-                    <span style="display:block;font-size:xx-small">
-                      <span style="padding:1px;border-right: 1px solid gray; border-bottom: 1px solid gray;">{{ index+1 }}</span>
-                    </span>
-                    <span style="display:block;margin-top:0.2em;margin-left:0.5em">
-                      <input class="form-check" type="checkbox" v-model="item.active">
-                    </span>
-                  </td>
-                  <td style="border-right:1px solid black">
-                    <em><textarea-update placeholder="Enter Description (or leave empty if constructed from fact)" v-bind:edit="editFacts" v-model="item.original"></textarea-update></em>
-                  </td>
-                  <td><textarea-update placeholder="Formula will be constructed from annotation ..." v-bind:edit="editFacts" v-model="item.formula"></textarea-update></td>
-                  <td class="table-secondary" style="text-align: center">
-                    <button title="Check for logical independence" type="button" class="btn btn-sm btn-secondary" v-on:click="runIndependenceCheck(item)"><feather-icon icon="activity"></feather-icon></button>
-                    <button title="Remove fact" type="button" class="btn btn-sm btn-danger" v-on:click="factDelButtonClick(index)" v-bind:disabled="!editFacts" v-bind:title="factDelButtonTitle" v-bind:style="factDelButtonStyle"><feather-icon icon="x"></feather-icon></button>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>         -->
+            <div class="table-responsive">
+              <table class="table table-striped table-sm table-hover" style="table-layout:fixed;">
+                <thead>
+                  <tr>
+                    <th style="width:2em;text-align:center;vertical-align:center;border-right:1px solid black"><input type="checkbox" v-on:click="toggleSelectAll" checked="checked" ref="selectAllBox" title="Toggle select all"></th>
+                    <th style="width:60%">Description</th>
+                    <th style="width:40%">Formula</th>
+                    <th style="width:10em; text-align: center">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="(item, index) in theoryFormalization" :key="item._id" v-bind:class="{'tr-disabled': !item.active}">
+                    <td style="padding:0;border-right:1px solid black">
+                      <span style="display:block;font-size:xx-small">
+                        <span style="padding:1px;border-right: 1px solid gray; border-bottom: 1px solid gray;">{{ index+1 }}</span>
+                      </span>
+                      <span style="display:block;margin-top:0.2em;margin-left:0.5em">
+                        <input class="form-check" type="checkbox" v-model="item.active">
+                      </span>
+                    </td>
+                    <td style="border-right:1px solid black">
+                      <em><textarea-update placeholder="Enter Description (or leave empty if constructed from fact)" v-bind:edit="editFacts" v-model="item.original"></textarea-update></em>
+                    </td>
+                    <td><textarea-update placeholder="Formula will be constructed from annotation ..." v-bind:edit="editFacts" v-model="item.formula"></textarea-update></td>
+                    <td class="table-secondary" style="text-align: center">
+                      <button title="Check for logical independence" type="button" class="btn btn-sm btn-secondary" v-on:click="runIndependenceCheck(item)"><feather-icon icon="activity"></feather-icon></button>
+                      <button title="Remove fact" type="button" class="btn btn-sm btn-danger" v-on:click="factDelButtonClick(index)" v-bind:disabled="!editFacts" v-bind:title="factDelButtonTitle" v-bind:style="factDelButtonStyle"><feather-icon icon="x"></feather-icon></button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+           
+          </div>
         </div>
 
           <p>&nbsp;</p>

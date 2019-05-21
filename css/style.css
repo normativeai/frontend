@@ -25,7 +25,8 @@ body {
 border: 1px dashed gray;
       border-radius: 3px;
       background-color: #e1e1e1;
-      padding: 0px;
+      padding: 0px 1px 0px 1px;
+      margin: 1px;
       display: inline-block;
       /*text-decoration: underline;
       text-decoration-style: dashed;

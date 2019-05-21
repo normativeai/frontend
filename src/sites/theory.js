@@ -430,14 +430,30 @@ const theory = {
           </p>
           <alert v-on:dismiss="saveResponse.show = false;saveResponse.timeout = null" :variant="saveResponse.type" v-show="saveResponse.show" :timeout="saveResponse.timeout" style="position:absolute; top:150px; right:100px">{{ saveResponse.message }}</alert>
           
-          <!--<annotateview v-if="showAnnotateWindow" v-bind:data="annotationWindowData" style="position:fixed; top:200px; left:15%; z-index:1000"></annotateview>-->
+          <ul class="nav nav-tabs">
+            <li class="nav-item">
+              <a class="nav-link active" href="#">Annotation</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#">Vocabulary</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#">Formalization</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Advanced</a>
+            </li>
+          </ul>
+          <div class="nav-content" style="border-left:1px solid #dee2e6; border-right:1px solid #dee2e6;padding:1rem .5rem;">
+            <a name="original" style="display:block;visibility:hidden;position:relative;top:-3em"></a>
+            <h4>Annotation Editor</h4>
+            <quill ref="annotator" @hook:mounted="registerAnnotator" v-model="theory.content" spellcheck="false" v-bind:terms="theoryVoc"></quill>
+            <div id="debug"></div>
+            <hr>          
+          </div>
           
-          <a name="original" style="display:block;visibility:hidden;position:relative;top:-3em"></a>
-          <h2>Text input</h2>
-          <quill ref="annotator" @hook:mounted="registerAnnotator" v-model="theory.content" maxheight="300px" spellcheck="false" v-bind:terms="theoryVoc"></quill>
-          <div id="debug"></div>
-          <hr>
-          <a name="vocabulary" style="display:block;visibility:hidden;position:relative;top:-3em"></a>
+          
+          <!--<a name="vocabulary" style="display:block;visibility:hidden;position:relative;top:-3em"></a>
           <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3">
             <h2>Vocabulary</h2>
             <div class="btn-toolbar mb-2 mb-md-0">
@@ -537,7 +553,7 @@ const theory = {
                 </tr>
               </tbody>
             </table>
-          </div>
+          </div>         -->
         </div>
 
           <p>&nbsp;</p>

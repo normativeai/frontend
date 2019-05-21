@@ -553,30 +553,23 @@ let Delta = Quill.import('delta');
 class ConnectiveBlot extends Inline {
   static create(data) {
     let node = super.create();
-    node.classList.add('annotator-connective');
-    node.classList.add('annotator-connective-' + data.connective);
     node.setAttribute('id', data.id);
+    node.setAttribute('data-connective', data.connective);
     return node;
   }
   
   static formats(node) {
-    var classNames = node.getAttribute('class').split(/\s+/);
-    for (var i = 0, len = classNames.length; i < len; i++) {
-      var className = classNames[i];
-      if (className.indexOf('annotator-connective-') === 0) {
-        return {id: node.getAttribute('id'), connective: className.replace('annotator-connective-', '')};
-      }
-    }
-    return null;
+    return {id: node.getAttribute('id'),
+        connective: node.getAttribute('data-connective')};
   }
 }
 ConnectiveBlot.blotName = 'connective';
 ConnectiveBlot.tagName = 'span';
+ConnectiveBlot.className = 'annotator-connective';
 
 class TermBlot extends Inline {
   static create(data) {
     let node = super.create();
-    node.classList.add('annotator-term');
     node.setAttribute('id', data.id);
     node.setAttribute('data-term', data.term);
     return node;
@@ -589,6 +582,7 @@ class TermBlot extends Inline {
 }
 TermBlot.blotName = 'term';
 TermBlot.tagName = 'span';
+TermBlot.className = 'annotator-term';
 
 Inline.order.push('term');
 Inline.order.push('connective'); // See https://stackoverflow.com/questions/43267123/quilljs-parchment-controlling-nesting-order
@@ -614,10 +608,6 @@ Vue.component('quill', {
           var bounds = this.quill.getBounds(range.index, range.length);
           this.termPromptData = {original: text, terms: this.terms, range: range, bounds: bounds};
           this.termPrompt = true;
-          //this.$parent.$emit('theory-annotate', 'term', range, text, bounds)
-          //let data = {id: this.generateUUID(), term: 'testTerm(x)'};
-          //this.quill.formatText(range.index, range.length, 'term', data)
-          //console.log('done annotation:' + range.index + " " + range.length)
         }
       }
     },
@@ -638,10 +628,6 @@ Vue.component('quill', {
           let data = {id: this.generateUUID(), connective: conn};
           this.quill.formatText(range.index, range.length, 'connective', data)
           console.log('done annotation:' + range.index + " " + range.length)
-          //let text = this.quill.getText(range.index, range.length);
-          //let bounds = this.quill.getBounds(range.index, range.length);
-          //let data = {text: text, bounds: bounds, range: range, type: 'connective', connective: connective};
-          //this.$parent.$emit('theory-annotate', data)
         }
       }
     },

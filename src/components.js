@@ -550,10 +550,11 @@ Vue.component('query-card', {
 let Inline = Quill.import('blots/inline');
 let Delta = Quill.import('delta');
 
-class ConnectiveBlot extends Inline {
+class ConnectiveBlot1 extends Inline {
   static create(data) {
     let node = super.create();
     node.setAttribute('id', data.id);
+    node.classList.add('annotator-connective');
     node.setAttribute('data-connective', data.connective);
     return node;
   }
@@ -562,10 +563,64 @@ class ConnectiveBlot extends Inline {
     return {id: node.getAttribute('id'),
         connective: node.getAttribute('data-connective')};
   }
+  
+  formatAt(index, length, name, value) {
+    super.formatAt(index, length, name, value)
+  }
+  
+  optimize(context) {
+    super.optimize(context);
+    if (this.prev) {
+      if (this.prev.statics.blotName == this.statics.blotName) {
+        if (this.prev.domNode.getAttribute('id') == this.domNode.getAttribute('id')) {
+          this.prev.moveChildren(this)
+        }
+      }
+    }
+  }
 }
-ConnectiveBlot.blotName = 'connective';
-ConnectiveBlot.tagName = 'span';
-ConnectiveBlot.className = 'annotator-connective';
+ConnectiveBlot1.blotName = 'connective-1';
+ConnectiveBlot1.tagName = 'span';
+ConnectiveBlot1.className = 'connective-depth-1';
+
+class ConnectiveBlot2 extends Inline {
+  static create(data) {
+    let node = super.create();
+    node.setAttribute('id', data.id);
+    node.classList.add('annotator-connective');
+    node.setAttribute('data-connective', data.connective);
+    return node;
+  }
+  
+  static formats(node) {
+    return {id: node.getAttribute('id'),
+        connective: node.getAttribute('data-connective')};
+  }
+  
+  formatAt(index, length, name, value) {
+    super.formatAt(index, length, name, value)
+  }
+  
+  
+  optimize(context) {
+    super.optimize(context);
+    //console.log('opt on ' + this.domNode.innerHTML);
+    if (this.prev) {
+      if (this.prev.statics.blotName == this.statics.blotName) {
+        if (this.prev.domNode.getAttribute('id') == this.domNode.getAttribute('id')) {
+          //console.log('move:');
+           // console.log('prev: ' + this.prev.domNode.innerHTML);
+          this.moveChildren(this.prev)
+        }
+      }
+    }
+    //console.log('done opt on ' + this.domNode.innerHTML);
+  }
+}
+ConnectiveBlot2.blotName = 'connective-2';
+ConnectiveBlot2.tagName = 'span';
+ConnectiveBlot2.className = 'connective-depth-2';
+ConnectiveBlot2.requiredContainer = ConnectiveBlot1;
 
 class TermBlot extends Inline {
   static create(data) {
@@ -584,10 +639,33 @@ TermBlot.blotName = 'term';
 TermBlot.tagName = 'span';
 TermBlot.className = 'annotator-term';
 
+
+
 Inline.order.push('term');
-Inline.order.push('connective'); // See https://stackoverflow.com/questions/43267123/quilljs-parchment-controlling-nesting-order
-Quill.register(ConnectiveBlot)
+Inline.order.push('connective-10');
+Inline.order.push('connective-9');
+Inline.order.push('connective-8');
+Inline.order.push('connective-7');
+Inline.order.push('connective-6');
+Inline.order.push('connective-5');
+Inline.order.push('connective-4');
+Inline.order.push('connective-3');
+Inline.order.push('connective-2');
+Inline.order.push('connective-1'); // See https://stackoverflow.com/questions/43267123/quilljs-parchment-controlling-nesting-order
+
+
 Quill.register(TermBlot)
+Quill.register(ConnectiveBlot1)
+Quill.register(ConnectiveBlot2)
+Quill.register(ConnectiveBlot3)
+Quill.register(ConnectiveBlot4)
+Quill.register(ConnectiveBlot5)
+Quill.register(ConnectiveBlot6)
+Quill.register(ConnectiveBlot7)
+Quill.register(ConnectiveBlot8)
+Quill.register(ConnectiveBlot9)
+Quill.register(ConnectiveBlot10)
+
 
 Vue.component('quill', {
   data: function() {
@@ -595,7 +673,7 @@ Vue.component('quill', {
       quill: null,
       content0: '',
       options: { theme: "snow", modules: {toolbar: '#quilltoolbar'} },
-      termPrompt: false, termPromptData: null
+      termPrompt: false, termPromptData: null,
     }
   },
   props: ['value','maxheight', 'terms'],
@@ -626,7 +704,8 @@ Vue.component('quill', {
       if (!!range) {
         if (range.length > 0) {
           let data = {id: this.generateUUID(), connective: conn};
-          this.quill.formatText(range.index, range.length, 'connective', data)
+          let format = 'connective-' + this.getConnectiveDepth(range)
+          this.quill.formatText(range.index, range.length, format, data)
           console.log('done annotation:' + range.index + " " + range.length)
         }
       }
@@ -653,6 +732,22 @@ Vue.component('quill', {
           return (c=='x' ? r : (r&0x3|0x8)).toString(16);
       });
       return uuid;
+    },
+    getConnectiveDepth: function(range) {
+      if (!!range) {
+        let format = this.quill.getFormat(range.index, range.length);
+        if (format['connective-10']) return undefined;
+        if (format['connective-9']) return 10;
+        if (format['connective-8']) return 9;
+        if (format['connective-7']) return 8;
+        if (format['connective-6']) return 7;
+        if (format['connective-5']) return 6;
+        if (format['connective-4']) return 5;
+        if (format['connective-3']) return 4;
+        if (format['connective-2']) return 3;
+        if (format['connective-1']) return 2;
+        return 1;
+      } else undefined
     }
   },
   computed: {
@@ -707,6 +802,7 @@ Vue.component('quill', {
     // We don't like trouble.
     this.quill.on('selection-change', function(range, oldRange, source) {
       if (!!range) {
+        self.$refs.connectivedebug.innerHTML = 'connective depth:'+ self.getConnectiveDepth(range);
         if (range.length > 0) {
           // use getContent to see if any part with annotations is overlapped. if yes, forbid editing
           var ops = self.quill.getContents(range.index, range.length).ops;
@@ -786,6 +882,7 @@ Vue.component('quill', {
       </div>
       <div ref="editor" v-bind:style="styleObject"></div>
       <quill-term-prompt v-if="termPrompt" v-bind:data="termPromptData" @annotate-cancel="hideTermPrompt" @annotate-confirm="doneAnnotateTerm"></quill-term-prompt>
+      <div ref="connectivedebug"></div>
     </div>
   `
 })

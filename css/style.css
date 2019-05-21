@@ -20,17 +20,26 @@ body {
   fill: none;
 }
 
+
 .annotator-connective {
-  background-color: #f1f1f1;
-  border-radius: 5px;
-  padding: 0.25rem;
-  border-bottom: 2px dotted #7c7c7c;
-  line-height: 1.5rem;
+border: 1px dashed gray;
+      border-radius: 3px;
+      background-color: #e1e1e1;
+      padding: 0px;
+      display: inline-block;
+      /*text-decoration: underline;
+      text-decoration-style: dashed;
+      cursor: help;*/
 }
 
 .annotator-term {
-  background-color: red;
-  border-radius: 1px;
+  background-color: lime;
+      border: 1px solid darkgreen;
+      padding: 0px 1px 0px 1px;
+      margin: 1px 2px 1px 2px;
+      display: inline-block;
+      text-decoration: unset;
+      cursor: auto;
 }
 
 .ql-snow.ql-toolbar button:disabled, .ql-snow .ql-toolbar button:disabled {

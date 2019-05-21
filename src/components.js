@@ -548,9 +548,8 @@ Vue.component('query-card', {
 ////////////////////////////////////////////////////////////////////
 
 let Inline = Quill.import('blots/inline');
-let Delta = Quill.import('delta');
 
-class ConnectiveBlot1 extends Inline {
+class ConnectiveBlot extends Inline {
   static create(data) {
     let node = super.create();
     node.setAttribute('id', data.id);
@@ -570,19 +569,61 @@ class ConnectiveBlot1 extends Inline {
   
   optimize(context) {
     super.optimize(context);
+    //console.log('opt on ' + this.domNode.innerHTML);
     if (this.prev) {
       if (this.prev.statics.blotName == this.statics.blotName) {
         if (this.prev.domNode.getAttribute('id') == this.domNode.getAttribute('id')) {
-          this.prev.moveChildren(this)
+          //console.log('move:');
+           // console.log('prev: ' + this.prev.domNode.innerHTML);
+          this.moveChildren(this.prev)
         }
       }
     }
+    //console.log('done opt on ' + this.domNode.innerHTML);
   }
 }
-ConnectiveBlot1.blotName = 'connective-1';
-ConnectiveBlot1.tagName = 'span';
-ConnectiveBlot1.className = 'connective-depth-1';
+ConnectiveBlot.tagName = 'span';
 
+class ConnectiveBlot1 extends ConnectiveBlot {}
+ConnectiveBlot1.blotName = 'connective-1';
+ConnectiveBlot1.className = 'connective-depth-1';
+class ConnectiveBlot2 extends ConnectiveBlot {}
+ConnectiveBlot2.blotName = 'connective-2';
+ConnectiveBlot2.className = 'connective-depth-2';
+ConnectiveBlot2.requiredContainer = ConnectiveBlot1;
+class ConnectiveBlot3 extends ConnectiveBlot {}
+ConnectiveBlot3.blotName = 'connective-3';
+ConnectiveBlot3.className = 'connective-depth-3';
+ConnectiveBlot3.requiredContainer = ConnectiveBlot2;
+class ConnectiveBlot4 extends ConnectiveBlot {}
+ConnectiveBlot4.blotName = 'connective-4';
+ConnectiveBlot4.className = 'connective-depth-4';
+ConnectiveBlot4.requiredContainer = ConnectiveBlot3;
+class ConnectiveBlot5 extends ConnectiveBlot {}
+ConnectiveBlot5.blotName = 'connective-5';
+ConnectiveBlot5.className = 'connective-depth-5';
+ConnectiveBlot5.requiredContainer = ConnectiveBlot4;
+class ConnectiveBlot6 extends ConnectiveBlot {}
+ConnectiveBlot6.blotName = 'connective-6';
+ConnectiveBlot6.className = 'connective-depth-6';
+ConnectiveBlot6.requiredContainer = ConnectiveBlot5;
+class ConnectiveBlot7 extends ConnectiveBlot {}
+ConnectiveBlot7.blotName = 'connective-7';
+ConnectiveBlot7.className = 'connective-depth-7';
+ConnectiveBlot7.requiredContainer = ConnectiveBlot6;
+class ConnectiveBlot8 extends ConnectiveBlot {}
+ConnectiveBlot8.blotName = 'connective-8';
+ConnectiveBlot8.className = 'connective-depth-8';
+ConnectiveBlot8.requiredContainer = ConnectiveBlot7;
+class ConnectiveBlot9 extends ConnectiveBlot {}
+ConnectiveBlot9.blotName = 'connective-9';
+ConnectiveBlot9.className = 'connective-depth-9';
+ConnectiveBlot9.requiredContainer = ConnectiveBlot8;
+class ConnectiveBlot10 extends ConnectiveBlot {}
+ConnectiveBlot10.blotName = 'connective-10';
+ConnectiveBlot10.className = 'connective-depth-10';
+ConnectiveBlot10.requiredContainer = ConnectiveBlot9;
+/*
 class ConnectiveBlot2 extends Inline {
   static create(data) {
     let node = super.create();
@@ -621,7 +662,7 @@ ConnectiveBlot2.blotName = 'connective-2';
 ConnectiveBlot2.tagName = 'span';
 ConnectiveBlot2.className = 'connective-depth-2';
 ConnectiveBlot2.requiredContainer = ConnectiveBlot1;
-
+*/
 class TermBlot extends Inline {
   static create(data) {
     let node = super.create();

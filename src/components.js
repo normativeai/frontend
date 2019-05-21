@@ -577,13 +577,14 @@ class TermBlot extends Inline {
   static create(data) {
     let node = super.create();
     node.classList.add('annotator-term');
-    node.classList.add('annotator-term-'+data.id);
+    node.setAttribute('id', data.id);
+    node.setAttribute('data-term', data.term);
     return node;
   }
   
   static formats(node) {
-    let attr = node.getAttribute('class')
-    return attr;
+    return {id: node.getAttribute('id'),
+            term: node.getAttribute('data-term')};
   }
 }
 TermBlot.blotName = 'term';
@@ -599,10 +600,11 @@ Vue.component('quill', {
     return {
       quill: null,
       content0: '',
-      options: { theme: "snow", modules: {toolbar: '#quilltoolbar'} }
+      options: { theme: "snow", modules: {toolbar: '#quilltoolbar'} },
+      termPrompt: false, termPromptData: null
     }
   },
-  props: ['value','maxheight'],
+  props: ['value','maxheight', 'terms'],
   methods: {
     annotateTerm: function() {
       var range = this.quill.getSelection()
@@ -610,12 +612,23 @@ Vue.component('quill', {
         if (range.length > 0) {
           var text = this.quill.getText(range.index, range.length);
           var bounds = this.quill.getBounds(range.index, range.length);
+          this.termPromptData = {original: text, terms: this.terms, range: range, bounds: bounds};
+          this.termPrompt = true;
           //this.$parent.$emit('theory-annotate', 'term', range, text, bounds)
-          let data = {id: this.generateUUID()};
-          this.quill.formatText(range.index, range.length, 'term', data)
-          console.log('done annotation:' + range.index + " " + range.length)
+          //let data = {id: this.generateUUID(), term: 'testTerm(x)'};
+          //this.quill.formatText(range.index, range.length, 'term', data)
+          //console.log('done annotation:' + range.index + " " + range.length)
         }
       }
+    },
+    doneAnnotateTerm: function(origin, info) {
+      this.hideTermPrompt();
+      let data = {id: this.generateUUID(), term: info.term};
+      this.quill.formatText(origin.range.index, origin.range.length, 'term', data)
+    },
+    hideTermPrompt: function() {
+      this.termPrompt = false;
+      this.termPromptData = null;
     },
     annotateConnective: function(conn) {
       console.log('annotation')
@@ -629,6 +642,14 @@ Vue.component('quill', {
           //let bounds = this.quill.getBounds(range.index, range.length);
           //let data = {text: text, bounds: bounds, range: range, type: 'connective', connective: connective};
           //this.$parent.$emit('theory-annotate', data)
+        }
+      }
+    },
+    removeAnnotations: function() {
+      var range = this.quill.getSelection()
+      if (!!range) {
+        if (range.length > 0) {
+          this.quill.removeFormat(range.index, range.length);
         }
       }
     },
@@ -754,6 +775,12 @@ Vue.component('quill', {
           <button class="ql-script" value="super" title="Superscript"></button>
         </span>
         <span class="ql-formats float-right">
+          <button type="button" class="btn btn-primary-outline btn-sm mr-4" :disabled="annotateButtonsDisabled"
+                  title="Clear annotations" style="border: 1px solid gray; width: unset"
+                  v-on:click="removeAnnotations">
+            <feather-icon icon="x-square"></feather-icon>
+            <span class="small ml-1" style="font-variant:small-caps">Clear</span>
+          </button>
           <button type="button" class="btn btn-primary-outline btn-sm mr-2" :disabled="annotateButtonsDisabled"
                   title="Specify as term" style="border: 1px solid gray; width: unset"
                   v-on:click="annotateTerm">
@@ -762,7 +789,7 @@ Vue.component('quill', {
           </button>
           <div class="dropdown" style="display: inline-block">
             <button @click="showConnectiveDropdown" @blur.prevent="hideConnectiveDropdown" :disabled="annotateButtonsDisabled" class="btn btn-primary-outline btn-sm dropdown-toggle" type="button" style="width:unset; border: 1px solid gray" title="Annotate as complex statement">
-               <feather-icon icon="git-commit"></feather-icon> <span class="small ml-1" style="">Connective</span>
+               <feather-icon icon="git-commit"></feather-icon> <span class="small ml-1" style="font-variant:small-caps">Connective</span>
             </button>
             <div ref="editorConnectiveDropdown" class="dropdown-menu dropdown-menu-right" style="top: 30px">
               <h6 class="dropdown-header">Connectives</h6>
@@ -772,9 +799,86 @@ Vue.component('quill', {
         </span>
       </div>
       <div ref="editor" v-bind:style="styleObject"></div>
+      <quill-term-prompt v-if="termPrompt" v-bind:data="termPromptData" @annotate-cancel="hideTermPrompt" @annotate-confirm="doneAnnotateTerm"></quill-term-prompt>
     </div>
   `
 })
+
+Vue.component('quill-term-prompt', {
+  data: function() {
+    return {
+      selectedTerm: '',
+      newTerm: ''
+      }
+  },
+  props: ['data'],
+  methods: {
+    confirm: function() {
+      let info = {};
+      if (!!this.newTerm) {
+          info.term = this.newTerm;
+          info.fresh = true;
+        } else {
+          info.term = this.selectedTerm;
+          info.fresh = false;
+        }
+      this.$emit('annotate-confirm', this.data, info)
+    },
+    cancel: function() {
+      this.$emit('annotate-cancel')
+    }
+  },
+  computed: {
+    termSelectDisabled: function() {
+      return this.newTerm != '';
+    }
+  },
+  template: `
+   <div class="card w-50" style="position:fixed; top:200px; left:15%; z-index:1000">
+      <div class="card-body">
+        <h6 class="card-title mb-0 font-weight-bold">Annotate as term</h6>
+        <hr class="my-1 mb-2">
+        <div class="form-group row">
+          <label for="annotateview-original" class="col-sm-2 col-form-label">Text</label>
+          <div class="col-sm-10">
+            <input type="text" class="form-control form-control-sm" id="annotateview-original" :value="data.original" readonly>
+          </div>
+        </div>
+        <div class="form-group row mb-0">
+          <label for="annotateview-term" class="col-sm-2 col-form-label">Term</label>
+          <div class="col-sm-10">
+            <select class="form-control form-control-sm" id="annotateview-term" :disabled="termSelectDisabled" v-model="selectedTerm">
+              <option selected value="">Choose from existing terms ... </option>
+              <option v-for="term in data.terms" v-bind:title="term.original">{{ term.symbol }}</option>
+            </select>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-sm-2"></div>
+          <div class="col-sm-10"><div class="float-center">... or <label for="annotateview-newterm" class="font-weight-bold">add new term</label>:</div></div>
+        </div>
+        <div class="form-group row">
+          <div class="col-sm-2"></div>
+          <div class="col-sm-10">
+            <input type="text" class="form-control form-control-sm" id="annotateview-newterm" v-model="newTerm" placeholder="Type new term name ...">
+          </div>
+        </div>
+        <!--<div class="row">
+          <div class="col-sm-2"></div>
+          <div class="col-sm-10"><div class="float-right">... or <a>add new term</a></div></div>
+        </div>-->
+        <div class="btn-toolbar">
+          <div class="btn-group mr-2">
+            <button class="btn btn-small btn-success" v-on:click="confirm">Annotate</button>
+          </div>
+          <div class="btn-group">
+            <button class="btn btn-small btn-outline-danger" v-on:click="cancel">Cancel</button>
+          </div>
+        </div>
+      </div>
+    </div> 
+  `
+});
 
 Vue.component('annotateview', {
   data: function() {
@@ -837,7 +941,7 @@ Vue.component('annotateview', {
     }
   },
   template: `
-    <div class="card w-50">
+    <div class="card w-50" >
       <div class="card-header">
         <ul class="nav nav-tabs card-header-tabs">
           <li class="nav-item">

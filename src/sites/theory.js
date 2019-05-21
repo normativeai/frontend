@@ -430,11 +430,11 @@ const theory = {
           </p>
           <alert v-on:dismiss="saveResponse.show = false;saveResponse.timeout = null" :variant="saveResponse.type" v-show="saveResponse.show" :timeout="saveResponse.timeout" style="position:absolute; top:150px; right:100px">{{ saveResponse.message }}</alert>
           
-          <annotateview v-if="showAnnotateWindow" v-bind:data="annotationWindowData" style="position:fixed; top:200px; left:15%; z-index:1000"></annotateview>
+          <!--<annotateview v-if="showAnnotateWindow" v-bind:data="annotationWindowData" style="position:fixed; top:200px; left:15%; z-index:1000"></annotateview>-->
           
           <a name="original" style="display:block;visibility:hidden;position:relative;top:-3em"></a>
           <h2>Text input</h2>
-          <quill ref="annotator" @hook:mounted="registerAnnotator" v-model="theory.content" maxheight="300px" spellcheck="false"></quill>
+          <quill ref="annotator" @hook:mounted="registerAnnotator" v-model="theory.content" maxheight="300px" spellcheck="false" v-bind:terms="theoryVoc"></quill>
           <div id="debug"></div>
           <hr>
           <a name="vocabulary" style="display:block;visibility:hidden;position:relative;top:-3em"></a>

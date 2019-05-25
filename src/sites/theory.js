@@ -252,52 +252,6 @@ const theory = {
     });
     // debug test end
     }
-    /* This method is called if any annotation is requested in quill. */
-    /*onTheoryAnnotateRequest: function(typ, range, text, bounds) {
-      console.log('annotate '+ typ +' from theory: ' + text)
-      switch (typ) {
-        case 'fact':
-          let id = 'fact' + Math.round(Math.random()*9999999999); // FIXME: Cannot save theory
-          let entry = {_id: id, formula: '', original:  text, active: true};
-          this.theoryFormalization.push(entry);
-          this.$refs.annotator.get.formatText(range.index, range.length, 'fact', id)
-          break;
-        case 'term':
-        case 'connective':
-          var data = { original: text, range: range, active: typ, terms: this.theoryVoc }
-          this.annotationWindowData = data
-          this.showAnnotateWindow = true
-          break;
-      }
-    },
-    onTheoryAnnotate: function(data, request) {
-      console.log('Confirm annotation')
-      switch (data.typ) {
-        case 'term':
-          if (data.fresh) {
-            let term = {symbol: data.term, original: request.original}
-            this.theoryVoc.push(term);
-          }
-          // TODO: Add format to quill
-          let id = data.term;
-          this.$refs.annotator.get.formatText(request.range.index, request.range.length, 'term', id)
-          break;
-        case 'connective':
-          // TODO: Add format to quill
-          break;
-      }
-      this.showAnnotateWindow = false
-      //this.theoryFormalization.push({formula: formalization, original: data.original, active: true});
-      //this.lastAnnotationColor = (this.lastAnnotationColor+1) % this.annotationColors.length
-      //console.log('mark range with color in quill')
-      //this.$refs.annotator.get.formatText(data.range.index, data.range.length, 'background', this.annotationColors[this.lastAnnotationColor])
-      //var id = 'fact' + Math.round(Math.random()*9999999999); // TODO
-      //this.$refs.annotator.get.formatText(data.range.index, data.range.length, 'fact', id)
-      //console.log('done')
-    },
-    onTheoryAnnotateCancel: function() {
-      this.showAnnotateWindow = false
-    }*/
   },
   computed: {
     theoryName: function() {
@@ -434,14 +388,14 @@ const theory = {
             <li class="nav-item">
               <a :class="{'nav-link': true, 'active': activeTab == 0}" href="#" @click="activeTab = 0;">Annotation</a>
             </li>
-            <li class="nav-item">
-              <a :class="{'nav-link': true, 'active': activeTab == 1}" href="#" @click="activeTab = 1;">Vocabulary</a>
+           <li class="nav-item">
+              <a :class="{'nav-link': true, 'active': activeTab == 1}" href="#" @click="activeTab = 1;">Formalization</a>
             </li>
             <li class="nav-item">
-              <a :class="{'nav-link': true, 'active': activeTab == 2}" href="#" @click="activeTab = 2;">Formalization</a>
+              <a :class="{'nav-link': true, 'active': activeTab == 2}" href="#" @click="activeTab = 2;">Vocabulary</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Advanced</a>
+              <a :class="{'nav-link': true, 'active': activeTab == 3}" href="#" @click="activeTab = 3;">Advanced</a>
             </li>
           </ul>
           <div class="nav-content" style="border-left:1px solid #dee2e6; border-right:1px solid #dee2e6;padding:1rem .5rem;"
@@ -451,50 +405,9 @@ const theory = {
             <quill ref="annotator" @hook:mounted="registerAnnotator" v-model="theory.content" spellcheck="false" v-bind:terms="theoryVoc"></quill>
             <div id="debug"></div>
           </div>
+          
           <div class="nav-content" style="border-left:1px solid #dee2e6; border-right:1px solid #dee2e6;padding:1rem .5rem;"
            v-if="activeTab == 1">
-            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3">
-            <h2>Vocabulary</h2>
-            <div class="btn-toolbar mb-2 mb-md-0">
-              <div class="btn-group mr-2">
-              <button class="btn btn-sm btn-outline-primary" v-on:click="addLineToVoc">
-              <feather-icon icon="plus"></feather-icon>
-              Add entry
-              </button>
-              </div>
-              <button class="btn btn-sm btn-outline-secondary" v-on:click="toggleEditVoc" v-bind:class="{active : editVoc}" v-bind:aria-pressed="editVoc">
-              <feather-icon icon="edit"></feather-icon>
-              Toggle edit
-              </button>
-            </div>
-            </div>
-            <p class="small"><em>Defining the vocabulary explicitly is not strictly necessary, however strongly advised.
-            It helps keeping an overview of the used symbols and their intended meaning for the
-            fact base and queries. The contents of this table do not alter the formalization; they
-            are used for extended GUI features.</em></p>
-            <div class="">
-              <table class="table table-striped table-sm" style="table-layout:fixed;width:100%">
-                <thead>
-                  <tr>
-                    <th style="width:7em">Symbol</th>
-                    <th style="width:100%">Description</th>
-                    <th style="width:5em;text-align: center">Action</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr v-for="(item, index) in theoryVoc" :key="item._id">
-                    <td><input-update placeholder="Enter symbol" v-bind:edit="editVoc" v-model="item.symbol"></input-update></td>
-                    <td><em><textarea-update placeholder="Enter description" v-bind:edit="editVoc" v-model="item.original"></textarea-update></em></td>
-                    <td class="table-secondary" style="text-align: center">
-                      <button type="button" class="btn btn-sm btn-danger" v-bind:disabled="!editVoc" v-bind:title="vocDelButtonTitle" v-bind:style="vocDelButtonStyle" v-on:click="vocDelButtonClick(index)"><feather-icon icon="x"></feather-icon></button>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-          <div class="nav-content" style="border-left:1px solid #dee2e6; border-right:1px solid #dee2e6;padding:1rem .5rem;"
-           v-if="activeTab == 2">
            
              <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3">
               <h2>Fact base</h2>
@@ -553,9 +466,72 @@ const theory = {
                   </tr>
                 </tbody>
               </table>
-            </div>
-           
+            </div> 
           </div>
+          
+          <div class="nav-content" style="border-left:1px solid #dee2e6; border-right:1px solid #dee2e6;padding:1rem .5rem;"
+           v-if="activeTab == 2">
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3">
+            <h2>Vocabulary</h2>
+            <div class="btn-toolbar mb-2 mb-md-0">
+              <div class="btn-group mr-2">
+              <button class="btn btn-sm btn-outline-primary" v-on:click="addLineToVoc">
+              <feather-icon icon="plus"></feather-icon>
+              Add entry
+              </button>
+              </div>
+              <button class="btn btn-sm btn-outline-secondary" v-on:click="toggleEditVoc" v-bind:class="{active : editVoc}" v-bind:aria-pressed="editVoc">
+              <feather-icon icon="edit"></feather-icon>
+              Toggle edit
+              </button>
+            </div>
+            </div>
+            <p class="small"><em>Defining the vocabulary explicitly is not strictly necessary, however strongly advised.
+            It helps keeping an overview of the used symbols and their intended meaning for the
+            fact base and queries. The contents of this table do not alter the formalization; they
+            are used for extended GUI features.</em></p>
+            <div class="">
+              <table class="table table-striped table-sm" style="table-layout:fixed;width:100%">
+                <thead>
+                  <tr>
+                    <th style="width:7em">Symbol</th>
+                    <th style="width:100%">Description</th>
+                    <th style="width:5em;text-align: center">Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="(item, index) in theoryVoc" :key="item._id">
+                    <td><input-update placeholder="Enter symbol" v-bind:edit="editVoc" v-model="item.symbol"></input-update></td>
+                    <td><em><textarea-update placeholder="Enter description" v-bind:edit="editVoc" v-model="item.original"></textarea-update></em></td>
+                    <td class="table-secondary" style="text-align: center">
+                      <button type="button" class="btn btn-sm btn-danger" v-bind:disabled="!editVoc" v-bind:title="vocDelButtonTitle" v-bind:style="vocDelButtonStyle" v-on:click="vocDelButtonClick(index)"><feather-icon icon="x"></feather-icon></button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          
+          <div class="nav-content" style="border-left:1px solid #dee2e6; border-right:1px solid #dee2e6;padding:1rem .5rem;"
+           v-if="activeTab == 3">
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3">
+            <h2>Advanced</h2>
+            <div class="btn-toolbar mb-2 mb-md-0">
+              <div class="btn-group mr-2">
+              <button class="btn btn-sm btn-outline-primary" v-on:click="addLineToVoc">
+              <feather-icon icon="plus"></feather-icon>
+              Add entry
+              </button>
+              </div>
+              <button class="btn btn-sm btn-outline-secondary" v-on:click="toggleEditVoc" v-bind:class="{active : editVoc}" v-bind:aria-pressed="editVoc">
+              <feather-icon icon="edit"></feather-icon>
+              Toggle edit
+              </button>
+            </div>
+            </div>
+            <p>tba</p>
+          </div>
+          
         </div>
 
           <p>&nbsp;</p>

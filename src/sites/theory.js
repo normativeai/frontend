@@ -321,15 +321,21 @@ const theory = {
             </h6>
             <ul class="nav flex-column mb-2">
               <li class="nav-item">
-                <a class="nav-link" href="#vocabulary">
-                  <feather-icon icon="clipboard"></feather-icon>
-                  Vocabulary
+                <a class="nav-link" href="#" @click="activeTab = 0">
+                  <feather-icon icon="book"></feather-icon>
+                  Legislation
                 </a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="#facts">
-                  <feather-icon icon="book"></feather-icon>
+                <a class="nav-link" href="#" @click="activeTab = 1">
+                  <feather-icon icon="zap"></feather-icon>
                   Formalization
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="#" @click="activeTab = 2">
+                  <feather-icon icon="clipboard"></feather-icon>
+                  Vocabulary
                 </a>
               </li>
             </ul>

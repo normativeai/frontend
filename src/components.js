@@ -717,7 +717,7 @@ Vue.component('quill', {
       termPrompt: false, termPromptData: null,
     }
   },
-  props: ['value','maxheight', 'terms'],
+  props: ['value','maxheight', 'terms', 'connectives'],
   methods: {
     annotateTerm: function() {
       var range = this.quill.getSelection()
@@ -800,7 +800,7 @@ Vue.component('quill', {
         return { height: "290px"}
       }
     },
-    connectives: function() {
+    /*connectives: function() {
       return [
         {name: 'neg', description: 'Negation', symbol: '~', arity: 1},
         {name: 'perm', description: 'Permission', symbol: 'Pm', arity: 1},
@@ -813,7 +813,7 @@ Vue.component('quill', {
         {name: 'impl', description: 'Implication', symbol: 'Implies', arity: 2},
         {name: 'iff', description: 'Equivalence', symbol: 'Iff', arity: 2}
       ];
-    },
+    },*/
     annotateButtonsDisabled: function() { 
       if (!!this.quill) {
         var range = this.quill.getSelection()
@@ -916,7 +916,7 @@ Vue.component('quill', {
             </button>
             <div ref="editorConnectiveDropdown" class="dropdown-menu dropdown-menu-right" style="top: 30px">
               <h6 class="dropdown-header">Connectives</h6>
-              <a class="dropdown-item small" href="#" v-on:mousedown="annotateConnective(conn.name)" v-for="conn in connectives">{{ conn.description }}</a>
+              <a class="dropdown-item small" href="#" v-on:mousedown="annotateConnective(conn.code)" v-for="conn in connectives">{{ conn.name }}</a>
             </div>
           </div>
         </span>

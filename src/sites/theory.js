@@ -22,7 +22,7 @@ const theory = {
                          '#D252B2','#D46A43','#00A4A6','#D4533B','#939393','#AA8F00',
                          '#D47500','#E26A6A','#009FD4','#5D995D'],
       lastAnnotationColor: -1,
-      
+      connectives: null,
       activeTab: 0
     }
   },
@@ -402,7 +402,7 @@ const theory = {
             v-if="activeTab == 0">
             <a name="original" style="display:block;visibility:hidden;position:relative;top:-3em"></a>
             <h4>Annotation Editor</h4>
-            <quill ref="annotator" @hook:mounted="registerAnnotator" v-model="theory.content" spellcheck="false" v-bind:terms="theoryVoc"></quill>
+            <quill ref="annotator" @hook:mounted="registerAnnotator" v-model="theory.content" spellcheck="false" v-bind:terms="theoryVoc" v-bind:connectives="connectives"></quill>
             <div id="debug"></div>
           </div>
           
@@ -562,7 +562,12 @@ const theory = {
           self.doEditVoc();
           self.doEditFacts();
         }
-        self.doneLoading()
+        
+        nai.getConnectives(function(resp) {
+          let connectives = resp.data.data;
+          self.connectives = connectives
+          self.doneLoading()
+        }, nai.handleResponse());
       }, nai.handleResponse())
     } else {
       // This should not happen

@@ -181,6 +181,11 @@ nai = new function () { var lib = this;
     this.log('Check independence of ' + itemId + ' (from '+ theoryId +')', '[Theory]');
     nai.$http.get('/theories/' + theoryId + '/independent/' + itemId).then(success).catch(fail)
   }
+  
+  lib.getConnectives = function(success, fail) {
+    this.log('Get connectives', '[Theory]');
+    nai.$http.get('/general/connectives').then(success).catch(fail)
+  }
   // Theory-related queries ENDs
   //////////////////////////////////////////////////////
 

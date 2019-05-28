@@ -236,7 +236,31 @@ const theory = {
         self.independenceCheckRunning = false
       })
     },
-    registerAnnotator: function() {
+    onAnnotate: function(origin, info) {
+      let term = info.term;
+      let original = origin.original;
+      console.log('original: ' + original);
+      console.log('term: ' + term);
+      let idx = _.findIndex(this.theoryVoc, function(voc) {
+          return (voc.symbol == term);
+       });
+      if (idx < 0) {
+        console.log('term annotated and new');
+        this.insertTermStyle(term);
+        this.theoryVoc.push({original: original, symbol: term});
+      } else {
+        console.log('term annotated but already contained');
+      }
+    },
+    insertTermStyle: function(term) {
+      let color = this.nextAnnotationColor();
+      this.auxStyles.insertRule('.annotator-term[data-term="'+ term +'"] { background-color: ' + color + '; }');
+    },
+    nextAnnotationColor: function() {
+      this.lastAnnotationColor = (this.lastAnnotationColor + 1) % this.annotationColors.length;
+      return this.annotationColors[this.lastAnnotationColor];
+    }
+    /*registerAnnotator: function() {
       var self = this;
       // debug test
       this.$refs.annotator.get.on('selection-change', function(range, oldRange, source) {
@@ -252,6 +276,7 @@ const theory = {
     });
     // debug test end
     }
+    */
   },
   computed: {
     theoryName: function() {
@@ -302,6 +327,9 @@ const theory = {
       } else {
         return "cursor: not-allowed"
       }
+    },
+    auxStyles: function() { 
+      return document.getElementById('additionalStyles').sheet;
     }
   },
   template: `
@@ -407,7 +435,7 @@ const theory = {
           <div class="nav-content" style="border-left:1px solid #dee2e6; border-right:1px solid #dee2e6;padding:1rem .5rem;"
             v-if="activeTab == 0">
             <a name="original" style="display:block;visibility:hidden;position:relative;top:-3em"></a>
-            <h4>Annotation Editor</h4>
+            <h4>Legislation Editor</h4>
             <quill ref="annotator" @hook:mounted="registerAnnotator" v-model="theory.content" spellcheck="false" v-bind:terms="theoryVoc" v-bind:connectives="connectives"></quill>
             <div id="debug"></div>
           </div>
@@ -547,9 +575,7 @@ const theory = {
     </div>
   `,
   mounted: function() {    
-    /*this.$on('theory-annotate', this.onTheoryAnnotateRequest);
-    this.$on('annotate-confirm', this.onTheoryAnnotate);
-    this.$on('annotate-cancel', this.onTheoryAnnotateCancel);*/
+    this.$on('theory-annotate', this.onAnnotate);
   },
   created: function () {
     nai.log('Created', '[Theory]')
@@ -568,7 +594,12 @@ const theory = {
           self.doEditVoc();
           self.doEditFacts();
         }
-        
+        //register all colors for already available vocabulary
+        self.theoryVoc.forEach(function(voc) {
+           let term = voc.symbol;
+           self.insertTermStyle(term);
+        });
+        // get connetives for annotator
         nai.getConnectives(function(resp) {
           let connectives = resp.data.data;
           self.connectives = connectives

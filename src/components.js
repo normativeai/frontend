@@ -734,6 +734,7 @@ Vue.component('quill', {
       this.hideTermPrompt();
       let data = {id: this.generateUUID(), term: info.term};
       this.quill.formatText(origin.range.index, origin.range.length, 'term', data)
+      this.$parent.$emit('theory-annotate', origin, info);
     },
     hideTermPrompt: function() {
       this.termPrompt = false;
@@ -843,7 +844,7 @@ Vue.component('quill', {
     // We don't like trouble.
     this.quill.on('selection-change', function(range, oldRange, source) {
       if (!!range) {
-        self.$refs.connectivedebug.innerHTML = 'connective depth:'+ self.getConnectiveDepth(range);
+        //self.$refs.connectivedebug.innerHTML = 'connective depth:'+ self.getConnectiveDepth(range);
         if (range.length > 0) {
           // use getContent to see if any part with annotations is overlapped. if yes, forbid editing
           var ops = self.quill.getContents(range.index, range.length).ops;

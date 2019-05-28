@@ -218,6 +218,20 @@ nai = new function () { var lib = this;
 
   // Queiry-related queries END
   //////////////////////////////////////////////////////
+  
+  /// MISC:
+  lib.highlightTerm = function(term) {
+    var elems = document.querySelectorAll('[data-term="'+ term +'"]')
+    elems.forEach(function(el) {
+      el.classList.add('term-highlight')
+    });
+  }
+  lib.unhighlightTerm = function(term) {
+    var elems = document.querySelectorAll('[data-term="'+ term +'"]')
+    elems.forEach(function(el) {
+      el.classList.remove('term-highlight')
+    });
+  }
 }
 
 ///////////

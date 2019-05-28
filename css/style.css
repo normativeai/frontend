@@ -44,6 +44,10 @@ border: 1px dashed gray;
       cursor: auto;
 }
 
+.term-highlight {
+   filter: brightness(150%);
+}
+
 .ql-snow.ql-toolbar button:disabled, .ql-snow .ql-toolbar button:disabled {
   cursor: not-allowed;
 }

@@ -668,6 +668,8 @@ class TermBlot extends Inline {
     let node = super.create();
     node.setAttribute('id', data.id);
     node.setAttribute('data-term', data.term);
+    node.addEventListener('mouseover', function(e) {nai.highlightTerm(data.term);});
+    node.addEventListener('mouseout', function(e) {nai.unhighlightTerm(data.term);});
     return node;
   }
   

@@ -436,7 +436,7 @@ const theory = {
             v-if="activeTab == 0">
             <a name="original" style="display:block;visibility:hidden;position:relative;top:-3em"></a>
             <h4>Legislation Editor</h4>
-            <quill ref="annotator" @hook:mounted="registerAnnotator" v-model="theory.content" spellcheck="false" v-bind:terms="theoryVoc" v-bind:connectives="connectives"></quill>
+            <quill ref="annotator" v-model="theory.content" spellcheck="false" v-bind:terms="theoryVoc" v-bind:connectives="connectives"></quill>
             <div id="debug"></div>
           </div>
           

@@ -164,27 +164,6 @@ const query = {
     },
     runConsistencyCheck: function() {
       var self = this;
-      if (!!this.chosenTheory) {
-        self.consistencyResponse = {show: false, type: '', message: '', timeout: 0};
-        if (!_.isEqual(this.query, this.lastSavedQuery)) {
-          this.saveQuery(function() {
-            self.runConsistencyCheck0();
-          },
-          function() {
-            var msg = 'Query cannot be checked for consistency because there was an error during saving.';
-            self.consistencyResponse = {show: true, type: 'warning', message: msg};
-          });
-        } else {
-          this.runConsistencyCheck0();
-        }
-      } else {
-        nai.log('Theory not chosen, query not possible', '[Query]');
-        self.execResponse = {show: true, type: 'warning', message: 'Cannot check for consistency, please select theory first.', timeout: 3000};
-      }
-    },
-
-    runConsistencyCheck0: function() {
-      var self = this;
       this.consistencyCheckRunning = true;
       nai.checkQueryConsistency(this.queryId, function(resp) {
         nai.log(resp, '[Query]')

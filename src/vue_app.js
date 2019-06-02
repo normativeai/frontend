@@ -123,8 +123,8 @@ nai = new function () { var lib = this;
     var freshTheory = {
       name: 'New Theory',
       description: '',
-      vocabulary: [{symbol: '', original: ''}],
-      formalization: [{original: '', formula: ''}]
+      vocabulary: [],
+      formalization: []
     };
     this.$http.post('/theories', freshTheory).then(success).catch(fail)
   }

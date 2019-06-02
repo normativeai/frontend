@@ -52,7 +52,7 @@ const dashboard = {
         nai.log(resp, '[App]');
         if (!!resp.data) {
           var newTheory = {
-            name: theory.name,
+            name: theory.name + " (Clone)",
             description: theory.description,
             _id: resp.data.data.theory._id,
             lastUpdate: new Date()

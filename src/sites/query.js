@@ -253,15 +253,21 @@ const query = {
             </h6>
             <ul class="nav flex-column mb-2">
               <li class="nav-item">
-                <a class="nav-link" href="#assumptions">
-                  <feather-icon icon="clipboard"></feather-icon>
-                  Assumptions
+                <a class="nav-link" href="#" @click="activeTab = 0">
+                  <feather-icon icon="book"></feather-icon>
+                  Query editor
                 </a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="#goal">
-                  <feather-icon icon="book"></feather-icon>
-                  Goal
+                <a class="nav-link" href="#" @click="activeTab = 1">
+                  <feather-icon icon="zap"></feather-icon>
+                  Formalization
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="#" @click="activeTab = 2">
+                  <feather-icon icon="clipboard"></feather-icon>
+                  Vocabulary
                 </a>
               </li>
             </ul>

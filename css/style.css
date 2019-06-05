@@ -48,6 +48,11 @@ border: 1px dashed gray;
    filter: brightness(150%);
 }
 
+.annotator-goal {
+  text-decoration: underline;
+  font-weight:bold;
+}
+
 .ql-snow.ql-toolbar button:disabled, .ql-snow .ql-toolbar button:disabled {
   cursor: not-allowed;
 }

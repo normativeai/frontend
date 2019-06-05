@@ -683,6 +683,21 @@ TermBlot.tagName = 'span';
 TermBlot.className = 'annotator-term';
 
 
+class GoalBlot extends Inline {
+  static create(id) {
+    let node = super.create();
+    node.setAttribute('id', id);
+    return node;
+  }
+  
+  static formats(node) {
+    return node.getAttribute('id');
+  }
+}
+GoalBlot.blotName = 'goal';
+GoalBlot.tagName = 'span';
+GoalBlot.className = 'annotator-goal';
+
 
 Inline.order.push('term');
 Inline.order.push('connective-10');
@@ -695,8 +710,9 @@ Inline.order.push('connective-4');
 Inline.order.push('connective-3');
 Inline.order.push('connective-2');
 Inline.order.push('connective-1'); // See https://stackoverflow.com/questions/43267123/quilljs-parchment-controlling-nesting-order
+Inline.order.push('goal');
 
-
+Quill.register(GoalBlot)
 Quill.register(TermBlot)
 Quill.register(ConnectiveBlot1)
 Quill.register(ConnectiveBlot2)
@@ -719,7 +735,7 @@ Vue.component('quill', {
       termPrompt: false, termPromptData: null,
     }
   },
-  props: ['value','maxheight', 'terms', 'connectives'],
+  props: ['value','maxheight', 'terms', 'connectives','allowTermCreation', 'goal'],
   methods: {
     annotateTerm: function() {
       var range = this.quill.getSelection()
@@ -743,7 +759,6 @@ Vue.component('quill', {
       this.termPromptData = null;
     },
     annotateConnective: function(conn) {
-      console.log('annotation')
       var range = this.quill.getSelection()
       if (!!range) {
         if (range.length > 0) {
@@ -751,6 +766,17 @@ Vue.component('quill', {
           let format = 'connective-' + this.getConnectiveDepth(range)
           this.quill.formatText(range.index, range.length, format, data)
           console.log('done annotation:' + range.index + " " + range.length)
+        }
+      }
+    },
+    annotateGoal: function() {
+      var range = this.quill.getSelection()
+      if (!!range) {
+        if (range.length > 0) {
+          let id = this.generateUUID();
+          let format = 'goal'
+          this.quill.formatText(range.index, range.length, format, id)
+          console.log('done goal:' + range.index + " " + range.length)
         }
       }
     },
@@ -823,6 +849,20 @@ Vue.component('quill', {
         if (!!range) {
           return !(range.length > 0);
         } else return true;
+      }
+    },
+    allowTermCreation0: function() {
+      if (_.isNil(this.allowTermCreation)) {
+        return true;
+      } else {
+        return this.allowTermCreation;
+      }
+    },
+    goal0: function() {
+      if (_.isNil(this.goal)) {
+        return false;
+      } else {
+        return this.goal;
       }
     }
   },
@@ -908,6 +948,12 @@ Vue.component('quill', {
             <span class="small ml-1" style="font-variant:small-caps">Clear</span>
           </button>
           <button type="button" class="btn btn-primary-outline btn-sm mr-2" :disabled="annotateButtonsDisabled"
+                  title="Annotate goal" style="border: 1px solid gray; width: unset"
+                  v-on:click="annotateGoal" v-if="goal0">
+            <feather-icon icon="target"></feather-icon>
+            <span class="small ml-1" style="font-variant:small-caps">Goal</span>
+          </button>
+          <button type="button" class="btn btn-primary-outline btn-sm mr-2" :disabled="annotateButtonsDisabled"
                   title="Specify as term" style="border: 1px solid gray; width: unset"
                   v-on:click="annotateTerm">
             <feather-icon icon="bookmark"></feather-icon>
@@ -925,7 +971,7 @@ Vue.component('quill', {
         </span>
       </div>
       <div ref="editor" v-bind:style="styleObject"></div>
-      <quill-term-prompt v-if="termPrompt" v-bind:data="termPromptData" @annotate-cancel="hideTermPrompt" @annotate-confirm="doneAnnotateTerm"></quill-term-prompt>
+      <quill-term-prompt v-if="termPrompt" v-bind:data="termPromptData" @annotate-cancel="hideTermPrompt" @annotate-confirm="doneAnnotateTerm" v-bind:allowTermCreation="allowTermCreation0"></quill-term-prompt>
       <div ref="connectivedebug"></div>
     </div>
   `
@@ -938,7 +984,7 @@ Vue.component('quill-term-prompt', {
       newTerm: ''
       }
   },
-  props: ['data'],
+  props: ['data','allowTermCreation'],
   methods: {
     confirm: function() {
       let info = {};
@@ -980,11 +1026,11 @@ Vue.component('quill-term-prompt', {
             </select>
           </div>
         </div>
-        <div class="row">
+        <div class="row" v-if="allowTermCreation">
           <div class="col-sm-2"></div>
           <div class="col-sm-10"><div class="float-center">... or <label for="annotateview-newterm" class="font-weight-bold">add new term</label>:</div></div>
         </div>
-        <div class="form-group row">
+        <div class="form-group row" v-if="allowTermCreation">
           <div class="col-sm-2"></div>
           <div class="col-sm-10">
             <input type="text" class="form-control form-control-sm" id="annotateview-newterm" v-model="newTerm" placeholder="Type new term name ...">
@@ -994,7 +1040,7 @@ Vue.component('quill-term-prompt', {
           <div class="col-sm-2"></div>
           <div class="col-sm-10"><div class="float-right">... or <a>add new term</a></div></div>
         </div>-->
-        <div class="btn-toolbar">
+        <div class="btn-toolbar mt-1">
           <div class="btn-group mr-2">
             <button class="btn btn-small btn-success" v-on:click="confirm">Annotate</button>
           </div>

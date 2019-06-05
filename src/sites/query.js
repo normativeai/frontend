@@ -353,7 +353,7 @@ const query = {
             </div>
             <alert v-on:dismiss="consistencyResponse = {};" :variant="consistencyResponse.type" v-show="consistencyResponse.show" :timeout="consistencyResponse.timeout"><span v-html="consistencyResponse.message"></span></alert>
             <alert v-on:dismiss="execResponse = {};" :variant="execResponse.type" v-show="execResponse.show" :timeout="execResponse.timeout"><span v-html="execResponse.message"></span></alert>
-            <quill ref="annotator" v-model="query.content" spellcheck="false" v-bind:terms="theoryVoc" v-bind:connectives="connectives"></quill>
+            <quill ref="annotator" v-model="query.content" spellcheck="false" v-bind:terms="theoryVoc" v-bind:connectives="connectives" v-bind:allowTermCreation="false" v-bind:goal="true"></quill>
           </div>
           
           <div class="nav-content" style="padding:1rem .5rem;" v-if="activeTab == 1">

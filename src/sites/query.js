@@ -11,7 +11,6 @@ const query = {
       editTitle: false,
       editAssumptions: false,
       editGoal: false,
-      theoryVoc: [],
 
       saving: false,
       saveResponse: {show: false, type: '', message: '', timeout: 0},
@@ -220,6 +219,9 @@ const query = {
     },
     queryGoal: function() {
       return this.query.goal
+    },
+    theoryVoc: function() {
+      return this.query.theory.autoVocabulary.concat(this.query.theory.vocabulary)
     },
     assumptionsDelButtonTitle: function() {
       if (this.editAssumptions) {

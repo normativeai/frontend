@@ -140,7 +140,7 @@ nai = new function () { var lib = this;
     var freshQuery = {
       name: 'New Query',
       description: '',
-      assumptions: [''],
+      assumptions: [],
       goal: ''
     };
     this.log(freshQuery, '[App]');

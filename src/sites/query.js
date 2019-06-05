@@ -11,6 +11,7 @@ const query = {
       editTitle: false,
       editAssumptions: false,
       editGoal: false,
+      theoryVoc: [],
 
       saving: false,
       saveResponse: {show: false, type: '', message: '', timeout: 0},
@@ -20,6 +21,13 @@ const query = {
 
       consistencyCheckRunning: false,
       consistencyResponse: {show: false, type: '', message: '', timeout: 0},
+      
+      annotationColors: ['#5C97BF','#00AA55','#F64747','#B381B3','#1BA39C','#FF00FF',
+                         '#D252B2','#D46A43','#00A4A6','#D4533B','#939393','#AA8F00',
+                         '#D47500','#E26A6A','#009FD4','#5D995D'],
+      lastAnnotationColor: -1,
+      connectives: null,
+      activeTab: 0
     }
   },
   methods: {
@@ -267,9 +275,7 @@ const query = {
           </div>
           <div v-if="loaded">
             <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-0 mb-0">
-            <input-update class="h1" placeholder="Enter title" v-bind:edit="editTitle" v-model="query.name"></input-update>
-
-            <img v-if="saving" src="/img/loading.gif">
+            <input-update class="h1 mb-0" placeholder="Enter title" v-bind:edit="editTitle" v-model="query.name"></input-update>
 
             <div class="btn-toolbar mb-2 mb-md-0">
               <div class="btn-group mr-2">
@@ -279,10 +285,17 @@ const query = {
                 </select>
               </div>
               <div class="btn-group mr-2">
-                <button class="btn btn-sm btn-outline-primary" v-on:click="saveQuery();">
-                <feather-icon icon="save"></feather-icon>
-                Save</button>
-                <button class="btn btn-sm btn-outline-primary">
+                <button class="btn btn-sm btn-outline-primary" v-on:click="saveQuery();" :disabled="saving">
+                  <template v-if="!saving">
+                    <feather-icon icon="save"></feather-icon>
+                    Save
+                  </template>
+                  <template v-else>
+                    <bs-spinner type="primary"></bs-spinner>
+                  </template>
+                </button>
+                
+                <button class="btn btn-sm btn-outline-primary" disabled>
                 <feather-icon icon="download"></feather-icon>
                 Export</button>
               </div>
@@ -296,33 +309,139 @@ const query = {
           <p>
           <textarea-update placeholder="Enter description of query" v-bind:edit="editTitle" v-model="query.description"></textarea-update>
           </p>
-          <alert v-on:dismiss="saveResponse = {};" :variant="saveResponse.type" v-show="saveResponse.show" :timeout="saveResponse.timeout">{{ saveResponse.message }}</alert>
-
-          <a name="assumptions" style="display:block;visibility:hidden;position:relative;top:-3em"></a>
-          <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3">
-            <h2>Assumptions</h2>
-            <img v-if="consistencyCheckRunning" src="/img/loading.gif">
-            <div class="btn-toolbar mb-2 mb-md-0">
-              <div class="btn-group mr-2">
-              <button class="btn btn-sm btn-outline-primary" v-on:click="addLineToAssumptions">
-              <feather-icon icon="plus"></feather-icon>
-              Add entry
-              </button>
+          <alert v-on:dismiss="saveResponse.show = false;saveResponse.timeout = null" :variant="saveResponse.type" v-show="saveResponse.show" :timeout="saveResponse.timeout" style="position:absolute; top:150px; right:100px">{{ saveResponse.message }}</alert>
+          
+          <ul class="nav nav-tabs">
+            <li class="nav-item">
+              <a :class="{'nav-link': true, 'active': activeTab == 0}" href="#" @click="activeTab = 0;">Annotation</a>
+            </li>
+           <li class="nav-item">
+              <a :class="{'nav-link': true, 'active': activeTab == 1}" href="#" @click="activeTab = 1;">Formalization</a>
+            </li>
+            <li class="nav-item">
+              <a :class="{'nav-link': true, 'active': activeTab == 2}" href="#" @click="activeTab = 2;">Vocabulary</a>
+            </li>
+            <li class="nav-item">
+              <a :class="{'nav-link': true, 'active': activeTab == 3}" href="#" @click="activeTab = 3;">Advanced</a>
+            </li>
+          </ul>
+          
+          <div class="nav-content" style="padding:1rem .5rem;" v-if="activeTab == 0">
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center mb-1">
+              <h4>Query Editor</h4>
+              <img v-if="consistencyCheckRunning" src="/img/loading.gif">
+              <div class="btn-toolbar mb-2 mb-md-0">
+                <div class="btn-group mr-2">
+                <button class="btn btn-sm btn-outline-secondary float-right" v-on:click="runConsistencyCheck">
+                  <feather-icon icon="play"></feather-icon>
+                  Run consistency check
+                </button>
+                </div>
+                <button class="btn btn-sm btn-outline-primary" v-on:click="runQuery" title="Save query and run it.">
+                  <feather-icon icon="play"></feather-icon>
+                  Execute query
+                </button>
               </div>
-              <button class="btn btn-sm btn-outline-secondary" v-on:click="toggleEditAssumptions" v-bind:class="{active : editAssumptions}" v-bind:aria-pressed="editAssumptions">
-              <feather-icon icon="edit"></feather-icon>
-              Toggle edit
-              </button>
-              <button class="btn btn-sm btn-outline-secondary float-right" v-on:click="runConsistencyCheck">
-                <feather-icon icon="play"></feather-icon>
-                Run assumptions consistency check
-              </button>
+            </div>
+            <alert v-on:dismiss="consistencyResponse = {};" :variant="consistencyResponse.type" v-show="consistencyResponse.show" :timeout="consistencyResponse.timeout"><span v-html="consistencyResponse.message"></span></alert>
+            <alert v-on:dismiss="execResponse = {};" :variant="execResponse.type" v-show="execResponse.show" :timeout="execResponse.timeout"><span v-html="execResponse.message"></span></alert>
+            <quill ref="annotator" v-model="query.content" spellcheck="false" v-bind:terms="theoryVoc" v-bind:connectives="connectives"></quill>
+          </div>
+          
+          <div class="nav-content" style="padding:1rem .5rem;" v-if="activeTab == 1">
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center">
+              <h4>Logical representation (Formalization)</h4>
+              <img v-if="consistencyCheckRunning" src="/img/loading.gif">
+              <div class="btn-toolbar mb-2 mb-md-0">
+                <div class="btn-group mr-2">
+                <button class="btn btn-sm btn-outline-secondary float-right" v-on:click="runConsistencyCheck">
+                  <feather-icon icon="play"></feather-icon>
+                  Run consistency check
+                </button>
+                </div>
+                <button class="btn btn-sm btn-outline-primary" v-on:click="runQuery" title="Save query and run it.">
+                  <feather-icon icon="play"></feather-icon>
+                  Execute query
+                </button>
+              </div>
+            </div>
+            <p class="small"><em>A consistency check should be conducted prior to executing the query.</em></p>
+
+            <alert v-on:dismiss="consistencyResponse.show = false;" :variant="consistencyResponse.type" v-show="consistencyResponse.show" :timeout="consistencyResponse.timeout"><span v-html="consistencyResponse.message"></span></alert>
+            <alert v-on:dismiss="execResponse = {};" :variant="execResponse.type" v-show="execResponse.show" :timeout="execResponse.timeout"><span v-html="execResponse.message"></span></alert>
+            <h5>Assumptions</h5>
+            <p class="small"><em>Assumptions are contextual information that apply to a certain
+              situation only.</em></p>
+            <div class="table-responsive">
+              <table class="table table-striped table-sm table-hover" style="table-layout:fixed;">
+                <thead>
+                  <tr>
+                    <th style="width:2em;text-align:center;vertical-align:center;border-right:1px solid black">#</th>
+                    <th style="width:50%">Description</th>
+                    <th style="width:50%">Formula</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="(item, index) in queryAssumptions" :key="item._id">
+                    <td style="text-align:center; border-right:1px solid black">
+                      {{ index + 1 }}
+                    </td>
+                    <td style="border-right:1px solid black">
+                      <em>{{ item.original }}</em>
+                    </td>
+                    <td><code>{{ item.formula }}</code></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <h5>Goal</h5> 
+            <p class="small"><em>The goal is a formula that is assessed for logical consequence from
+             the theory and the contextual assumptions above.</em></p>
+            <div style="border: 1px solid black; padding: 1em; font-family: monospace; font-size: large;">
+              {{ query.goal }}
             </div>
           </div>
-          <p class="small"><em>Assumptions are contextual information that apply to a certain
-          situation only.</em></p>
-          <alert v-on:dismiss="consistencyResponse = {};" :variant="consistencyResponse.type" v-show="consistencyResponse.show" :timeout="consistencyResponse.timeout"><span v-html="consistencyResponse.message"></span></alert>
-          <div class="">
+          
+          <div class="nav-content" style="padding:1rem .5rem;" v-if="activeTab == 2">
+            <h4>Theory Vocabulary</h4>
+            <p class="small"><em>The vocabulary consists of all symbols that are used by the
+              normalized representation. This information is generated automatically from
+              the annotations of the used theory and cannot be edited.</em></p>
+            <div class="">
+              <table class="table table-striped table-sm" style="table-layout:fixed;width:100%">
+                <thead>
+                  <tr>
+                    <th style="width:20%">Symbol</th>
+                    <th style="width:80%">Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="(item, index) in theoryVoc" :key="item._id">
+                    <td><code>{{ item.symbol }}</code></td>
+                    <td><em>{{ item.original }}</em></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          
+          <div class="nav-content" style="padding:1rem .5rem;" v-if="activeTab == 3">
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3">
+              <h4>Advanced Settings</h4>
+              <div class="btn-toolbar mb-2 mb-md-0">
+                <div class="btn-group mr-2">
+                  <button class="btn btn-sm btn-outline-primary" v-on:click="addLineToAssumptions">
+                    <feather-icon icon="plus"></feather-icon>
+                    Add assumption
+                  </button>
+                </div>
+                <button class="btn btn-sm btn-outline-secondary" v-on:click="toggleEditAssumptions" v-bind:class="{active : editAssumptions}" v-bind:aria-pressed="editAssumptions">
+                <feather-icon icon="edit"></feather-icon>
+                Toggle edit
+                </button>
+              </div>
+            </div>
+            <h5>Additional manual assumptions</h5>
             <table class="table table-striped table-sm" style="table-layout:fixed;width:100%">
               <thead>
                 <tr>
@@ -344,36 +463,11 @@ const query = {
               </tbody>
             </table>
           </div>
-
-          <hr>
-          <a name="goal" style="display:block;visibility:hidden;position:relative;top:-3em"></a>
-          <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3">
-            <h2>Goal</h2>
-            <img v-if="execRunning" src="/img/loading.gif">
-            <div class="btn-toolbar mb-2 mb-md-0">
-              <div class="btn-group mr-2">
-                <button class="btn btn-sm btn-outline-primary" v-on:click="runQuery" title="Save query and run it.">
-                  <feather-icon icon="play"></feather-icon>
-                  Execute query
-                </button>
-              </div>
-              <button class="btn btn-sm btn-outline-secondary" v-on:click="toggleEditGoal" v-bind:class="{active : editGoal}" v-bind:aria-pressed="editGoal">
-              <feather-icon icon="edit"></feather-icon>
-              Toggle edit
-              </button>
-            </div>
-          </div>
-          <p class="small"><em>The goal is a formula that is assessed for logical consequence from
-           the theory and the contextual assumptions above.</em></p>
-
-          <alert v-on:dismiss="execResponse = {};" :variant="execResponse.type" v-show="execResponse.show" :timeout="execResponse.timeout"><span v-html="execResponse.message"></span></alert>
-
-          <div style="border: 1px solid black; padding: 1em; font-family: monospace; font-size: large;">
-            <textarea-update placeholder="Enter goal" v-bind:edit="editGoal" v-model="query.goal"></textarea-update>
-          </div>
-        </div>
+          
+          
 
           <p>&nbsp;</p>
+        </div>
         </main>
 
       </div>
@@ -410,6 +504,13 @@ const query = {
         nai.log('Theory Data retrieved', '[Query]');
         nai.log(resp.data, '[Query]');
         self.theories = resp.data.data;
+        
+        // get connetives for annotator
+        nai.getConnectives(function(resp) {
+          let connectives = resp.data.data;
+          self.connectives = connectives
+        }, nai.handleResponse());
+        
         self.loadedTheories = true;
       }, function(error) {
         nai.log(error, '[Query]')

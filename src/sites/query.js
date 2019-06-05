@@ -87,9 +87,6 @@ const query = {
     /* assumptions stuff */
     addLineToAssumptions: function() {
       this.queryAssumptions.push('');
-      this.$nextTick(function () {
-        feather.replace();
-      })
       this.doEditAssumptions();
     },
     doEditAssumptions: function() {
@@ -231,20 +228,13 @@ const query = {
       }
     }
   },
-  watch: {
-    loaded(newValue) {
-      this.$nextTick(function () {
-        feather.replace();
-      })
-    }
-  },
   template: `
     <div class="container-fluid">
       <div class="row">
         <nav class="col-md-2 d-none d-md-block bg-light sidebar">
           <div class="sidebar-sticky">
             <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-1 mb-1 text-muted" v-on:click="back" style="cursor:pointer">
-              <span data-feather="arrow-left"></span>
+              <feather-icon icon="arrow-left"></feather-icon>
               <a class="d-flex align-items-center text-muted">
                 <span><b>Back to dashboard</b></span>
               </a>
@@ -256,13 +246,13 @@ const query = {
             <ul class="nav flex-column mb-2">
               <li class="nav-item">
                 <a class="nav-link" href="#assumptions">
-                  <span data-feather="clipboard"></span>
+                  <feather-icon icon="clipboard"></feather-icon>
                   Assumptions
                 </a>
               </li>
               <li class="nav-item">
                 <a class="nav-link" href="#goal">
-                  <span data-feather="book"></span>
+                  <feather-icon icon="book"></feather-icon>
                   Goal
                 </a>
               </li>
@@ -290,14 +280,14 @@ const query = {
               </div>
               <div class="btn-group mr-2">
                 <button class="btn btn-sm btn-outline-primary" v-on:click="saveQuery();">
-                <span data-feather="save"></span>
+                <feather-icon icon="save"></feather-icon>
                 Save</button>
                 <button class="btn btn-sm btn-outline-primary">
-                <span data-feather="download"></span>
+                <feather-icon icon="download"></feather-icon>
                 Export</button>
               </div>
               <button class="btn btn-sm btn-outline-secondary" v-on:click="toggleEditTitle" v-bind:class="{active : editTitle}" v-bind:aria-pressed="editTitle">
-                <span data-feather="edit"></span>
+                <feather-icon icon="edit"></feather-icon>
                 Edit title/description
               </button>
             </div>
@@ -315,16 +305,16 @@ const query = {
             <div class="btn-toolbar mb-2 mb-md-0">
               <div class="btn-group mr-2">
               <button class="btn btn-sm btn-outline-primary" v-on:click="addLineToAssumptions">
-              <span data-feather="plus"></span>
+              <feather-icon icon="plus"></feather-icon>
               Add entry
               </button>
               </div>
               <button class="btn btn-sm btn-outline-secondary" v-on:click="toggleEditAssumptions" v-bind:class="{active : editAssumptions}" v-bind:aria-pressed="editAssumptions">
-              <span data-feather="edit"></span>
+              <feather-icon icon="edit"></feather-icon>
               Toggle edit
               </button>
               <button class="btn btn-sm btn-outline-secondary float-right" v-on:click="runConsistencyCheck">
-                <span data-feather="play"></span>
+                <feather-icon icon="play"></feather-icon>
                 Run assumptions consistency check
               </button>
             </div>
@@ -348,7 +338,7 @@ const query = {
                   <!--<td><em><textarea-update placeholder="Enter description" v-bind:edit="editAssumptions"></textarea-update></em></td>-->
                   <td><textarea-update placeholder="Enter formula" v-bind:edit="editAssumptions" v-model="queryAssumptions[index]"></textarea-update></td>
                   <td class="table-secondary" style="text-align: center">
-                    <button type="button" class="btn btn-sm btn-danger" v-bind:disabled="!editAssumptions" v-bind:title="assumptionsDelButtonTitle" v-bind:style="assumptionsDelButtonStyle" v-on:click="assumptionsDelButtonClick(index)"><span data-feather="x"></span></button>
+                    <button type="button" class="btn btn-sm btn-danger" v-bind:disabled="!editAssumptions" v-bind:title="assumptionsDelButtonTitle" v-bind:style="assumptionsDelButtonStyle" v-on:click="assumptionsDelButtonClick(index)"><feather-icon icon="x"></feather-icon></button>
                   </td>
                 </tr>
               </tbody>
@@ -363,12 +353,12 @@ const query = {
             <div class="btn-toolbar mb-2 mb-md-0">
               <div class="btn-group mr-2">
                 <button class="btn btn-sm btn-outline-primary" v-on:click="runQuery" title="Save query and run it.">
-                  <span data-feather="play"></span>
+                  <feather-icon icon="play"></feather-icon>
                   Execute query
                 </button>
               </div>
               <button class="btn btn-sm btn-outline-secondary" v-on:click="toggleEditGoal" v-bind:class="{active : editGoal}" v-bind:aria-pressed="editGoal">
-              <span data-feather="edit"></span>
+              <feather-icon icon="edit"></feather-icon>
               Toggle edit
               </button>
             </div>
@@ -389,9 +379,6 @@ const query = {
       </div>
     </div>
   `,
-  mounted: function() {
-    feather.replace();
-  },
   created: function () {
     nai.log('Created', '[Query]')
     var self = this;

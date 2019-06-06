@@ -296,7 +296,7 @@ const query = {
 
             <div class="btn-toolbar mb-2 mb-md-0">
               <div class="btn-group mr-2">
-                <select class="form-control" v-model="query.theory">
+                <select class="form-control" v-model="query.theory._id">
                   <option disabled value=''>Choose theory</option>
                   <option v-for="t in theories" v-bind:key="t._id" v-bind:value="t._id">{{ t.name }}</option>
                 </select>

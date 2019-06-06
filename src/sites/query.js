@@ -4,7 +4,7 @@ const query = {
       query: null,
       lastSavedQuery: null,
       theories: null,
-      chosenTheory: '',
+      //chosenTheory: null,
       loadedQuery: false,
       loadedTheories: false,
 
@@ -49,10 +49,11 @@ const query = {
     },
     saveQuery: function(onSuccess, onError) {
       var self = this;
+      let updatedTheory = (!!this.query.theory) ? this.query.theory : undefined;
       var updatedQuery = {
         _id: this.queryId,
         name: this.queryName,
-        theory: this.chosenTheory,
+        theory: updatedTheory,
         description: this.queryDesc,
         content: this.queryContent,
         assumptions: this.queryAssumptions
@@ -120,7 +121,7 @@ const query = {
     },
     runQuery: function() {
       var self = this;
-      if (!!this.chosenTheory) {
+      if (!!this.query.theory) {
         self.execResponse = {show: false, type: '', message: '', timeout: 0};
         if (!_.isEqual(this.query, this.lastSavedQuery)) {
           this.saveQuery(function() {
@@ -201,9 +202,6 @@ const query = {
     },
     queryId: function() {
       return this.query._id
-    },
-    queryTheory: function() {
-      return this.query.theory
     },
     queryTheoryId: function() {
       return this.query.theory._id;
@@ -298,7 +296,7 @@ const query = {
 
             <div class="btn-toolbar mb-2 mb-md-0">
               <div class="btn-group mr-2">
-                <select class="form-control" v-model="chosenTheory">
+                <select class="form-control" v-model="query.theory">
                   <option disabled value=''>Choose theory</option>
                   <option v-for="t in theories" v-bind:key="t._id" v-bind:value="t._id">{{ t.name }}</option>
                 </select>
@@ -501,14 +499,10 @@ const query = {
         nai.log('Data retrieved', '[Query]');
         nai.log(resp.data, '[Query]');
         self.query = resp.data.data;
-        self.lastSavedQuery = _.cloneDeep(self.query)
-        if (!!self.query.theory) {
-          console.log('theory set');
-          self.chosenTheory = self.query.theory._id;
-        } else {
-          console.log('theory not set')
+        if (!!!self.query.theory) {
           self.query.theory = '';
         }
+        self.lastSavedQuery = _.cloneDeep(self.query)
         // if theory was freshly created, edit=true is set as GET parameter
         // so enable edit mode for all contents
         if (self.$route.query.edit) {

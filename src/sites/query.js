@@ -54,8 +54,8 @@ const query = {
         name: this.queryName,
         theory: this.chosenTheory,
         description: this.queryDesc,
-        assumptions: this.queryAssumptions,
-        goal: this.queryGoal
+        content: this.queryContent,
+        assumptions: this.queryAssumptions
       }
       nai.log('save query:')
       nai.log(updatedQuery);
@@ -214,14 +214,25 @@ const query = {
     queryDesc: function() {
       return this.query.description
     },
+    queryContent: function() {
+      return this.query.content
+    },
+    queryAutoAssumptions: function() {
+      return this.query.autoAssumptions
+    },
     queryAssumptions: function() {
       return this.query.assumptions
+    },
+    queryAutoGoal: function() {
+      return this.query.autoGoal
     },
     queryGoal: function() {
       return this.query.goal
     },
     theoryVoc: function() {
-      return this.query.theory.autoVocabulary.concat(this.query.theory.vocabulary)
+      if (!!this.query.theory) {
+        return this.query.theory.autoVocabulary.concat(this.query.theory.vocabulary)
+      } else return [];
     },
     assumptionsDelButtonTitle: function() {
       if (this.editAssumptions) {
@@ -390,7 +401,7 @@ const query = {
                   </tr>
                 </thead>
                 <tbody>
-                  <tr v-for="(item, index) in queryAssumptions" :key="item._id">
+                  <tr v-for="(item, index) in queryAutoAssumptions" :key="item._id">
                     <td style="text-align:center; border-right:1px solid black">
                       {{ index + 1 }}
                     </td>
@@ -406,7 +417,7 @@ const query = {
             <p class="small"><em>The goal is a formula that is assessed for logical consequence from
              the theory and the contextual assumptions above.</em></p>
             <div style="border: 1px solid black; padding: 1em; font-family: monospace; font-size: large;">
-              {{ query.goal }}
+              {{ queryAutoGoal.original }}
             </div>
           </div>
           

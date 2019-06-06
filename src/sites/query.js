@@ -71,7 +71,7 @@ const query = {
         nai.log(resp, '[Query]')
         if (!!onSuccess && onSuccess) { onSuccess() }
       }, function(error) {
-        self.saveResponse = {show: true, type: 'warning', message: 'Query not saved, an error occurred: ' + error};
+        self.saveResponse = {show: true, type: 'warning', message: 'Query not saved, an error occurred: ' + error.response.data.error};
         self.saving = false;
         nai.log('Update error, response: ', '[Query]')
         nai.log(error, '[Query]')
@@ -163,7 +163,7 @@ const query = {
           self.execRunning = false
         }, function(error) {
           nai.log(error.response, '[Query]')
-          self.execResponse = {show: true, type: 'danger', message: '<b>Error</b>: ' + error.response.data.err};
+          self.execResponse = {show: true, type: 'danger', message: '<b>Error</b>: ' + error.response.data.error};
           self.execRunning = false
         });
     },
@@ -188,7 +188,7 @@ const query = {
         self.consistencyCheckRunning = false
       }, function(error) {
         nai.log(error.response, '[Query]')
-        self.consistencyResponse = {show: true, type: 'danger', message: '<b>Error</b>: ' + error.response.data.err};
+        self.consistencyResponse = {show: true, type: 'danger', message: '<b>Error</b>: ' + error.response.data.error};
         self.consistencyCheckRunning = false
       })
     }

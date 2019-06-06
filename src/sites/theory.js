@@ -69,9 +69,6 @@ const theory = {
         nai.log(resp, '[Theory]')
         if (!!onSuccess) { onSuccess() } // Run passed callback if existent
       }, function(error) {
-        console.log(error.data);
-        console.log(typeof(error));
-        console.log(JSON.stringify(error))
         if (!!error.response && !!error.response.data.error) {
           self.saveResponse = {show: true, type: 'danger', message: 'Theory not saved: ' + error.response.data.error};
         } else {
@@ -193,7 +190,7 @@ const theory = {
         self.consistencyCheckRunning = false
       }, function(error) {
         nai.log(error.response, '[Theory]')
-        self.consistencyResponse = {show: true, type: 'danger', message: '<b>Error</b>: ' + error.response.data.err};
+        self.consistencyResponse = {show: true, type: 'danger', message: '<b>Error</b>: ' + error.response.data.error};
         self.consistencyCheckRunning = false
       })
     },
@@ -239,7 +236,7 @@ const theory = {
         self.independenceCheckRunning = false
       }, function(error) {
         nai.log(error.response, '[Theory]')
-        self.independenceResponse = {show: true, type: 'danger', message: '<b>Error</b>: ' + error.response.data.err};
+        self.independenceResponse = {show: true, type: 'danger', message: '<b>Error</b>: ' + error.response.data.error};
         self.independenceCheckRunning = false
       })
     },

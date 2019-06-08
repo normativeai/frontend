@@ -135,8 +135,8 @@ const query = {
           this.runQuery0();
         }
       } else {
-        nai.log('Theory not chosen, query not possible', '[Query]');
-        self.execResponse = {show: true, type: 'warning', message: 'Cannot execute query, please select theory first.', timeout: 3000};
+        nai.log('Legislation not chosen, query not possible', '[Query]');
+        self.execResponse = {show: true, type: 'warning', message: 'Cannot execute query, please select legislation first.', timeout: 3000};
       }
     },
     runQuery0: function() {
@@ -147,10 +147,10 @@ const query = {
           var data = resp.data.data;
           if (!!data.result) {
             if (data.result == 'Theorem') {
-              var msg = 'Goal is a <b>Theorem</b>: It logically follows from the theory and the assumptions.';
+              var msg = 'Goal is a <b>Theorem</b>: It logically follows from the legislation and the assumptions.';
               self.execResponse = {show: true, type: 'success', message: msg};
             } else if (data.result == 'Non-Theorem') {
-              var msg = 'Goal is <b>counter-satisfiable</b>: It does not logically follow from the theory and the assumptions.';
+              var msg = 'Goal is <b>counter-satisfiable</b>: It does not logically follow from the legislation and the assumptions.';
               self.execResponse = {show: true, type: 'info', message: msg};
             } else {
               var msg = 'Got unexpected response: ' + resp.data.data.result;
@@ -297,7 +297,7 @@ const query = {
             <div class="btn-toolbar mb-2 mb-md-0">
               <div class="btn-group mr-2">
                 <select class="form-control" v-model="query.theory._id">
-                  <option disabled value=''>Choose theory</option>
+                  <option disabled value=''>Choose legislation</option>
                   <option v-for="t in theories" v-bind:key="t._id" v-bind:value="t._id">{{ t.name }}</option>
                 </select>
               </div>
@@ -339,7 +339,7 @@ const query = {
               <a :class="{'nav-link': true, 'active': activeTab == 2}" href="#" @click="activeTab = 2;">Vocabulary</a>
             </li>
             <li class="nav-item">
-              <a :class="{'nav-link': true, 'active': activeTab == 3}" href="#" @click="activeTab = 3;">Advanced</a>
+              <a :class="{'nav-link': true, 'active': activeTab == 3}" href="#" @click="activeTab = 3;">Advanced formalization</a>
             </li>
           </ul>
           
@@ -413,17 +413,17 @@ const query = {
             </div>
             <h5>Goal</h5> 
             <p class="small"><em>The goal is a formula that is assessed for logical consequence from
-             the theory and the contextual assumptions above.</em></p>
+             the legislation and the contextual assumptions above.</em></p>
             <div style="border: 1px solid black; padding: 1em; font-family: monospace; font-size: large;">
               {{ queryAutoGoal.original }}
             </div>
           </div>
           
           <div class="nav-content" style="padding:1rem .5rem;" v-if="activeTab == 2">
-            <h4>Theory Vocabulary</h4>
+            <h4>Legislation Vocabulary</h4>
             <p class="small"><em>The vocabulary consists of all symbols that are used by the
               normalized representation. This information is generated automatically from
-              the annotations of the used theory and cannot be edited.</em></p>
+              the annotations of the used legislation and cannot be edited.</em></p>
             <div class="">
               <table class="table table-striped table-sm" style="table-layout:fixed;width:100%">
                 <thead>

@@ -135,7 +135,7 @@ const dashboard = {
               <li class="nav-item">
                 <a class="nav-link" href="#legislatures">
                   <span data-feather="book"></span>
-                  Legislatures
+                  Legislations
                 </a>
               </li>
               <li class="nav-item">
@@ -146,7 +146,7 @@ const dashboard = {
               </li>
             </ul>
             
-            <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-3 mb-1 text-muted">
+            <!--<h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-3 mb-1 text-muted">
               <span>Settings</span>
             </h6>
             <ul class="nav flex-column mb-2">
@@ -156,7 +156,7 @@ const dashboard = {
                   Preferences
                 </a>
               </li>
-            </ul>
+            </ul>-->
           </div>
         </nav>
 
@@ -175,7 +175,7 @@ const dashboard = {
           <div v-if="theories">
             <a name="legislatures" style="display:block;visibility:hidden;position:relative;top:-3em"></a>
             <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center mb-4">
-              <h3>Legislatures</h3>
+              <h3>Legislations</h3>
               <div class="btn-toolbar mb-2 mb-md-0">
                 <div class="btn-group mr-2">
                   <button class="btn btn-sm btn-outline-primary" v-on:click="createTheory">
@@ -205,7 +205,7 @@ const dashboard = {
           <div v-if="queries">
             <hr>
             <a name="queries" style="display:block;visibility:hidden;position:relative;top:-3em"></a>
-            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center">
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center mb-4">
               <h3>Queries</h3>
               <div class="btn-toolbar mb-2 mb-md-0">
                 <div class="btn-group mr-2">
@@ -214,10 +214,6 @@ const dashboard = {
                     Create new
                   </button>
                 </div>
-                <button class="btn btn-sm btn-outline-secondary">
-                <span data-feather="trash"></span>
-                Remove
-                </button>
               </div>
             </div>
             

@@ -415,7 +415,7 @@ const query = {
             <p class="small"><em>The goal is a formula that is assessed for logical consequence from
              the legislation and the contextual assumptions above.</em></p>
             <div style="border: 1px solid black; padding: 1em; font-family: monospace; font-size: large;">
-              {{ queryAutoGoal.original }}
+              {{ queryAutoGoal.formula }}
             </div>
           </div>
           

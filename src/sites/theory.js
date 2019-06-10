@@ -504,14 +504,14 @@ const theory = {
               <table class="table table-striped table-sm" style="table-layout:fixed;width:100%">
                 <thead>
                   <tr>
-                    <th style="width:10em">Symbol</th>
-                    <th style="width:100%">Description</th>
+                    <th style="width:30%">Symbol</th>
+                    <th style="width:70%">Description</th>
                     <th style="width:5em;text-align: center">Action</th>
                   </tr>
                 </thead>
                 <tbody>
                   <tr v-for="(item, index) in theoryAutoVoc" :key="item._id">
-                    <td><code>{{ item.symbol }}</code></td>
+                    <td><code>{{ item.full }}</code></td>
                     <td><em>{{ item.original }}</em></td>
                     <td class="table-secondary" style="text-align: center">
                       <button type="button" class="btn btn-sm btn-danger" disabled title="Cannot delete this entry; it was automatically generated from the systen." style="cursor:not-allowed"><feather-icon icon="x"></feather-icon></button>

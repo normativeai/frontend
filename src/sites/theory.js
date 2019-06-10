@@ -132,20 +132,6 @@ const theory = {
       (this.editFacts) ? this.finishedEditFacts() : this.doEditFacts();
     },
     factDelButtonClick: function(index) {
-      console.log('delete fact: ');
-      let item = this.theoryFormalization[index];
-      console.log(item);
-      // delete annotation in quill
-      let quill = this.$refs.annotator.get;
-      let el = document.getElementById(item._id);
-      if (el) {
-        let blot = Quill.find(el);
-        if (blot) {
-          let index = quill.getIndex(blot);
-          let length = el.textContent.length;
-          quill.updateContents(new Delta().retain(index).retain(length, {fact: false}));
-        }
-      }
       // remove from fact list
       this.theoryFormalization.splice(index,1)
     },

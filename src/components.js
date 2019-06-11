@@ -554,13 +554,19 @@ class ConnectiveBlot extends Inline {
     let node = super.create();
     node.setAttribute('id', data.id);
     node.classList.add('annotator-connective');
-    node.setAttribute('data-connective', data.connective);
+    node.setAttribute('data-connective', data.connective.code);
+    node.setAttribute('title', data.connective.name);
     return node;
   }
   
   static formats(node) {
-    return {id: node.getAttribute('id'),
-        connective: node.getAttribute('data-connective')};
+    return {
+      id: node.getAttribute('id'),
+      connective: {
+        code: node.getAttribute('data-connective'), 
+        name: node.getAttribute('title')
+      }
+    };
   }
   
   formatAt(index, length, name, value) {
@@ -670,6 +676,7 @@ class TermBlot extends Inline {
     node.setAttribute('data-term', data.term);
     node.addEventListener('mouseover', function(e) {nai.highlightTerm(data.term);});
     node.addEventListener('mouseout', function(e) {nai.unhighlightTerm(data.term);});
+    node.setAttribute('title', data.term);
     return node;
   }
   
@@ -884,7 +891,7 @@ Vue.component('quill', {
           })
     // Disable text editing in annotated text parts. This would only cause trouble.
     // We don't like trouble.
-    this.quill.on('selection-change', function(range, oldRange, source) {
+    /*this.quill.on('selection-change', function(range, oldRange, source) {
       if (!!range) {
         //self.$refs.connectivedebug.innerHTML = 'connective depth:'+ self.getConnectiveDepth(range);
         if (range.length > 0) {
@@ -899,7 +906,7 @@ Vue.component('quill', {
           else { self.quill.enable(); self.quill.focus() }
         }
       }
-    });
+    });*/
   },
   beforeDestroy: function() {
     this.quill = null
@@ -965,7 +972,7 @@ Vue.component('quill', {
             </button>
             <div ref="editorConnectiveDropdown" class="dropdown-menu dropdown-menu-right" style="top: 30px">
               <h6 class="dropdown-header">Connectives</h6>
-              <a class="dropdown-item small" href="#" v-on:mousedown="annotateConnective(conn.code)" v-for="conn in connectives">{{ conn.name }}</a>
+              <a class="dropdown-item small" href="#" v-on:mousedown="annotateConnective(conn)" v-for="conn in connectives">{{ conn.name }}</a>
             </div>
           </div>
         </span>

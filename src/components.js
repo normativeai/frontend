@@ -171,52 +171,30 @@ Vue.component('register', {
       name: '',
       email: '',
       password: '',
-      error: false,
-      successful: false
+      registerResponse: {show: false, type: '', message: '', timeout: 0}
     }
   },
   methods: {
     submit: function() {
-      console.log('registration requested');
       // call api
-      var data = {name: this.name, email: this.email, password: this.password};
-      nai.register(data, this.success, this.fail);
-    },
-    success: function(resp) {
-      this.successful = true;
-    },
-    fail: function(error) {
-      if (error.response) {
-        // The request was made and the server responded with a status code
-        // that falls out of the range of 2xx
-        console.log(error.response.data);
-        console.log(error.response.status);
-        console.log(error.response.headers);
-        if (!!error.response.data) {
-          this.error = error.response.data.err;
+      let data = {name: this.name, email: this.email, password: this.password};
+      let self = this;
+      nai.register(data, function(resp) {
+        self.registerResponse = {show: true, type: 'success', message: `Registration successful. Your user account has been created.
+           You can now log in above using your password.`, timeout: 4000};
+      }, function(error) {
+        if (!!error.response.data.error) {
+          self.registerResponse = {show: true, type: 'danger', message: "Registration failed, reason: " + error.response.data.error};
         } else {
-          this.error = 'Unexpected server response: ' + error.response.data
+          self.registerResponse = {show: true, type: 'danger', message: "Registration failed, reason: " + error};
         }
-      } else if (error.request) {
-        // The request was made but no response was received
-        // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
-        // http.ClientRequest in node.js
-        console.log(error.request);
-        this.error = 'Cannot connect to logon server. Please contact server administrator.'
-      } else {
-        // Something happened in setting up the request that triggered an Error
-        console.log('Error', error.message);
-        this.error = 'Unexpected error: ' + error.message
-      }
-      console.log(error.config);
+      });
     }
-  },
-  computed: {
-    
   },
   template: `
 <div class="register">
   <h2>Register an account</h2>
+  <alert v-on:dismiss="registerResponse.show = false;registerResponse.timeout = null" :variant="registerResponse.type" v-show="registerResponse.show" :timeout="registerResponse.timeout" style="position:absolute;right:50px;">{{ registerResponse.message }}</alert>
   <form>
     <div class="form-group">
       <label for="register">Name</label>
@@ -233,8 +211,6 @@ Vue.component('register', {
     </div>
     <button type="button" class="btn btn-primary" v-on:click="submit">Register</button>
   </form>
-  <div class="alert alert-danger" v-if="error">Registration failed. Reason: {{ error }}</div>
-  <div class="alert alert-success" v-if="successful">Registration successful. Your user account has been created. You can now log in above using your password.</div>
 </div>
   `
 })

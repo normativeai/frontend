@@ -60,13 +60,21 @@ const theory = {
       // Show save-in-progress icon
       this.saving = true;
       // Call API
-      nai.log('is saved equal to before updated? ' + _.isEqual(self.lastSavedTheory, self.theory))
+      //nai.log('is saved equal to before updated? ' + _.isEqual(self.lastSavedTheory, self.theory))
       nai.saveTheory(updatedTheory, function(resp) {
         self.saveResponse = {show: true, type: 'success', message: 'Theory successfully saved', timeout: 3000};
-        self.saving = false;
-        self.lastSavedTheory = _.cloneDeep(self.theory)
-        nai.log('Update successful, response: ', '[Theory]')
-        nai.log(resp, '[Theory]')
+        nai.getTheory(self.theoryId, function(resp) {
+          nai.log('Save-get retrieved', '[Theory]');
+          self.theory = resp.data.data;
+          self.saving = false;
+          self.lastSavedTheory = _.cloneDeep(self.theory)
+          nai.log('Update successful', '[Theory]')
+        }, function(error) {
+          nai.log('save-get error', '[Theory]'); // not too bad, just ignore
+          self.saving = false;
+          self.lastSavedTheory = _.cloneDeep(self.theory)
+          nai.log('Update successful', '[Theory]')
+        });
         if (!!onSuccess) { onSuccess() } // Run passed callback if existent
       }, function(error) {
         if (!!error.response && !!error.response.data.error) {
@@ -226,20 +234,27 @@ const theory = {
         self.independenceCheckRunning = false
       })
     },
-    onAnnotate: function(origin, info) {
-      let term = info.term;
+    onAnnotate: function(origin, info, depth) {
       let original = origin.original;
-      console.log('original: ' + original);
-      console.log('term: ' + term);
-      let idx = _.findIndex(this.theoryAutoVoc, function(voc) {
-          return (voc.symbol == term);
-       });
-      if (idx < 0) {
-        console.log('term annotated and new');
-        this.insertTermStyle(term);
-        this.theoryAutoVoc.push({original: original, symbol: term});
+      if (!!info.term) {
+        // term annotation
+        let term = info.term;
+        
+        let idx = _.findIndex(this.theoryAutoVoc, function(voc) {
+            return (voc.symbol == term);
+         });
+        if (idx < 0) {
+          this.insertTermStyle(term);
+          this.theoryAutoVoc.push({original: original, full: term});
+        } 
+        if (depth == 1) {
+          // Also add as formula
+          this.theoryAutoFormalization.push({original: original, formula: term})
+        }
       } else {
-        console.log('term annotated but already contained');
+        // connective annotation
+        if (depth != 1) return;
+        this.theoryAutoFormalization.push({original: original, formula: ''})
       }
     },
     insertTermStyle: function(term) {
@@ -471,7 +486,8 @@ const theory = {
                     <td style="border-right:1px solid black">
                       <em>{{ item.original }}</em>
                     </td>
-                    <td><code>{{ item.formula }}</code></td>
+                    <td v-if="item.formula"><code>{{ item.formula }}</code></td>
+                    <td v-else><em>Save theory to update formalization</em></td>
                     <td class="table-secondary" style="text-align: center">
                       <button title="Check for logical independence" type="button" class="btn btn-sm btn-secondary" v-on:click="runIndependenceCheck(item)"><feather-icon icon="activity"></feather-icon></button>
                     </td>

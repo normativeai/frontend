@@ -734,8 +734,9 @@ Vue.component('quill', {
     doneAnnotateTerm: function(origin, info) {
       this.hideTermPrompt();
       let data = {id: this.generateUUID(), term: info.term};
+      let depth = this.getConnectiveDepth(origin.range);
       this.quill.formatText(origin.range.index, origin.range.length, 'term', data)
-      this.$parent.$emit('theory-annotate', origin, info);
+      this.$parent.$emit('theory-annotate', origin, info, depth);
     },
     hideTermPrompt: function() {
       this.termPrompt = false;
@@ -746,9 +747,13 @@ Vue.component('quill', {
       if (!!range) {
         if (range.length > 0) {
           let data = {id: this.generateUUID(), connective: conn};
-          let format = 'connective-' + this.getConnectiveDepth(range)
+          let depth = this.getConnectiveDepth(range);
+          let format = 'connective-' + depth;
           this.quill.formatText(range.index, range.length, format, data)
-          console.log('done annotation:' + range.index + " " + range.length)
+          if (depth == 1) {
+            let text = this.quill.getText(range.index, range.length);
+            this.$parent.$emit('theory-annotate', {original: text, range: range}, {term: null}, depth);
+          }
         }
       }
     },

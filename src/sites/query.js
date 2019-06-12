@@ -228,7 +228,7 @@ const query = {
       return this.query.goal
     },
     theoryVoc: function() {
-      if (!!this.query.theory) {
+      if (!!this.query.theory.autoVocabulary) {
         return this.query.theory.autoVocabulary.concat(this.query.theory.vocabulary)
       } else return [];
     },
@@ -500,7 +500,7 @@ const query = {
         nai.log(resp.data, '[Query]');
         self.query = resp.data.data;
         if (!!!self.query.theory) {
-          self.query.theory = '';
+          self.query.theory = {'_id': ''};
         }
         self.lastSavedQuery = _.cloneDeep(self.query)
         // if theory was freshly created, edit=true is set as GET parameter

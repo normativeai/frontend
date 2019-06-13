@@ -636,7 +636,7 @@ const theory = {
           self.doEditFacts();
         }
         //register all colors for already available vocabulary
-        self.theoryAutoVoc.forEach(function(voc) {
+        _.uniqBy(self.theoryAutoVoc, 'full').forEach(function(voc) {
            let term = voc.full;
            self.insertTermStyle(term);
         });

@@ -7,6 +7,8 @@ const query = {
       //chosenTheory: null,
       loadedQuery: false,
       loadedTheories: false,
+      
+      queryAutoVocabulary: [],
 
       editTitle: false,
       editAssumptions: false,
@@ -193,27 +195,27 @@ const query = {
       })
     },
     onAnnotate: function(origin, info, depth) {
-      /*let original = origin.original;
+      let original = origin.original;
       if (!!info.term) {
         // term annotation
         let term = info.term;
         
-        let idx = _.findIndex(this.theoryAutoVoc, function(voc) {
-            return (voc.symbol == term);
+        let idx = _.findIndex(this.queryAutoVocabulary.concat(this.theoryVoc), function(voc) {
+            return (voc.full == term);
          });
         if (idx < 0) {
           this.insertTermStyle(term);
-          this.theoryAutoVoc.push({original: original, full: term});
+          this.queryAutoVocabulary.push({original: original, full: term});
         } 
         if (depth == 1) {
           // Also add as formula
-          this.theoryAutoFormalization.push({original: original, formula: term})
+          this.queryAutoAssumptions.push({original: original, formula: term})
         }
       } else {
         // connective annotation
-        if (depth != 1) return;
-        this.theoryAutoFormalization.push({original: original, formula: ''})
-      }*/
+        //if (depth != 1) return;
+        //this.theoryAutoFormalization.push({original: original, formula: ''})
+      }
     },
     insertTermStyle: function(term) {
       let color = this.nextAnnotationColor();
@@ -396,7 +398,7 @@ const query = {
             </div>
             <alert v-on:dismiss="consistencyResponse = {};" :variant="consistencyResponse.type" v-show="consistencyResponse.show" :timeout="consistencyResponse.timeout"><span v-html="consistencyResponse.message"></span></alert>
             <alert v-on:dismiss="execResponse = {};" :variant="execResponse.type" v-show="execResponse.show" :timeout="execResponse.timeout"><span v-html="execResponse.message"></span></alert>
-            <quill ref="annotator" v-model="query.content" spellcheck="false" v-bind:terms="theoryVoc" v-bind:connectives="connectives" v-bind:allowTermCreation="false" v-bind:goal="true"></quill>
+            <quill ref="annotator" v-model="query.content" spellcheck="false" v-bind:terms="theoryVoc" v-bind:connectives="connectives" v-bind:allowTermCreation="true" v-bind:goal="true"></quill>
           </div>
           
           <div class="nav-content" style="padding:1rem .5rem;" v-if="activeTab == 1">
@@ -422,7 +424,8 @@ const query = {
             <alert v-on:dismiss="execResponse = {};" :variant="execResponse.type" v-show="execResponse.show" :timeout="execResponse.timeout"><span v-html="execResponse.message"></span></alert>
             <h5>Assumptions</h5>
             <p class="small"><em>Assumptions are contextual information that apply to a certain
-              situation only.</em></p>
+              situation only. This information is generated automatically from the annotations 
+              and cannot be edited directly.</em></p>
             <div class="table-responsive">
               <table class="table table-striped table-sm table-hover" style="table-layout:fixed;">
                 <thead>
@@ -454,11 +457,13 @@ const query = {
           </div>
           
           <div class="nav-content" style="padding:1rem .5rem;" v-if="activeTab == 2">
-            <h4>Legislation Vocabulary</h4>
+            <h4>Vocabulary</h4>
             <p class="small"><em>The vocabulary consists of all symbols that are used by the
               normalized representation. This information is generated automatically from
-              the annotations of the used legislation and cannot be edited.</em></p>
+              the annotations of the underlying legislation and the annotation of the query,
+              and cannot be edited directly.</em></p>
             <div class="">
+              <h5>Legislation Vocabulary</h5>
               <table class="table table-striped table-sm" style="table-layout:fixed;width:100%">
                 <thead>
                   <tr>
@@ -467,7 +472,24 @@ const query = {
                   </tr>
                 </thead>
                 <tbody>
+                  <tr v-if="theoryVoc.length == 0"><td colspan="2" style="text-align:center"><em>No vocabulary</em></td></tr>
                   <tr v-for="(item, index) in theoryVoc" :key="item._id">
+                    <td><code>{{ item.symbol }}</code></td>
+                    <td><em>{{ item.original }}</em></td>
+                  </tr>
+                </tbody>
+              </table>
+              <h5>Query Vocabulary</h5>
+              <table class="table table-striped table-sm" style="table-layout:fixed;width:100%">
+                <thead>
+                  <tr>
+                    <th style="width:20%">Symbol</th>
+                    <th style="width:80%">Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-if="queryAutoVocabulary.length == 0"><td colspan="2" style="text-align:center"><em>No vocabulary</em></td></tr>
+                  <tr v-for="(item, index) in queryAutoVocabulary" :key="item._id">
                     <td><code>{{ item.symbol }}</code></td>
                     <td><em>{{ item.original }}</em></td>
                   </tr>

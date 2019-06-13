@@ -191,6 +191,37 @@ const query = {
         self.consistencyResponse = {show: true, type: 'danger', message: '<b>Error</b>: ' + error.response.data.error};
         self.consistencyCheckRunning = false
       })
+    },
+    onAnnotate: function(origin, info, depth) {
+      /*let original = origin.original;
+      if (!!info.term) {
+        // term annotation
+        let term = info.term;
+        
+        let idx = _.findIndex(this.theoryAutoVoc, function(voc) {
+            return (voc.symbol == term);
+         });
+        if (idx < 0) {
+          this.insertTermStyle(term);
+          this.theoryAutoVoc.push({original: original, full: term});
+        } 
+        if (depth == 1) {
+          // Also add as formula
+          this.theoryAutoFormalization.push({original: original, formula: term})
+        }
+      } else {
+        // connective annotation
+        if (depth != 1) return;
+        this.theoryAutoFormalization.push({original: original, formula: ''})
+      }*/
+    },
+    insertTermStyle: function(term) {
+      let color = this.nextAnnotationColor();
+      this.auxStyles.insertRule('.annotator-term[data-term="'+ term +'"] { background-color: ' + color + '; }');
+    },
+    nextAnnotationColor: function() {
+      this.lastAnnotationColor = (this.lastAnnotationColor + 1) % this.annotationColors.length;
+      return this.annotationColors[this.lastAnnotationColor];
     }
   },
   computed: {
@@ -245,6 +276,9 @@ const query = {
       } else {
         return "cursor: not-allowed"
       }
+    },
+    auxStyles: function() { 
+      return document.getElementById('additionalStyles').sheet;
     }
   },
   template: `
@@ -490,6 +524,9 @@ const query = {
       </div>
     </div>
   `,
+  mounted: function() {    
+    this.$on('theory-annotate', this.onAnnotate);
+  },
   created: function () {
     nai.log('Created', '[Query]')
     var self = this;
@@ -501,6 +538,12 @@ const query = {
         self.query = resp.data.data;
         if (!!!self.query.theory) {
           self.query.theory = {'_id': ''};
+        } else {
+          //register all colors for already available vocabulary
+          _.uniqBy(self.query.theory.autoVocabulary, 'full').forEach(function(voc) {
+           let term = voc.full;
+           self.insertTermStyle(term);
+        });
         }
         self.lastSavedQuery = _.cloneDeep(self.query)
         // if theory was freshly created, edit=true is set as GET parameter

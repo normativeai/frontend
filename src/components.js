@@ -670,6 +670,7 @@ class GoalBlot extends Inline {
   static create(id) {
     let node = super.create();
     node.setAttribute('id', id);
+    node.setAttribute('title', 'Goal');
     return node;
   }
   
@@ -1010,7 +1011,7 @@ Vue.component('quill-term-prompt', {
           <div class="col-sm-10">
             <select class="form-control form-control-sm" id="annotateview-term" :disabled="termSelectDisabled" v-model="selectedTerm">
               <option selected value="">Choose from existing terms ... </option>
-              <option v-for="term in data.terms" v-bind:title="term.original">{{ term.full }}</option>
+              <option v-for="term in _.uniqBy(data.terms, 'full')" v-bind:title="term.original">{{ term.full }}</option>
             </select>
           </div>
         </div>

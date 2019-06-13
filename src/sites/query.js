@@ -60,17 +60,23 @@ const query = {
         content: this.queryContent,
         assumptions: this.queryAssumptions
       }
-      nai.log('save query:')
-      nai.log(updatedQuery);
       // Show save-in-progress icon
       this.saving = true;
       // Call API
       nai.saveQuery(updatedQuery, function(resp) {
         self.saveResponse = {show: true, type: 'success', message: 'Query successfully saved', timeout: 3000};
-        self.saving = false;
-        self.lastSavedQuery = _.cloneDeep(self.query)
-        nai.log('Update successful, response: ', '[Query]')
-        nai.log(resp, '[Query]')
+        nai.getQuery(self.queryId, function(resp) {
+          nai.log('Save-get retrieved', '[Query]');
+          self.query = resp.data.data;
+          self.saving = false;
+          self.lastSavedQuery = _.cloneDeep(self.query)
+          nai.log('Update successful, response: ', '[Query]')
+        }, function(error) {
+          nai.log('save-get error', '[Query]'); // not too bad, just ignore
+          self.saving = false;
+          self.lastSavedQuery = _.cloneDeep(self.query)
+          nai.log('Update successful, response: ', '[Query]')
+        });
         if (!!onSuccess && onSuccess) { onSuccess() }
       }, function(error) {
         self.saveResponse = {show: true, type: 'warning', message: 'Query not saved, an error occurred: ' + error.response.data.error};

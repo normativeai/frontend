@@ -6,9 +6,7 @@ const query = {
       theories: null,
       //chosenTheory: null,
       loadedQuery: false,
-      loadedTheories: false,
-      
-      queryAutoVocabulary: [],
+      loadedTheories: false,    
 
       editTitle: false,
       editAssumptions: false,
@@ -254,6 +252,18 @@ const query = {
     queryContent: function() {
       return this.query.content
     },
+    queryAutoVocabulary: function() {
+      return this.query.autoVocabulary;
+    },
+    queryEffectiveQueryVoc: function() {
+      let qvoc = this.query.autoVocabulary;
+      if (!!this.query.theory.autoVocabulary) {
+        let tvoc = this.query.theory.autoVocabulary;
+        return _.differenceBy(qvoc,tvoc, 'full')
+      } else {
+        return qvoc
+      }
+    },
     queryAutoAssumptions: function() {
       return this.query.autoAssumptions
     },
@@ -480,7 +490,7 @@ const query = {
                 <tbody>
                   <tr v-if="theoryVoc.length == 0"><td colspan="2" style="text-align:center"><em>No vocabulary</em></td></tr>
                   <tr v-for="(item, index) in theoryVoc" :key="item._id">
-                    <td><code>{{ item.symbol }}</code></td>
+                    <td><code>{{ item.full }}</code></td>
                     <td><em>{{ item.original }}</em></td>
                   </tr>
                 </tbody>
@@ -494,9 +504,9 @@ const query = {
                   </tr>
                 </thead>
                 <tbody>
-                  <tr v-if="queryAutoVocabulary.length == 0"><td colspan="2" style="text-align:center"><em>No vocabulary</em></td></tr>
-                  <tr v-for="(item, index) in queryAutoVocabulary" :key="item._id">
-                    <td><code>{{ item.symbol }}</code></td>
+                  <tr v-if="queryEffectiveQueryVoc.length == 0"><td colspan="2" style="text-align:center"><em>No vocabulary</em></td></tr>
+                  <tr v-for="(item, index) in queryEffectiveQueryVoc" :key="item._id">
+                    <td><code>{{ item.full }}</code></td>
                     <td><em>{{ item.original }}</em></td>
                   </tr>
                 </tbody>
@@ -568,7 +578,7 @@ const query = {
           self.query.theory = {'_id': ''};
         } else {
           //register all colors for already available vocabulary
-          _.uniqBy(self.query.theory.autoVocabulary, 'full').forEach(function(voc) {
+          _.uniqBy(self.query.autoVocabulary, 'full').forEach(function(voc) {
            let term = voc.full;
            self.insertTermStyle(term);
         });

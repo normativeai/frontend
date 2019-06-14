@@ -167,30 +167,29 @@ const theory = {
       var self = this;
       this.consistencyCheckRunning = true;
       nai.checkConsistency(this.theoryId, function(resp) {
-        nai.log(resp, '[Theory]')
-        var data = resp.data.data;
-        if (! _.isUndefined(data.consistent)) {
-          if (data.consistent) {
-            var msg = '<b>Consistency check succeeded</b>: Normalization is logically consistent';
-            self.consistencyResponse = {show: true, type: 'success', message: msg, timeout: 3000};
-          } else {
-            var msg = '<b>Consistency check succeeded</b>: Normalization is inconsistent (an intrinsic contradiction could be derived).';
-            self.consistencyResponse = {show: true, type: 'warning', message: msg, timeout: 3000};
-          }
+        if (!!resp.data) {
+          let data = resp.data;
+          let timeout = undefined;
+          if (data.type == 'success') { timeout = 3000 }
+          self.consistencyResponse = {show: true, type: data.type, message: data.message, timeout: timeout};  
         } else {
-          var msg = '<b>Consistency check failed</b>: Got unexpected response. ' + data;
-          self.consistencyResponse = {show: true, type: 'info', message: msg, timeout: 3000};
+          self.consistencyResponse = {show: true, type: 'warning', message: '<b>Unexpected reponse</b>: ' + resp};
         }
         self.consistencyCheckRunning = false
       }, function(error) {
-        nai.log(error.response, '[Theory]')
-        self.consistencyResponse = {show: true, type: 'danger', message: '<b>Error</b>: ' + error.response.data.error};
+        if (!!error.data) {
+          let data = error.data;
+          let timeout = undefined;
+          if (data.type == 'success') { timeout = 3000 }
+          self.consistencyResponse = {show: true, type: data.type, message: data.message, timeout: timeout};  
+        } else {
+          self.consistencyResponse = {show: true, type: 'danger', message: '<b>Unexpected error</b>: ' + error};
+        }
         self.consistencyCheckRunning = false
       })
     },
     runIndependenceCheck: function(item) {
       var self = this;
-      nai.log('Independence check requested from user. Item: ' + item._id, '[Theory]')
       // Hide previous response if still showing
       self.independenceCheckResponse = {show: false, type: '', message: '', timeout: 0};
       // check if we need to save the theory first
@@ -213,24 +212,24 @@ const theory = {
       var self = this
       this.independenceCheckRunning = true
       nai.checkIndependence(this.theoryId, item._id,  function(resp) {
-        nai.log(resp, '[Theory]')
-        var data = resp.data.data;
-        if (! _.isUndefined(data.independent)) {
-          if (data.independent) {
-            var msg = '<b>Independence check succeeded</b>: Normalization is logically independent from theory';
-            self.independenceResponse = {show: true, type: 'success', message: msg, timeout: 3000};
-          } else {
-            var msg = '<b>Independence check succeeded</b>: Normalization is not logically independent from theory (the fact can already be derived from the remaining theory).';
-            self.independenceResponse = {show: true, type: 'warning', message: msg, timeout: 3000};
-          }
+        if (!!resp.data) {
+          let data = resp.data;
+          let timeout = undefined;
+          if (data.type == 'success') { timeout = 3000 }
+          self.independenceResponse = {show: true, type: data.type, message: data.message, timeout: timeout};  
         } else {
-          var msg = '<b>Independence check failed</b>: Got unexpected response. ' + data;
-          self.independenceResponse = {show: true, type: 'info', message: msg, timeout: 3000};
+          self.independenceResponse = {show: true, type: 'warning', message: '<b>Unexpected reponse</b>: ' + resp};
         }
         self.independenceCheckRunning = false
       }, function(error) {
-        nai.log(error.response, '[Theory]')
-        self.independenceResponse = {show: true, type: 'danger', message: '<b>Error</b>: ' + error.response.data.error};
+        if (!!error.data) {
+          let data = error.data;
+          let timeout = undefined;
+          if (data.type == 'success') { timeout = 3000 }
+          self.independenceResponse = {show: true, type: data.type, message: data.message, timeout: timeout};  
+        } else {
+          self.independenceResponse = {show: true, type: 'warning', message: '<b>Unexpected reponse</b>: ' + error};
+        }
         self.independenceCheckRunning = false
       })
     },

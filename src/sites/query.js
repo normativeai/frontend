@@ -149,52 +149,49 @@ const query = {
       var self = this;
       this.execRunning = true;
         nai.runQuery(this.queryId, function(resp) {
-          nai.log(resp, '[Query]')
-          var data = resp.data.data;
-          if (!!data.result) {
-            if (data.result == 'Theorem') {
-              var msg = 'Goal is a <b>Theorem</b>: It logically follows from the legislation and the assumptions.';
-              self.execResponse = {show: true, type: 'success', message: msg};
-            } else if (data.result == 'Non-Theorem') {
-              var msg = 'Goal is <b>counter-satisfiable</b>: It does not logically follow from the legislation and the assumptions.';
-              self.execResponse = {show: true, type: 'info', message: msg};
-            } else {
-              var msg = 'Got unexpected response: ' + resp.data.data.result;
-              self.execResponse = {show: true, type: 'warning', message: msg};
-            }
-          } else {
-           var msg = 'Got unexpected response: ' + resp.data.data.result;
-           self.execResponse = {show: true, type: 'warning', message: msg};
-          }
-          self.execRunning = false
+          if (!!resp.data) {
+          let data = resp.data;
+          let timeout = undefined;
+          if (data.type == 'success') { timeout = 3000 }
+          self.execResponse = {show: true, type: data.type, message: data.message, timeout: timeout};  
+        } else {
+          self.execResponse = {show: true, type: 'warning', message: '<b>Unexpected reponse</b>: ' + resp};
+        }
+        self.execRunning = false
         }, function(error) {
-          nai.log(error.response, '[Query]')
-          self.execResponse = {show: true, type: 'danger', message: '<b>Error</b>: ' + error.response.data.error};
-          self.execRunning = false
+          if (!!resp.data) {
+          let data = resp.data;
+          let timeout = undefined;
+          if (data.type == 'success') { timeout = 3000 }
+          self.execResponse = {show: true, type: data.type, message: data.message, timeout: timeout};  
+        } else {
+          self.execResponse = {show: true, type: 'warning', message: '<b>Unexpected reponse</b>: ' + resp};
+        }
+        self.execRunning = false
         });
     },
     runConsistencyCheck: function() {
       var self = this;
       this.consistencyCheckRunning = true;
       nai.checkQueryConsistency(this.queryId, function(resp) {
-        nai.log(resp, '[Query]')
-        var data = resp.data.data;
-        if (! _.isUndefined(data.consistent)) {
-          if (data.consistent) {
-            var msg = '<b>Consistency check succeeded</b>: Normalization and query assumptions are logically consistent';
-            self.consistencyResponse = {show: true, type: 'success', message: msg, timeout: 3000};
-          } else {
-            var msg = '<b>Consistency check succeeded</b>: Normalization and query assumptions are inconsistent (an intrinsic contradiction could be derived).';
-            self.consistencyResponse = {show: true, type: 'warning', message: msg, timeout: 3000};
-          }
+        if (!!resp.data) {
+          let data = resp.data;
+          let timeout = undefined;
+          if (data.type == 'success') { timeout = 3000 }
+          self.consistencyResponse = {show: true, type: data.type, message: data.message, timeout: timeout};  
         } else {
-          var msg = '<b>Consistency check failed</b>: Got unexpected response. ' + data;
-          self.consistencyResponse = {show: true, type: 'info', message: msg, timeout: 3000};
+          self.consistencyResponse = {show: true, type: 'warning', message: '<b>Unexpected reponse</b>: ' + resp};
         }
         self.consistencyCheckRunning = false
       }, function(error) {
-        nai.log(error.response, '[Query]')
-        self.consistencyResponse = {show: true, type: 'danger', message: '<b>Error</b>: ' + error.response.data.error};
+        if (!!resp.data) {
+          let data = resp.data;
+          let timeout = undefined;
+          if (data.type == 'success') { timeout = 3000 }
+          self.consistencyResponse = {show: true, type: data.type, message: data.message, timeout: timeout};  
+        } else {
+          self.consistencyResponse = {show: true, type: 'warning', message: '<b>Unexpected reponse</b>: ' + resp};
+        }
         self.consistencyCheckRunning = false
       })
     },

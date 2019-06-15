@@ -88,7 +88,7 @@ const home = {
 
           <a name="furtherinfo" style="display:block;visibility:hidden;position:relative;top:-3em"></a>
           <h3>Further information</h3>
-          <p>ICAL 2019 held the first NAI tool tutorial. Please refer to the <a href="https://tutorial.normativeai.com/">tutorial page</a> for more information</p>
+          <p>ICAIL 2019 held the first NAI tool tutorial. Please refer to the <a href="https://tutorial.normativeai.com/">tutorial page</a> for more information</p>
         </main>
 
       </div>

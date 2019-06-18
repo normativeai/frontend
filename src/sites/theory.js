@@ -177,11 +177,9 @@ const theory = {
         }
         self.consistencyCheckRunning = false
       }, function(error) {
-        if (!!error.data) {
-          let data = error.data;
-          let timeout = undefined;
-          if (data.type == 'success') { timeout = 3000 }
-          self.consistencyResponse = {show: true, type: data.type, message: data.message, timeout: timeout};  
+        if (!!error.response.data) {
+          let msg = error.response.data.error
+          self.consistencyResponse = {show: true, type: 'danger', message: msg.replace(/\n/g,'<br>')};  
         } else {
           self.consistencyResponse = {show: true, type: 'danger', message: '<b>Unexpected error</b>: ' + error};
         }
@@ -222,11 +220,9 @@ const theory = {
         }
         self.independenceCheckRunning = false
       }, function(error) {
-        if (!!error.data) {
-          let data = error.data;
-          let timeout = undefined;
-          if (data.type == 'success') { timeout = 3000 }
-          self.independenceResponse = {show: true, type: data.type, message: data.message, timeout: timeout};  
+        if (!!error.response.data) {
+          let msg = error.response.data.error
+          self.consistencyResponse = {show: true, type: 'danger', message: msg.replace(/\n/g,'<br>')};  
         } else {
           self.independenceResponse = {show: true, type: 'warning', message: '<b>Unexpected reponse</b>: ' + error};
         }

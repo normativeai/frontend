@@ -159,11 +159,9 @@ const query = {
         }
         self.execRunning = false
         }, function(error) {
-          if (!!resp.data) {
-          let data = resp.data;
-          let timeout = undefined;
-          if (data.type == 'success') { timeout = 3000 }
-          self.execResponse = {show: true, type: data.type, message: data.message, timeout: timeout};  
+          if (!!error.response.data) {
+          let msg = error.response.data.error
+          self.consistencyResponse = {show: true, type: 'danger', message: msg.replace(/\n/g,'<br>')};  
         } else {
           self.execResponse = {show: true, type: 'warning', message: '<b>Unexpected reponse</b>: ' + resp};
         }
@@ -184,11 +182,9 @@ const query = {
         }
         self.consistencyCheckRunning = false
       }, function(error) {
-        if (!!resp.data) {
-          let data = resp.data;
-          let timeout = undefined;
-          if (data.type == 'success') { timeout = 3000 }
-          self.consistencyResponse = {show: true, type: data.type, message: data.message, timeout: timeout};  
+        if (!!error.response.data) {
+          let msg = error.response.data.error
+          self.consistencyResponse = {show: true, type: 'danger', message: msg.replace(/\n/g,'<br>')};  
         } else {
           self.consistencyResponse = {show: true, type: 'warning', message: '<b>Unexpected reponse</b>: ' + resp};
         }

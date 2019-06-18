@@ -395,17 +395,30 @@ const query = {
           <div class="nav-content" style="padding:1rem .5rem;" v-if="activeTab == 0">
             <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center mb-1">
               <h4>Query Editor</h4>
-              <img v-if="consistencyCheckRunning" src="/img/loading.gif">
               <div class="btn-toolbar mb-2 mb-md-0">
                 <div class="btn-group mr-2">
-                <button class="btn btn-sm btn-outline-secondary float-right" v-on:click="runConsistencyCheck">
-                  <feather-icon icon="play"></feather-icon>
-                  Run consistency check
+                <button class="btn btn-sm btn-outline-secondary float-right"
+                  v-on:click="runConsistencyCheck" :disabled="consistencyCheckRunning"
+                  title="Save query and run consistency check.">
+                  <template v-if="!consistencyCheckRunning">
+                    <feather-icon icon="play"></feather-icon>
+                    Run consistency check
+                  </template>
+                  <template v-else>
+                    <bs-spinner type="primary"></bs-spinner>
+                  </template>
                 </button>
                 </div>
-                <button class="btn btn-sm btn-outline-primary" v-on:click="runQuery" title="Save query and run it.">
-                  <feather-icon icon="play"></feather-icon>
-                  Execute query
+                <button class="btn btn-sm btn-outline-primary"
+                  v-on:click="runQuery" :disabled="execRunning"
+                  title="Save query and run it.">
+                  <template v-if="!execRunning">
+                    <feather-icon icon="play"></feather-icon>
+                    Execute query
+                  </template>
+                  <template v-else>
+                    <bs-spinner type="primary"></bs-spinner>
+                  </template>
                 </button>
               </div>
             </div>
@@ -420,14 +433,28 @@ const query = {
               <img v-if="consistencyCheckRunning" src="/img/loading.gif">
               <div class="btn-toolbar mb-2 mb-md-0">
                 <div class="btn-group mr-2">
-                <button class="btn btn-sm btn-outline-secondary float-right" v-on:click="runConsistencyCheck">
-                  <feather-icon icon="play"></feather-icon>
-                  Run consistency check
+                <button class="btn btn-sm btn-outline-secondary float-right"
+                  v-on:click="runConsistencyCheck" :disabled="consistencyCheckRunning"
+                  title="Save query and run consistency check.">
+                  <template v-if="!consistencyCheckRunning">
+                    <feather-icon icon="play"></feather-icon>
+                    Run consistency check
+                  </template>
+                  <template v-else>
+                    <bs-spinner type="primary"></bs-spinner>
+                  </template>
                 </button>
                 </div>
-                <button class="btn btn-sm btn-outline-primary" v-on:click="runQuery" title="Save query and run it.">
-                  <feather-icon icon="play"></feather-icon>
-                  Execute query
+                <button class="btn btn-sm btn-outline-primary"
+                  v-on:click="runQuery" :disabled="execRunning"
+                  title="Save query and run it.">
+                  <template v-if="!execRunning">
+                    <feather-icon icon="play"></feather-icon>
+                    Execute query
+                  </template>
+                  <template v-else>
+                    <bs-spinner type="primary"></bs-spinner>
+                  </template>
                 </button>
               </div>
             </div>

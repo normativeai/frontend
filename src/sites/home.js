@@ -81,13 +81,15 @@ const home = {
             In particular, recent years have witnessed several attempts at making general and freely-available tools
             for automated reasoning accessible to experts of legal texts;
             the NAI tool is one of these tools.</p>
+            <p>For further information <a href="https://github.com/normativeai/guide/wiki/introduction">click here</a></p>
 
           <a name="gettingstarted" style="display:block;visibility:hidden;position:relative;top:-3em"></a>
           <h3>Getting started</h3>
           <p>Please try out the Demo account - email: nai@uni.lu; password: nai</p>
+          <p>For further information <a href="https://github.com/normativeai/guide/wiki/getting_started">click here</a></p>
 
           <a name="furtherinfo" style="display:block;visibility:hidden;position:relative;top:-3em"></a>
-          <h3>Further information</h3>
+          <h3>NAI tutorial</h3>
           <p>ICAIL 2019 held the first NAI tool tutorial. Please refer to the <a href="https://tutorial.normativeai.com/">tutorial page</a> for more information</p>
         </main>
 

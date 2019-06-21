@@ -177,11 +177,9 @@ const theory = {
         }
         self.consistencyCheckRunning = false
       }, function(error) {
-        if (!!error.data) {
-          let data = error.data;
-          let timeout = undefined;
-          if (data.type == 'success') { timeout = 3000 }
-          self.consistencyResponse = {show: true, type: data.type, message: data.message, timeout: timeout};  
+        if (!!error.response.data) {
+          let msg = error.response.data.error
+          self.consistencyResponse = {show: true, type: 'danger', message: msg.replace(/\n/g,'<br>')};  
         } else {
           self.consistencyResponse = {show: true, type: 'danger', message: '<b>Unexpected error</b>: ' + error};
         }
@@ -222,11 +220,9 @@ const theory = {
         }
         self.independenceCheckRunning = false
       }, function(error) {
-        if (!!error.data) {
-          let data = error.data;
-          let timeout = undefined;
-          if (data.type == 'success') { timeout = 3000 }
-          self.independenceResponse = {show: true, type: data.type, message: data.message, timeout: timeout};  
+        if (!!error.response.data) {
+          let msg = error.response.data.error
+          self.consistencyResponse = {show: true, type: 'danger', message: msg.replace(/\n/g,'<br>')};  
         } else {
           self.independenceResponse = {show: true, type: 'warning', message: '<b>Unexpected reponse</b>: ' + error};
         }
@@ -444,7 +440,24 @@ const theory = {
           </ul>
           <div class="nav-content" style="padding:1rem .5rem;" v-if="activeTab == 0">
             <a name="original" style="display:block;visibility:hidden;position:relative;top:-3em"></a>
-            <h4>Legislation Editor</h4>
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center mb-2">
+              <h4>Legislation Editor</h4>
+              <img v-if="independenceCheckRunning" src="/img/loading.gif">
+              <div class="btn-toolbar mb-2 mb-md-0">
+                <button class="btn btn-sm btn-outline-secondary float-right"
+                  v-on:click="runConsistencyCheck" :disabled="consistencyCheckRunning"
+                  title="Save theory and run consistency check.">
+                  <template v-if="!consistencyCheckRunning">
+                    <feather-icon icon="play"></feather-icon>
+                    Run consistency check
+                  </template>
+                  <template v-else>
+                    <bs-spinner type="primary"></bs-spinner>
+                  </template>
+                </button>
+              </div>
+            </div>
+            <alert v-on:dismiss="consistencyResponse.show = false;consistencyResponse.timeout = null" :variant="consistencyResponse.type" v-show="consistencyResponse.show" :timeout="consistencyResponse.timeout"><span v-html="consistencyResponse.message"></span></alert>
             <quill ref="annotator" v-model="theory.content" spellcheck="false" v-bind:terms="theoryAutoVoc.concat(theoryVoc)" v-bind:connectives="connectives"></quill>
             <div id="debug"></div>
           </div>
@@ -452,20 +465,26 @@ const theory = {
           <div class="nav-content" style="padding:1rem .5rem;" v-if="activeTab == 1">
              <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center">
               <h4>Logical representation (Formalization)</h4>
-              <img v-if="consistencyCheckRunning" src="/img/loading.gif">
               <img v-if="independenceCheckRunning" src="/img/loading.gif">
               <div class="btn-toolbar mb-2 mb-md-0">
-                <button class="btn btn-sm btn-outline-secondary float-right" v-on:click="runConsistencyCheck">
-                  <feather-icon icon="play"></feather-icon>
-                  Run consistency check
+                <button class="btn btn-sm btn-outline-secondary float-right"
+                  v-on:click="runConsistencyCheck" :disabled="consistencyCheckRunning"
+                  title="Save theory and run consistency check.">
+                  <template v-if="!consistencyCheckRunning">
+                    <feather-icon icon="play"></feather-icon>
+                    Run consistency check
+                  </template>
+                  <template v-else>
+                    <bs-spinner type="primary"></bs-spinner>
+                  </template>
                 </button>
               </div>
             </div>
             <p class="small"><em>A consistency check should be conducted prior to executing any further queries based
              on this formalization.</em></p>
 
-            <alert v-on:dismiss="consistencyResponse.show = false;" :variant="consistencyResponse.type" v-show="consistencyResponse.show" :timeout="consistencyResponse.timeout"><span v-html="consistencyResponse.message"></span></alert>
-            <alert v-on:dismiss="independenceResponse.show = false;" :variant="independenceResponse.type" v-show="independenceResponse.show" :timeout="independenceResponse.timeout"><span v-html="independenceResponse.message"></span></alert>
+            <alert v-on:dismiss="consistencyResponse.show = false;consistencyResponse.timeout = null" :variant="consistencyResponse.type" v-show="consistencyResponse.show" :timeout="consistencyResponse.timeout"><span v-html="consistencyResponse.message"></span></alert>
+            <alert v-on:dismiss="independenceResponse.show = false;independenceResponse.timeout = null" :variant="independenceResponse.type" v-show="independenceResponse.show" :timeout="independenceResponse.timeout"><span v-html="independenceResponse.message"></span></alert>
 
             <div class="table-responsive">
               <table class="table table-striped table-sm table-hover" style="table-layout:fixed;">
@@ -488,7 +507,7 @@ const theory = {
                     <td v-if="item.formula"><code>{{ item.formula }}</code></td>
                     <td v-else><em>Save theory to update formalization</em></td>
                     <td class="table-secondary" style="text-align: center">
-                      <button title="Check for logical independence" type="button" class="btn btn-sm btn-secondary" v-on:click="runIndependenceCheck(item)"><feather-icon icon="activity"></feather-icon></button>
+                      <button title="Check for logical independence" type="button" class="btn btn-sm btn-secondary" v-on:click="runIndependenceCheck(item)" :disabled="independenceCheckRunning"><feather-icon icon="activity"></feather-icon></button>
                     </td>
                   </tr>
                 </tbody>

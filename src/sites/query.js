@@ -159,11 +159,9 @@ const query = {
         }
         self.execRunning = false
         }, function(error) {
-          if (!!resp.data) {
-          let data = resp.data;
-          let timeout = undefined;
-          if (data.type == 'success') { timeout = 3000 }
-          self.execResponse = {show: true, type: data.type, message: data.message, timeout: timeout};  
+          if (!!error.response.data) {
+          let msg = error.response.data.error
+          self.consistencyResponse = {show: true, type: 'danger', message: msg.replace(/\n/g,'<br>')};  
         } else {
           self.execResponse = {show: true, type: 'warning', message: '<b>Unexpected reponse</b>: ' + resp};
         }
@@ -184,11 +182,9 @@ const query = {
         }
         self.consistencyCheckRunning = false
       }, function(error) {
-        if (!!resp.data) {
-          let data = resp.data;
-          let timeout = undefined;
-          if (data.type == 'success') { timeout = 3000 }
-          self.consistencyResponse = {show: true, type: data.type, message: data.message, timeout: timeout};  
+        if (!!error.response.data) {
+          let msg = error.response.data.error
+          self.consistencyResponse = {show: true, type: 'danger', message: msg.replace(/\n/g,'<br>')};  
         } else {
           self.consistencyResponse = {show: true, type: 'warning', message: '<b>Unexpected reponse</b>: ' + resp};
         }
@@ -395,22 +391,35 @@ const query = {
           <div class="nav-content" style="padding:1rem .5rem;" v-if="activeTab == 0">
             <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center mb-1">
               <h4>Query Editor</h4>
-              <img v-if="consistencyCheckRunning" src="/img/loading.gif">
               <div class="btn-toolbar mb-2 mb-md-0">
                 <div class="btn-group mr-2">
-                <button class="btn btn-sm btn-outline-secondary float-right" v-on:click="runConsistencyCheck">
-                  <feather-icon icon="play"></feather-icon>
-                  Run consistency check
+                <button class="btn btn-sm btn-outline-secondary float-right"
+                  v-on:click="runConsistencyCheck" :disabled="consistencyCheckRunning"
+                  title="Save query and run consistency check.">
+                  <template v-if="!consistencyCheckRunning">
+                    <feather-icon icon="play"></feather-icon>
+                    Run consistency check
+                  </template>
+                  <template v-else>
+                    <bs-spinner type="primary"></bs-spinner>
+                  </template>
                 </button>
                 </div>
-                <button class="btn btn-sm btn-outline-primary" v-on:click="runQuery" title="Save query and run it.">
-                  <feather-icon icon="play"></feather-icon>
-                  Execute query
+                <button class="btn btn-sm btn-outline-primary"
+                  v-on:click="runQuery" :disabled="execRunning"
+                  title="Save query and run it.">
+                  <template v-if="!execRunning">
+                    <feather-icon icon="play"></feather-icon>
+                    Execute query
+                  </template>
+                  <template v-else>
+                    <bs-spinner type="primary"></bs-spinner>
+                  </template>
                 </button>
               </div>
             </div>
-            <alert v-on:dismiss="consistencyResponse = {};" :variant="consistencyResponse.type" v-show="consistencyResponse.show" :timeout="consistencyResponse.timeout"><span v-html="consistencyResponse.message"></span></alert>
-            <alert v-on:dismiss="execResponse = {};" :variant="execResponse.type" v-show="execResponse.show" :timeout="execResponse.timeout"><span v-html="execResponse.message"></span></alert>
+            <alert v-on:dismiss="consistencyResponse.show = false;consistencyResponse.timeout = null" :variant="consistencyResponse.type" v-show="consistencyResponse.show" :timeout="consistencyResponse.timeout"><span v-html="consistencyResponse.message"></span></alert>
+            <alert v-on:dismiss="execResponse.show = false;execResponse.timeout = null" :variant="execResponse.type" v-show="execResponse.show" :timeout="execResponse.timeout"><span v-html="execResponse.message"></span></alert>
             <quill ref="annotator" v-model="query.content" spellcheck="false" v-bind:terms="theoryVoc" v-bind:connectives="connectives" v-bind:allowTermCreation="true" v-bind:goal="true"></quill>
           </div>
           
@@ -420,21 +429,35 @@ const query = {
               <img v-if="consistencyCheckRunning" src="/img/loading.gif">
               <div class="btn-toolbar mb-2 mb-md-0">
                 <div class="btn-group mr-2">
-                <button class="btn btn-sm btn-outline-secondary float-right" v-on:click="runConsistencyCheck">
-                  <feather-icon icon="play"></feather-icon>
-                  Run consistency check
+                <button class="btn btn-sm btn-outline-secondary float-right"
+                  v-on:click="runConsistencyCheck" :disabled="consistencyCheckRunning"
+                  title="Save query and run consistency check.">
+                  <template v-if="!consistencyCheckRunning">
+                    <feather-icon icon="play"></feather-icon>
+                    Run consistency check
+                  </template>
+                  <template v-else>
+                    <bs-spinner type="primary"></bs-spinner>
+                  </template>
                 </button>
                 </div>
-                <button class="btn btn-sm btn-outline-primary" v-on:click="runQuery" title="Save query and run it.">
-                  <feather-icon icon="play"></feather-icon>
-                  Execute query
+                <button class="btn btn-sm btn-outline-primary"
+                  v-on:click="runQuery" :disabled="execRunning"
+                  title="Save query and run it.">
+                  <template v-if="!execRunning">
+                    <feather-icon icon="play"></feather-icon>
+                    Execute query
+                  </template>
+                  <template v-else>
+                    <bs-spinner type="primary"></bs-spinner>
+                  </template>
                 </button>
               </div>
             </div>
             <p class="small"><em>A consistency check should be conducted prior to executing the query.</em></p>
 
-            <alert v-on:dismiss="consistencyResponse.show = false;" :variant="consistencyResponse.type" v-show="consistencyResponse.show" :timeout="consistencyResponse.timeout"><span v-html="consistencyResponse.message"></span></alert>
-            <alert v-on:dismiss="execResponse = {};" :variant="execResponse.type" v-show="execResponse.show" :timeout="execResponse.timeout"><span v-html="execResponse.message"></span></alert>
+            <alert v-on:dismiss="consistencyResponse.show = false;consistencyResponse.timeout = null" :variant="consistencyResponse.type" v-show="consistencyResponse.show" :timeout="consistencyResponse.timeout"><span v-html="consistencyResponse.message"></span></alert>
+            <alert v-on:dismiss="execResponse.show = false;execResponse.timeout = null" :variant="execResponse.type" v-show="execResponse.show" :timeout="execResponse.timeout"><span v-html="execResponse.message"></span></alert>
             <h5>Assumptions</h5>
             <p class="small"><em>Assumptions are contextual information that apply to a certain
               situation only. This information is generated automatically from the annotations 

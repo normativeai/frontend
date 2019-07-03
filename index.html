@@ -1,4 +1,4 @@
-<!doctype html> 
+<!doctype html>
 <html lang="en-US">
   <head>
     <meta charset="utf-8">
@@ -22,9 +22,9 @@
         <!--<img src="/img/unilu.png" alt="University of Luxembourg" style="height: 3rem" class="ml-2 mr-0">-->
         <img src="/img/UNI_logo_horizontal_Q.gif" alt="University of Luxembourg" style="height: 3rem" class="ml-2 mr-0">
         <a class="navbar-brand col-sm-4 col-md-3" style="text-align:center" href="/index.html">Normative Reasoning</a>
-        
-        
-        
+
+
+
         <ul class="navbar-nav px-3">
           <li class="nav-item text-nowrap" v-if="loggedIn">
             <a class="nav-link" style="cursor:pointer" v-on:click="doLogout">
@@ -32,16 +32,18 @@
           </li>
         </ul>
       </nav>
-      <router-view v-bind:logged-in="loggedIn"></router-view>  
+      <router-view v-bind:logged-in="loggedIn"></router-view>
       <!--<img src="/img/unilu.png" alt="University of Luxembourg" style="z-index:1000;position:fixed;bottom:0;left:0" class="col-sm-3 col-md-2 mb-2">-->
-      
-      <div style="height:1.8em;background-color:white;position:fixed;font-size:x-small;right:0;bottom:0" class="mb-0 mr-2"> 
+
+      <div style="height:1.8em;background-color:white;position:fixed;font-size:x-small;right:0;bottom:0" class="mb-0 mr-2">
         <em>Copyright © <a href="https://www.uni.lu/">Université du Luxembourg</a> 2019. All rights reserved.</em>
       </div>
     </div>
     <script>
     feather.replace();
     </script>
+    <script src="https://unpkg.com/vue-tippy/dist/vue-tippy.min.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/tippy.js@4/themes/light-border.css" />
     <script src="/js/quill.js"></script>
     <link href="/css/quill.snow.css" rel="stylesheet">
     <script src="/src/components.js"></script>

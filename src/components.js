@@ -140,7 +140,7 @@ Vue.component('login', {
     }
   },
   computed: {
-    
+
   },
   template: `
 <div class="login">
@@ -394,7 +394,7 @@ Vue.component('theory-card', {
         <h6 class="card-subtitle small mb-0 text-muted">Last edited: {{ updated }}</h6>
         <hr class="my-1">
         <p class="card-text">{{ description }}</p>
-        
+
         <div class="btn-toolbar mb-2 mb-md-0 d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center">
           <button class="btn btn-sm btn-outline-secondary mb-1" v-on:click="clone">
           <span data-feather="copy"></span>
@@ -404,7 +404,7 @@ Vue.component('theory-card', {
           <span data-feather="trash"></span>
           Remove
           </button>
-          
+
           <div class="btn-group btn-group-sm" v-if="deleteRequested">
             <button class="btn btn-sm btn-danger" v-on:click="deleteMe">
             <span data-feather="check"></span>
@@ -489,13 +489,13 @@ Vue.component('query-card', {
         <h6 class="card-subtitle small mb-0 text-muted">Last edited: {{ updated }}</h6>
         <hr class="my-1">
         <p class="card-text">{{ description }}</p>
-        
+
         <div class="btn-toolbar mb-2 mb-md-0 d-flex flex-wrap flex-md-nowrap align-items-center">
           <button class="btn btn-sm btn-outline-danger mb-1" v-on:click="requestDelete" v-if="!deleteRequested">
           <span data-feather="trash"></span>
           Remove
           </button>
-          
+
           <div class="btn-group mb-1" v-if="deleteRequested">
             <button class="btn btn-sm btn-danger" v-on:click="deleteMe">
             <span data-feather="check"></span>
@@ -534,21 +534,21 @@ class ConnectiveBlot extends Inline {
     node.setAttribute('title', data.connective.name);
     return node;
   }
-  
+
   static formats(node) {
     return {
       id: node.getAttribute('id'),
       connective: {
-        code: node.getAttribute('data-connective'), 
+        code: node.getAttribute('data-connective'),
         name: node.getAttribute('title')
       }
     };
   }
-  
+
   formatAt(index, length, name, value) {
     super.formatAt(index, length, name, value)
   }
-  
+
   optimize(context) {
     super.optimize(context);
     //console.log('opt on ' + this.domNode.innerHTML);
@@ -614,17 +614,17 @@ class ConnectiveBlot2 extends Inline {
     node.setAttribute('data-connective', data.connective);
     return node;
   }
-  
+
   static formats(node) {
     return {id: node.getAttribute('id'),
         connective: node.getAttribute('data-connective')};
   }
-  
+
   formatAt(index, length, name, value) {
     super.formatAt(index, length, name, value)
   }
-  
-  
+
+
   optimize(context) {
     super.optimize(context);
     //console.log('opt on ' + this.domNode.innerHTML);
@@ -655,7 +655,7 @@ class TermBlot extends Inline {
     node.setAttribute('title', data.term);
     return node;
   }
-  
+
   static formats(node) {
     return {id: node.getAttribute('id'),
             term: node.getAttribute('data-term')};
@@ -673,7 +673,7 @@ class GoalBlot extends Inline {
     node.setAttribute('title', 'Goal');
     return node;
   }
-  
+
   static formats(node) {
     return node.getAttribute('id');
   }
@@ -832,7 +832,7 @@ Vue.component('quill', {
         {name: 'iff', description: 'Equivalence', symbol: 'Iff', arity: 2}
       ];
     },*/
-    annotateButtonsDisabled: function() { 
+    annotateButtonsDisabled: function() {
       if (!!this.quill) {
         var range = this.quill.getSelection()
         if (!!range) {
@@ -862,7 +862,7 @@ Vue.component('quill', {
     this.quill.enable(false)
     if (this.value) { this.quill.pasteHTML(this.value) }
     this.quill.enable(true)
-    
+
     this.quill.on('text-change', (delta, oldDelta, source) => {
             let html = this.$refs.editor.children[0].innerHTML
             const quill = this.quill
@@ -954,7 +954,7 @@ Vue.component('quill', {
             </button>
             <div ref="editorConnectiveDropdown" class="dropdown-menu dropdown-menu-right" style="top: 30px">
               <h6 class="dropdown-header">Connectives</h6>
-              <a class="dropdown-item small" href="#" v-on:mousedown="annotateConnective(conn)" v-for="conn in connectives">{{ conn.name }}</a>
+              <a class="dropdown-item small" href="#" v-on:mousedown="annotateConnective(conn)" :data-tippy-content="conn.description" v-tippy='{placement : "top", delay : [300,0], offset : "-50, 0", theme : "light-border", distance : 5 }' v-for="conn in connectives">{{ conn.name }}</a>
             </div>
           </div>
         </span>
@@ -1038,8 +1038,6 @@ Vue.component('quill-term-prompt', {
           </div>
         </div>
       </div>
-    </div> 
+    </div>
   `
 });
-
-

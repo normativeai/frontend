@@ -18,13 +18,11 @@
   </head>
   <body>
     <div id="root">
+
       <nav class="navbar navbar-light fixed-top flex-md-nowrap p-0 shadow" style="background-color:white">
         <!--<img src="/img/unilu.png" alt="University of Luxembourg" style="height: 3rem" class="ml-2 mr-0">-->
-        <img src="/img/UNI_logo_horizontal_Q.gif" alt="University of Luxembourg" style="height: 3rem" class="ml-2 mr-0">
-        <a class="navbar-brand col-sm-4 col-md-3" style="text-align:center" href="/index.html">Normative Reasoning</a>
-
-
-
+        <a href="/index.html"><img src="/img/UNI_logo_horizontal_Q.gif" alt="University of Luxembourg" style="height: 3rem" class="ml-2 mr-0"></a>
+        <a class="navbar-brand col-sm-4 col-md-3 d-none d-sm-block" style="text-align:center" href="/index.html">Normative Reasoning</a>
         <ul class="navbar-nav px-3">
           <li class="nav-item text-nowrap" v-if="loggedIn">
             <a class="nav-link" style="cursor:pointer" v-on:click="doLogout">

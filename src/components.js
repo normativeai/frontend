@@ -967,13 +967,14 @@ Vue.component('quill', {
 })
 
 Vue.component('quill-term-prompt', {
+  props: ['data','allowTermCreation'],
   data: function() {
     return {
       selectedTerm: '',
-      newTerm: ''
+      newTerm: '',
+      checked: '' // Default name checkbox.
       }
   },
-  props: ['data','allowTermCreation'],
   methods: {
     confirm: function() {
       let info = {};
@@ -988,11 +989,22 @@ Vue.component('quill-term-prompt', {
     },
     cancel: function() {
       this.$emit('annotate-cancel')
+    },
+    updateDefaultName: function() { // Called on checkbox change.
+      if(this.checked) {
+        let highlightedTextArr = this.data.original.split(' ').slice(0,3);
+        this.newTerm = highlightedTextArr.join('_');
+      } else {
+        this.newTerm = '';
+      }
     }
   },
   computed: {
     termSelectDisabled: function() {
       return this.newTerm != '';
+    },
+    checkboxDisabled: function() {
+      return this.termSelectDisabled && !this.checked;
     }
   },
   template: `
@@ -1020,11 +1032,19 @@ Vue.component('quill-term-prompt', {
           <div class="col-sm-10"><div class="float-center">... or <label for="annotateview-newterm" class="font-weight-bold">add new term</label>:</div></div>
         </div>
         <div class="form-group row" v-if="allowTermCreation">
-          <div class="col-sm-2"></div>
+          <div class="col-sm-2">
+            <span class="form-check">
+              <input class="form-check-input" type="checkbox" value="" id="annotate-term-checkbox" v-model="checked" @change="updateDefaultName" :disabled="checkboxDisabled">
+              <label class="form-check-label" for="annotate-term-checkbox">
+                Default Term Name
+              </label>
+            </span>
+          </div>
           <div class="col-sm-10">
             <input type="text" class="form-control form-control-sm" id="annotateview-newterm" v-model="newTerm" placeholder="Type new term name ...">
           </div>
         </div>
+
         <!--<div class="row">
           <div class="col-sm-2"></div>
           <div class="col-sm-10"><div class="float-right">... or <a>add new term</a></div></div>

@@ -992,7 +992,7 @@ Vue.component('quill-term-prompt', {
     },
     updateDefaultName: function() { // Called on checkbox change.
       if(this.checked) {
-        let highlightedTextArr = this.data.original.split(' ').slice(0,3);
+        let highlightedTextArr = this.data.original.replace(/[\.,-\/#!$%\^&\*;:{}=\-_`~()@\+\?><\[\]\+]/g, '').trim().split(' ').slice(0,3);
         this.newTerm = highlightedTextArr.join('_');
       } else {
         this.newTerm = '';

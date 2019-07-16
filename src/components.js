@@ -715,7 +715,26 @@ Vue.component('quill', {
     return {
       quill: null,
       content0: '',
-      options: { theme: "snow", modules: {toolbar: '#quilltoolbar'} },
+      options: {
+        theme: "snow",
+        modules: {
+          history: {
+            delay: 1000,
+            userOnly: false
+          },
+          toolbar: {
+           container: '#quilltoolbar',
+           handlers: {
+             'undo': function() {
+               this.quill.history.undo();
+             },
+             'redo': function() {
+               this.quill.history.redo();
+             }
+           }
+         }
+         }
+       },
       termPrompt: false, termPromptData: null,
     }
   },
@@ -929,6 +948,20 @@ Vue.component('quill', {
           <button class="ql-script" value="sub" title="Subscript"></button>
           <button class="ql-script" value="super" title="Superscript"></button>
         </span>
+        <span class="ql-formats">
+          <button class="ql-undo" title="Undo">
+            <svg viewbox="0 0 18 18">
+              <polygon class="ql-fill ql-stroke" points="6 10 4 12 2 10 6 10"></polygon>
+              <path class="ql-stroke" d="M8.09,13.91A4.6,4.6,0,0,0,9,14,5,5,0,1,0,4,9"></path>
+            </svg>
+          </button>
+          <button class="ql-redo" title="Redo">
+            <svg viewbox="0 0 18 18">
+              <polygon class="ql-fill ql-stroke" points="12 10 14 12 16 10 12 10"></polygon>
+              <path class="ql-stroke" d="M9.91,13.91A4.6,4.6,0,0,1,9,14a5,5,0,1,1,5-5"></path>
+            </svg>
+          </button>
+        </span>
         <span class="ql-formats float-right">
           <button type="button" class="btn btn-primary-outline btn-sm mr-4" :disabled="annotateButtonsDisabled"
                   title="Clear annotations" style="border: 1px solid gray; width: unset"
@@ -967,13 +1000,14 @@ Vue.component('quill', {
 })
 
 Vue.component('quill-term-prompt', {
+  props: ['data','allowTermCreation'],
   data: function() {
     return {
       selectedTerm: '',
-      newTerm: ''
+      newTerm: '',
+      checked: '' // Default name checkbox.
       }
   },
-  props: ['data','allowTermCreation'],
   methods: {
     confirm: function() {
       let info = {};
@@ -988,11 +1022,22 @@ Vue.component('quill-term-prompt', {
     },
     cancel: function() {
       this.$emit('annotate-cancel')
+    },
+    updateDefaultName: function() { // Called on checkbox change.
+      if(this.checked) {
+        let highlightedTextArr = this.data.original.replace(/[\.,-\/#!$%\^&\*;:{}=\-_`~()@\+\?><\[\]\+]/g, '').trim().split(' ').slice(0,3);
+        this.newTerm = highlightedTextArr.join('_');
+      } else {
+        this.newTerm = '';
+      }
     }
   },
   computed: {
     termSelectDisabled: function() {
       return this.newTerm != '';
+    },
+    checkboxDisabled: function() {
+      return this.termSelectDisabled && !this.checked;
     }
   },
   template: `
@@ -1020,11 +1065,19 @@ Vue.component('quill-term-prompt', {
           <div class="col-sm-10"><div class="float-center">... or <label for="annotateview-newterm" class="font-weight-bold">add new term</label>:</div></div>
         </div>
         <div class="form-group row" v-if="allowTermCreation">
-          <div class="col-sm-2"></div>
+          <div class="col-sm-2">
+            <span class="form-check">
+              <input class="form-check-input" type="checkbox" value="" id="annotate-term-checkbox" v-model="checked" @change="updateDefaultName" :disabled="checkboxDisabled">
+              <label class="form-check-label" for="annotate-term-checkbox">
+                Default Term Name
+              </label>
+            </span>
+          </div>
           <div class="col-sm-10">
             <input type="text" class="form-control form-control-sm" id="annotateview-newterm" v-model="newTerm" placeholder="Type new term name ...">
           </div>
         </div>
+
         <!--<div class="row">
           <div class="col-sm-2"></div>
           <div class="col-sm-10"><div class="float-right">... or <a>add new term</a></div></div>

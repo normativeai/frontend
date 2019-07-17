@@ -216,3 +216,24 @@ tr.tr-disabled {
   color:#b1b1b1;
 }
 
+/*
+ * Right aside.
+ */
+.right-aside {
+  height: 100vh;
+  width: 100%;
+  background-color: #f8f9fa
+}
+
+.gutter {
+  cursor: col-resize;
+  height:100vh;
+}
+
+.split-left {
+  min-width: 30vw;
+}
+
+.split-right {
+  min-width: 15vw;
+}

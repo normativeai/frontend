@@ -1,6 +1,8 @@
 const theory = {
   data: function() {
     return {
+      showSidePanelComponent: false,
+
       theory: null,
       loaded: false,
       lastSavedTheory: null,
@@ -14,10 +16,10 @@ const theory = {
 
       consistencyCheckRunning: false,
       consistencyResponse: {show: false, type: '', message: '', timeout: 0},
-      
+
       independenceCheckRunning: false,
       independenceResponse: {show: false, type: '', message: '', timeout: 0},
-      
+
       annotationColors: ['#5C97BF','#00AA55','#F64747','#B381B3','#1BA39C','#FF00FF',
                          '#D252B2','#D46A43','#00A4A6','#D4533B','#939393','#AA8F00',
                          '#D47500','#E26A6A','#009FD4','#5D995D'],
@@ -43,6 +45,9 @@ const theory = {
         nai.log("Event listener removed", "[Theory]");
         router.push('/dashboard')
       }
+    },
+    toggleSidePanelComponent: function() {
+      this.showSidePanelComponent = !this.showSidePanelComponent;
     },
     doneLoading: function() {
       this.loaded = true
@@ -171,7 +176,7 @@ const theory = {
           let data = resp.data;
           let timeout = undefined;
           if (data.type == 'success') { timeout = 3000 }
-          self.consistencyResponse = {show: true, type: data.type, message: data.message, timeout: timeout};  
+          self.consistencyResponse = {show: true, type: data.type, message: data.message, timeout: timeout};
         } else {
           self.consistencyResponse = {show: true, type: 'warning', message: '<b>Unexpected reponse</b>: ' + resp};
         }
@@ -179,7 +184,7 @@ const theory = {
       }, function(error) {
         if (!!error.response.data) {
           let msg = error.response.data.error
-          self.consistencyResponse = {show: true, type: 'danger', message: msg.replace(/\n/g,'<br>')};  
+          self.consistencyResponse = {show: true, type: 'danger', message: msg.replace(/\n/g,'<br>')};
         } else {
           self.consistencyResponse = {show: true, type: 'danger', message: '<b>Unexpected error</b>: ' + error};
         }
@@ -214,7 +219,7 @@ const theory = {
           let data = resp.data;
           let timeout = undefined;
           if (data.type == 'success') { timeout = 3000 }
-          self.independenceResponse = {show: true, type: data.type, message: data.message, timeout: timeout};  
+          self.independenceResponse = {show: true, type: data.type, message: data.message, timeout: timeout};
         } else {
           self.independenceResponse = {show: true, type: 'warning', message: '<b>Unexpected reponse</b>: ' + resp};
         }
@@ -222,7 +227,7 @@ const theory = {
       }, function(error) {
         if (!!error.response.data) {
           let msg = error.response.data.error
-          self.consistencyResponse = {show: true, type: 'danger', message: msg.replace(/\n/g,'<br>')};  
+          self.consistencyResponse = {show: true, type: 'danger', message: msg.replace(/\n/g,'<br>')};
         } else {
           self.independenceResponse = {show: true, type: 'warning', message: '<b>Unexpected reponse</b>: ' + error};
         }
@@ -234,14 +239,14 @@ const theory = {
       if (!!info.term) {
         // term annotation
         let term = info.term;
-        
+
         let idx = _.findIndex(this.theoryAutoVoc, function(voc) {
             return (voc.symbol == term);
          });
         if (idx < 0) {
           this.insertTermStyle(term);
           this.theoryAutoVoc.push({original: original, full: term});
-        } 
+        }
         if (depth == 1) {
           // Also add as formula
           this.theoryAutoFormalization.push({original: original, formula: term})
@@ -334,14 +339,14 @@ const theory = {
         return "cursor: not-allowed"
       }
     },
-    auxStyles: function() { 
+    auxStyles: function() {
       return document.getElementById('additionalStyles').sheet;
     }
   },
   template: `
-    <div class="container-fluid">
-      <div class="row">
-        <nav class="col-md-2 d-none d-md-block bg-light sidebar">
+    <div class="container-fluid d-flex justify-content-end" style="padding-right: 0px;">
+      <div class="row split split-left mr-auto">
+        <nav v-if="!showSidePanelComponent" class="col-md-2 d-none d-md-block bg-light sidebar">
           <div class="sidebar-sticky">
             <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-1 mb-1 text-muted" v-on:click="back" style="cursor:pointer">
               <feather-icon icon="arrow-left"></feather-icon>
@@ -416,14 +421,17 @@ const theory = {
                 <feather-icon icon="edit"></feather-icon>
                 Edit title/description
               </button>
+              <button class="btn btn-sm btn-outline-secondary" v-on:click="toggleSidePanelComponent">
+                Toggle Side-Window
+              </button>
             </div>
           </div>
           <p style="margin:0" class="small border-bottom pb-0 mb-1"><em>Last updated: {{ theoryLastUpdate.toLocaleString() }}</em></p>
           <p>
           <textarea-update placeholder="Enter description of theory" v-bind:edit="editTitle" v-model="theory.description"></textarea-update>
           </p>
-          <alert v-on:dismiss="saveResponse.show = false;saveResponse.timeout = null" :variant="saveResponse.type" v-show="saveResponse.show" :timeout="saveResponse.timeout" style="position:absolute; top:150px; right:100px">{{ saveResponse.message }}</alert>
-          
+          <alert v-on:dismiss="saveResponse.show = false;saveResponse.timeout = null" :variant="saveResponse.type" v-show="saveResponse.show" :timeout="saveResponse.timeout" style="position:absolute; top:150px; right:150px">{{ saveResponse.message }}</alert>
+
           <ul class="nav nav-tabs">
             <li class="nav-item">
               <a :class="{'nav-link': true, 'active': activeTab == 0}" href="#" @click="activeTab = 0;">Annotation</a>
@@ -461,7 +469,7 @@ const theory = {
             <quill ref="annotator" v-model="theory.content" spellcheck="false" v-bind:terms="theoryAutoVoc.concat(theoryVoc)" v-bind:connectives="connectives"></quill>
             <div id="debug"></div>
           </div>
-          
+
           <div class="nav-content" style="padding:1rem .5rem;" v-if="activeTab == 1">
              <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center">
               <h4>Logical representation (Formalization)</h4>
@@ -512,9 +520,9 @@ const theory = {
                   </tr>
                 </tbody>
               </table>
-            </div> 
+            </div>
           </div>
-          
+
           <div class="nav-content" style="padding:1rem .5rem;" v-if="activeTab == 2">
             <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center">
             <h4>Vocabulary</h4>
@@ -562,7 +570,7 @@ const theory = {
               </table>
             </div>
           </div>
-          
+
           <div class="nav-content" style="padding:1rem .5rem;" v-if="activeTab == 3">
             <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3">
               <h4>Advanced Settings</h4>
@@ -622,18 +630,20 @@ const theory = {
                   </tr>
                 </tbody>
               </table>
-            </div> 
+            </div>
           </div>
-          
+
         </div>
 
           <p>&nbsp;</p>
         </main>
 
       </div>
+      <side-panel-component v-if="showSidePanelComponent"></side-panel-component>
+
     </div>
   `,
-  mounted: function() {    
+  mounted: function() {
     this.$on('theory-annotate', this.onAnnotate);
   },
   created: function () {

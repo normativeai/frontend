@@ -1096,34 +1096,42 @@ Vue.component('quill-term-prompt', {
 });
 
 ///////////////////////////
-// SidebarComponent
+// Sidepanel/Notes Component
 ///////////////////////////
 Vue.component('SidePanelComponent', {
   data: function() {
     return {
-      instance: null
+      splitInstance: null,
+      splitSizes: [80, 20],
+      quill: null,
+      options: {
+        theme: 'snow'
+      }
     }
   },
   mounted: function() {
-    // The instance of split.js, created on mount, destroyed when component is destroyed.
-    this.instance = Split(['.split-left', '.split-right'], {
+    this.quill = new Quill('#editor', this.options);
+  },
+  activated: function() {
+    /* The instance of split.js is created on activation, destroyed on deactivation.
+     The size of each panel is saved in data. */
+    let self = this;
+    this.splitInstance = Split(['.split-left', '.split-right'], {
         gutterSize: 5,
-        sizes: [80,20]
+        sizes: self.splitSizes,
+        onDragEnd: function(sizes) {
+          self.splitSizes = sizes;
+        }
       });
   },
-  beforeDestroy: function() {
-    this.instance.destroy(preserveStyles = false, preserveGutters = false);
+  deactivated: function() {
+    this.splitInstance.destroy(preserveStyles = false, preserveGutters = false);
+    this.splitInstance = null;
   },
   template: `
-    <div class="split split-right">
-      <div class="right-aside container card">
-        <div class="card-header">
-          card-header
-        </div>
-        <div class="card-body">
-          <h5 class="card-title">Title</h5>
-          <p class="card-text"> Proin porttitor diam non ex congue, in venenatis elit dignissim. Proin risus felis, faucibus vel lobortis vel, euismod at mi. Quisque vestibulum justo risus, pellentesque tincidunt nunc viverra non. Mauris eget nisl elit. Donec aliquet lobortis dui, vel ornare leo venenatis quis. Nam vel nibh gravida, sodales erat eu, egestas mi. Aliquam semper non eros eu egestas. Aenean at est justo. Orci varius natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. </p>
-        </div>
+    <div class="split-right">
+      <div class="notes-panel container-fluid justify-content-center align-content-center card">
+        <div id="editor" style="height: 75%;"></div>
       </div>
     </div>
     `

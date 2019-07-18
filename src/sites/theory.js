@@ -344,8 +344,8 @@ const theory = {
     }
   },
   template: `
-    <div class="container-fluid d-flex justify-content-end" style="padding-right: 0px;">
-      <div class="row split split-left mr-auto">
+    <div class="container-fluid d-flex justify-content-center" style="padding-right: 0px;">
+      <div class="row split-left mr-auto">
         <nav v-if="!showSidePanelComponent" class="col-md-2 d-none d-md-block bg-light sidebar">
           <div class="sidebar-sticky">
             <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-1 mb-1 text-muted" v-on:click="back" style="cursor:pointer">
@@ -393,7 +393,7 @@ const theory = {
           </div>
         </nav>
 
-        <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4">
+        <main role="main" key="main" class="px-4" v-bind:class="{ 'ml-sm-auto col-md-9 col-lg-10' : !showSidePanelComponent, 'col-12' : showSidePanelComponent }">
           <div v-if="!loaded">
             <h1>Loading theory ...</h1>
             <loading-bar v-if="!loaded"></loading-bar>
@@ -417,12 +417,13 @@ const theory = {
                 <feather-icon icon="download"></feather-icon>
                 Export</button>
               </div>
-              <button class="btn btn-sm btn-outline-secondary" v-on:click="toggleEditTitle" v-bind:class="{active : editTitle}" v-bind:aria-pressed="editTitle">
+              <button class="btn btn-sm btn-outline-secondary mr-2 mt-1" v-on:click="toggleEditTitle" v-bind:class="{active : editTitle}" v-bind:aria-pressed="editTitle">
                 <feather-icon icon="edit"></feather-icon>
                 Edit title/description
               </button>
-              <button class="btn btn-sm btn-outline-secondary" v-on:click="toggleSidePanelComponent">
-                Toggle Side-Window
+              <button class="btn btn-sm btn-outline-secondary mt-1" v-on:click="toggleSidePanelComponent">
+                <feather-icon icon="pen-tool"></feather-icon>
+                Notes
               </button>
             </div>
           </div>
@@ -639,8 +640,9 @@ const theory = {
         </main>
 
       </div>
-      <side-panel-component v-if="showSidePanelComponent"></side-panel-component>
-
+      <keep-alive>
+        <side-panel-component v-if="showSidePanelComponent"></side-panel-component>
+      </keep-alive>
     </div>
   `,
   mounted: function() {

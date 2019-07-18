@@ -217,9 +217,9 @@ tr.tr-disabled {
 }
 
 /*
- * Right aside.
+ * Notes panel.
  */
-.right-aside {
+.notes-panel {
   height: 100vh;
   width: 100%;
   background-color: #f8f9fa
@@ -231,6 +231,7 @@ tr.tr-disabled {
 }
 
 .split-left {
+  transition:flex 0.3s ease-out;
   min-width: 30vw;
 }
 

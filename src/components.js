@@ -1129,8 +1129,8 @@ Vue.component('SidePanelComponent', {
     this.splitInstance = null;
   },
   template: `
-    <div class="split-right">
-      <div class="notes-panel container-fluid justify-content-center align-content-center card">
+    <div class="d-flex split-right container-fluid justify-content-center align-content-center card bg-light">
+      <div class="notes-panel justify-content-center align-content-center">
         <div id="editor" style="height: 75%;"></div>
       </div>
     </div>

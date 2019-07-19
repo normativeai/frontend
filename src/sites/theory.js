@@ -2,6 +2,7 @@ const theory = {
   data: function() {
     return {
       showSidePanelComponent: false,
+      panelToolTip: 'Click to show comments',
 
       theory: null,
       loaded: false,
@@ -48,6 +49,8 @@ const theory = {
     },
     toggleSidePanelComponent: function() {
       this.showSidePanelComponent = !this.showSidePanelComponent;
+      this.panelToolTip = this.panelToolTip == 'Click to show comments' ? ('Click to hide comments') : ('Click to show comments');
+      console.log(this.panelToolTip);
     },
     doneLoading: function() {
       this.loaded = true
@@ -421,10 +424,6 @@ const theory = {
                 <feather-icon icon="edit"></feather-icon>
                 Edit title/description
               </button>
-              <button class="btn btn-sm btn-outline-secondary mt-1" v-on:click="toggleSidePanelComponent">
-                <feather-icon icon="pen-tool"></feather-icon>
-                Notes
-              </button>
             </div>
           </div>
           <p style="margin:0" class="small border-bottom pb-0 mb-1"><em>Last updated: {{ theoryLastUpdate.toLocaleString() }}</em></p>
@@ -638,8 +637,11 @@ const theory = {
 
           <p>&nbsp;</p>
         </main>
-
       </div>
+      <!--<tippy toSelector='#toggleSidePanel' :content='this.panelToolTip' placement='left' delay='[100,0]' distance='10' arrow='true' arrowType='round' animation='fade'></tippy>-->
+      <span id="toggleSidePanel" class="semi-circle" :class="{'toggle-side-panel-transform' : showSidePanelComponent}" v-on:click="toggleSidePanelComponent">
+        <feather-icon class="message-circle-icon" icon="message-square"></feather-icon>
+      </span>
       <keep-alive>
         <side-panel-component v-if="showSidePanelComponent"></side-panel-component>
       </keep-alive>

@@ -1122,7 +1122,7 @@ Vue.component('SidePanelComponent', {
         onDragEnd: function(sizes) {
           self.splitSizes = sizes;
         }
-      });
+    });
   },
   deactivated: function() {
     this.splitInstance.destroy(preserveStyles = false, preserveGutters = false);

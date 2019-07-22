@@ -2,7 +2,6 @@ const theory = {
   data: function() {
     return {
       showSidePanelComponent: false,
-      panelToolTip: 'Click to show comments',
 
       theory: null,
       loaded: false,
@@ -49,8 +48,6 @@ const theory = {
     },
     toggleSidePanelComponent: function() {
       this.showSidePanelComponent = !this.showSidePanelComponent;
-      this.panelToolTip = this.panelToolTip == 'Click to show comments' ? ('Click to hide comments') : ('Click to show comments');
-      console.log(this.panelToolTip);
     },
     doneLoading: function() {
       this.loaded = true
@@ -347,8 +344,8 @@ const theory = {
     }
   },
   template: `
-    <div class="container-fluid d-flex justify-content-center" style="padding-right: 0px;">
-      <div class="row split-left mr-auto">
+    <div class="d-flex" style="padding-right: 0px;">
+      <div class="split-left mr-auto ml-auto">
         <nav v-if="!showSidePanelComponent" class="col-md-2 d-none d-md-block bg-light sidebar">
           <div class="sidebar-sticky">
             <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-1 mb-1 text-muted" v-on:click="back" style="cursor:pointer">
@@ -396,7 +393,7 @@ const theory = {
           </div>
         </nav>
 
-        <main role="main" key="main" class="px-4" v-bind:class="{ 'ml-sm-auto col-md-9 col-lg-10' : !showSidePanelComponent, 'col-12' : showSidePanelComponent }">
+        <main role="main" key="main" class="px-4" :class="{ 'ml-sm-auto col-md-9 col-lg-10' : !showSidePanelComponent, 'col-12' : showSidePanelComponent }">
           <div v-if="!loaded">
             <h1>Loading theory ...</h1>
             <loading-bar v-if="!loaded"></loading-bar>
@@ -638,8 +635,7 @@ const theory = {
           <p>&nbsp;</p>
         </main>
       </div>
-      <!--<tippy toSelector='#toggleSidePanel' :content='this.panelToolTip' placement='left' delay='[100,0]' distance='10' arrow='true' arrowType='round' animation='fade'></tippy>-->
-      <span id="toggleSidePanel" class="semi-circle" :class="{'toggle-side-panel-transform' : showSidePanelComponent}" v-on:click="toggleSidePanelComponent">
+      <span id="toggleSidePanel" class="semi-circle" :class="{'toggle-side-panel-transform' : showSidePanelComponent}" v-on:click="toggleSidePanelComponent" title="Open comments panel.">
         <feather-icon class="message-circle-icon" icon="message-square"></feather-icon>
       </span>
       <keep-alive>

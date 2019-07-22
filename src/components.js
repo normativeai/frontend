@@ -1096,7 +1096,7 @@ Vue.component('quill-term-prompt', {
 });
 
 ///////////////////////////
-// Sidepanel/Notes Component
+// Sidepanel/Comments Component
 ///////////////////////////
 Vue.component('SidePanelComponent', {
   data: function() {

@@ -251,7 +251,7 @@ tr.tr-disabled {
 }
 
 .semi-circle {
-  position: sticky;
+  position: -webkit-sticky;
   top: 45vh;
   border-top-left-radius: 80px;
   border-bottom-left-radius: 80px;
@@ -279,6 +279,19 @@ tr.tr-disabled {
 .ql-snow {
   background-color: #fff;
 }
+
+.ql-clipboard .ql-editor .ql-blank .ql-snow .ql-toolbar {
+  min-width: 100%;
+  width: 100%;
+}
+/*
+This is a hacky solution to force quill to stay full size while using flex-box and auto margins.
+Applied to the empty "debug" div.
+*/
+.force-quill-size {
+  min-width: 90vw;
+}
+
 /* Makeup for the existence of the split.js gutter */
 .toggle-side-panel-transform {
   transform: translateX(5px);

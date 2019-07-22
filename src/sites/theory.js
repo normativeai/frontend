@@ -393,7 +393,7 @@ const theory = {
           </div>
         </nav>
 
-        <main role="main" key="main" class="px-4" :class="{ 'ml-sm-auto col-md-9 col-lg-10' : !showSidePanelComponent, 'col-12' : showSidePanelComponent }">
+        <main role="main" key="main" class="px-4" :class="{ 'col-10  ml-auto' : !showSidePanelComponent, 'col-12' : showSidePanelComponent }">
           <div v-if="!loaded">
             <h1>Loading theory ...</h1>
             <loading-bar v-if="!loaded"></loading-bar>
@@ -464,7 +464,7 @@ const theory = {
             </div>
             <alert v-on:dismiss="consistencyResponse.show = false;consistencyResponse.timeout = null" :variant="consistencyResponse.type" v-show="consistencyResponse.show" :timeout="consistencyResponse.timeout"><span v-html="consistencyResponse.message"></span></alert>
             <quill ref="annotator" v-model="theory.content" spellcheck="false" v-bind:terms="theoryAutoVoc.concat(theoryVoc)" v-bind:connectives="connectives"></quill>
-            <div id="debug"></div>
+            <div id="debug" class="force-quill-size" ></div>
           </div>
 
           <div class="nav-content" style="padding:1rem .5rem;" v-if="activeTab == 1">
@@ -635,7 +635,7 @@ const theory = {
           <p>&nbsp;</p>
         </main>
       </div>
-      <span id="toggleSidePanel" class="semi-circle" :class="{'toggle-side-panel-transform' : showSidePanelComponent}" v-on:click="toggleSidePanelComponent" title="Open comments panel.">
+      <span id="toggleSidePanel" class="semi-circle" :class="{'toggle-side-panel-transform position-sticky' : showSidePanelComponent, 'position-fixed' : !showSidePanelComponent}" v-on:click="toggleSidePanelComponent" title="Open comments panel.">
         <feather-icon class="message-circle-icon" icon="message-square"></feather-icon>
       </span>
       <keep-alive>

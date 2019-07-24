@@ -1,3 +1,22 @@
+const azSort = function(a,b) { return (a.name.toLowerCase() > b.name.toLowerCase()) ? 1 : -1; };
+const zaSort = function(a,b) { return (a.name.toLowerCase() > b.name.toLowerCase()) ? -1 : 1; }
+const lastEditedSort = function(a,b) { return new Date(b.lastUpdate) - new Date(a.lastUpdate) };
+const azGrouped = function(a, b) {
+  if (a.theory > b.theory) {
+    return 1;
+  } else if (a.theory === b.theory) {
+    if (a.name > b.name) {
+      return -1;
+    } else if (a.name === b.name) {
+      return 0;
+    } else {
+      return 1;
+    }
+  } else {
+    return -1;
+  }
+};
+
 const dashboard = {
   data: function() {
     return {
@@ -5,7 +24,12 @@ const dashboard = {
       theories: [],
       queries: [],
       error: null,
-      showModal: false
+      showModal: false,
+      sortBy: {
+        sortT: null,
+        sortQ:null,
+        groupByTheoryQ: false
+      }
     }
   },
   methods: {
@@ -28,7 +52,7 @@ const dashboard = {
     onTheoryCreateFail: function(error) {
       console.log(error)
     },
-    onTheoryDelete: function(theory) {    
+    onTheoryDelete: function(theory) {
       nai.deleteTheory(theory, this.onTheoryDeleteSuccess(theory), this.onTheoryDeleteError)
     },
     onTheoryDeleteSuccess: function(theory) {
@@ -86,7 +110,7 @@ const dashboard = {
     onQueryCreateFail: function(error) {
       nai.log(error, '[App]')
     },
-    onQueryDelete: function(query) {    
+    onQueryDelete: function(query) {
       nai.deleteQuery(query, this.onQueryDeleteSuccess(query), this.onQueryDeleteError)
     },
     onQueryDeleteSuccess: function(query) {
@@ -104,7 +128,7 @@ const dashboard = {
     /////////////////////
     onCloneModalFinish: function() {
       nai.log("modal finish");
-      
+
       this.showModal = false;
     },
     onCloneModalCancel: function() {
@@ -113,14 +137,51 @@ const dashboard = {
     },
     showTheoryCloneWindows: function() {
       //this.showModal = true;
+    },
+    ///////////////////////////////////
+    // Sorting Stuff
+    onSort: function($event, type) {
+      if(type === 'theory') {
+        this.sortBy['sortT'] = $event;
+      } else {
+        ($event === 'group-by-theory') ? this.sortBy['groupByTheoryQ'] = !this.sortBy['groupByTheoryQ'] : this.sortBy['sortQ'] = $event;
+        console.log(JSON.stringify(this.sortBy));
+      }
+    },
+    sortedTheories: function() {
+      if(!this.sortBy['sortT']) {
+        return this.theories;
+      }
+      switch(this.sortBy['sortT']) {
+        case 'a-z':
+          return this.theories.sort(azSort);
+        case 'z-a':
+          return this.theories.sort(zaSort);
+        case 'last-edited':
+          return this.theories.sort(lastEditedSort);
+        default:
+          return this.theories.sort(lastEditedSort);
+      }
+    },
+    sortedQueries: function() {
+      switch(this.sortBy['sortQ']) {
+        case 'a-z':
+          return this.queries.sort(azGrouped);
+        case 'z-a':
+          return this.queries.sort(zaSort);
+        case 'last-edited':
+          return this.queries.sort(lastEditedSort);
+        default:
+          return this.queries.sort(lastEditedSort);
+      }
     }
   },
   computed: {
     theoryRows: function() {
-      return Math.ceil(this.theories.length / 3);
+      return Math.ceil(this.sortedTheories().length / 3);
     },
     queryRows: function() {
-      return Math.ceil(this.queries.length / 3);
+      return Math.ceil(this.sortedQueries().length / 3);
     }
   },
   template: `
@@ -145,7 +206,7 @@ const dashboard = {
                 </a>
               </li>
             </ul>
-            
+
             <!--<h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-3 mb-1 text-muted">
               <span>Settings</span>
             </h6>
@@ -166,12 +227,12 @@ const dashboard = {
             <!--<span>Logged in as: {{ user.name }}</span>-->
           </div>
           <hr class="mt-0">
-          
+
           <alert variant="danger" v-show="error" :dismissible="false">
             <span v-html="error"></span>
           </alert>
-          
-          
+
+
           <div v-if="theories">
             <a name="legislatures" style="display:block;visibility:hidden;position:relative;top:-3em"></a>
             <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center mb-4">
@@ -183,13 +244,14 @@ const dashboard = {
                     Create new
                   </button>
                 </div>
-                <button class="btn btn-sm btn-outline-secondary float-right" v-on:click="showTheoryCloneWindows">
+                <button class="btn btn-sm btn-outline-secondary float-right mr-2" v-on:click="showTheoryCloneWindows">
                   <span data-feather="corner-right-down"></span>
                   Import
                 </button>
+                <sort-button @sort-by="onSort($event,'theory')" type="theory"></sort-button>
               </div>
             </div>
-            
+
             <loading-bar v-if="!dashboardLoaded"></loading-bar>
             <div v-if="dashboardLoaded">
               <p v-if="theories.length == 0"><em>No legislatures formalized yet. Click on "create new" above,
@@ -201,7 +263,7 @@ const dashboard = {
               </div>
             </div>
           </div>
-          
+
           <div v-if="queries">
             <hr>
             <a name="queries" style="display:block;visibility:hidden;position:relative;top:-3em"></a>
@@ -214,9 +276,10 @@ const dashboard = {
                     Create new
                   </button>
                 </div>
+                <sort-button @sort-by="onSort($event, 'query')" type="query"></sort-button>
               </div>
             </div>
-            
+
             <loading-bar v-if="!dashboardLoaded"></loading-bar>
             <div v-if="dashboardLoaded">
               <p v-if="queries.length == 0"><em>No queries yet. Click on "create new" above,
@@ -228,9 +291,9 @@ const dashboard = {
               </div>
             </div>
           </div>
-          
+
         </main>
-        
+
       </div>
       <modal v-if="showModal" name="clone"></modal>
     </div>
@@ -255,7 +318,7 @@ const dashboard = {
       }
     }, nai.handleResponse(null, function(error) {
         self.dashboardLoaded = true;
-        self.error = `<b>Error</b>: Could not connect to NAI back-end. 
+        self.error = `<b>Error</b>: Could not connect to NAI back-end.
                      Please try to reload and contact the system
                      administrator if this problem persists.`
         self.queries = null;

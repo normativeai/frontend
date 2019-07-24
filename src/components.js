@@ -1094,3 +1094,27 @@ Vue.component('quill-term-prompt', {
     </div>
   `
 });
+
+//////////////
+// Dashboard sort buttons.
+//////////////
+Vue.component('sort-button',{
+  props:{
+    'type': String // Pass 'theory' or 'query' depending on use.
+  },
+  template: `
+  <div class="dropdown" data-dropdown="dropdown">
+    <button class="btn btn-sm btn-outline-secondary dropdown-toggle float-right"
+    type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+      Sort
+    </button>
+    <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dButton">
+      <button @click="$emit('sort-by', 'a-z')" class="dropdown-item" type="button">A to Z</button>
+      <button @click="$emit('sort-by', 'z-a')" class="dropdown-item" type="button">Z to A</button>
+      <button @click="$emit('sort-by', 'last-edited')" class="dropdown-item" type="button">Last edited</button>
+      <div v-if="this.type === 'query'" class="dropdown-divider"></div>
+      <button @click="$emit('sort-by', 'group-by-theory')" v-if="this.type === 'query'" class="dropdown-item" type="button">Group by theory</button>
+    </div>
+  </div>
+  `
+});

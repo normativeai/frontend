@@ -1,21 +1,3 @@
-const azSort = function(a,b) { return (a.name.toLowerCase() > b.name.toLowerCase()) ? 1 : -1; };
-const zaSort = function(a,b) { return (a.name.toLowerCase() > b.name.toLowerCase()) ? -1 : 1; }
-const lastEditedSort = function(a,b) { return new Date(b.lastUpdate) - new Date(a.lastUpdate) };
-const azGrouped = function(a, b) {
-  if (a.theory > b.theory) {
-    return 1;
-  } else if (a.theory === b.theory) {
-    if (a.name > b.name) {
-      return -1;
-    } else if (a.name === b.name) {
-      return 0;
-    } else {
-      return 1;
-    }
-  } else {
-    return -1;
-  }
-};
 
 const dashboard = {
   data: function() {
@@ -25,11 +7,10 @@ const dashboard = {
       queries: [],
       error: null,
       showModal: false,
-      sortBy: {
-        sortT: null,
-        sortQ:null,
-        groupByTheoryQ: false
-      }
+      ascDescT: 'asc',
+      orderByT: 'name',
+      ascDescQ: 'asc',
+      orderByQ: 'name',
     }
   },
   methods: {
@@ -140,48 +121,77 @@ const dashboard = {
     },
     ///////////////////////////////////
     // Sorting Stuff
+    // Handler for all events from sort-button component. $event[0] can be 'a-z' 'z-a' or 'last-edited'.
+    // $event[1] is true iff groupByLegislation == true. Relevent only to queries.
     onSort: function($event, type) {
+      console.log('onSort() received event of type: ' + type)
+      var self = this;
+      ////// theory sorting //////
       if(type === 'theory') {
-        this.sortBy['sortT'] = $event;
-      } else {
-        ($event === 'group-by-theory') ? this.sortBy['groupByTheoryQ'] = !this.sortBy['groupByTheoryQ'] : this.sortBy['sortQ'] = $event;
-        console.log(JSON.stringify(this.sortBy));
+        console.log($event[0] + ' ********** ' + self.orderByT + ' ' + self.ascDescT);
+        console.log('Switch entered $event[0] === ' + $event[0]);
+        switch($event[0]) {
+          case 'z-a':
+            self.orderByT = 'name';
+            self.ascDescT = 'desc';
+            break;
+          case 'a-z':
+            self.orderByT = 'name';
+            self.ascDescT = 'asc';
+            break
+          case 'last-edited':
+            self.orderByT = 'lastUpdate';
+            self.ascDescT = 'desc';
+        }
+      } else { ////// query sorting //////
+        console.log('ENTERED QUERY SECTION');
+        if($event[1] === false) {
+          switch($event[0]) {
+            case 'z-a':
+              self.orderByQ = 'name';
+              self.ascDescQ = 'desc';
+              break;
+            case 'a-z':
+              self.orderByQ = 'name';
+              self.ascDescQ = 'asc';
+              break
+            case 'last-edited':
+              self.orderByQ = 'lastUpdate';
+              self.ascDescQ = 'desc';
+          }
+        } else {
+          switch($event[0]) {
+            case 'z-a':
+              self.orderByQ = ['theory', 'name'];
+              self.ascDescQ = ['asc','desc'];
+              break;
+            case 'a-z':
+              self.orderByQ = ['theory', 'name'];
+              self.ascDescQ = ['asc', 'asc'];
+              break
+            case 'last-edited':
+              self.orderByQ = ['theory','lastUpdate'];
+              self.ascDescQ = ['asc','desc'];
+          }
+        }
       }
     },
-    sortedTheories: function() {
-      if(!this.sortBy['sortT']) {
-        return this.theories;
-      }
-      switch(this.sortBy['sortT']) {
-        case 'a-z':
-          return this.theories.sort(azSort);
-        case 'z-a':
-          return this.theories.sort(zaSort);
-        case 'last-edited':
-          return this.theories.sort(lastEditedSort);
-        default:
-          return this.theories.sort(lastEditedSort);
-      }
+    orderedTheories: function() {
+      console.log("_.orderBy()" + JSON.stringify(_.orderBy(this.theories, this.orderByT, this.ascDescT)));
+      return _.orderBy(this.theories, this.orderByT, this.ascDescT);
     },
-    sortedQueries: function() {
-      switch(this.sortBy['sortQ']) {
-        case 'a-z':
-          return this.queries.sort(azGrouped);
-        case 'z-a':
-          return this.queries.sort(zaSort);
-        case 'last-edited':
-          return this.queries.sort(lastEditedSort);
-        default:
-          return this.queries.sort(lastEditedSort);
-      }
-    }
+    orderedQueries: function() {
+      console.log("_.orderBy()" + JSON.stringify(_.orderBy(this.queries, this.orderByQ, this.ascDescQ)));
+      return _.orderBy(this.queries, this.orderByQ, this.ascDescQ);
+    },
   },
   computed: {
     theoryRows: function() {
-      return Math.ceil(this.sortedTheories().length / 3);
+      console.log('THOERY ROWS COMPUTED THIS.ORDERBYT='+this.orderByT);
+      return Math.ceil(this.orderedTheories().length / 3);
     },
     queryRows: function() {
-      return Math.ceil(this.sortedQueries().length / 3);
+      return Math.ceil(this.orderedQueries().length / 3);
     }
   },
   template: `
@@ -248,7 +258,7 @@ const dashboard = {
                   <span data-feather="corner-right-down"></span>
                   Import
                 </button>
-                <sort-button @sort-by="onSort($event,'theory')" type="theory"></sort-button>
+                <sort-button @order-by="onSort($event,'theory')" type="theory"></sort-button>
               </div>
             </div>
 
@@ -257,7 +267,7 @@ const dashboard = {
               <p v-if="theories.length == 0"><em>No legislatures formalized yet. Click on "create new" above,
               to create a new formalization or import a publicly available one.</em></p>
               <div class="row" v-for="i in theoryRows" style="margin-bottom: 2em">
-                <div class="col-sm-4" v-for="t in theories.slice((i-1) * 3, i * 3)">
+                <div class="col-sm-4" v-for="t in orderedTheories().slice((i-1) * 3, i * 3)">
                   <theory-card v-bind:theory="t" :key="t._id"></theory-card>
                 </div>
               </div>
@@ -276,7 +286,7 @@ const dashboard = {
                     Create new
                   </button>
                 </div>
-                <sort-button @sort-by="onSort($event, 'query')" type="query"></sort-button>
+                <sort-button @order-by="onSort($event, 'query')" type="query"></sort-button>
               </div>
             </div>
 
@@ -285,7 +295,7 @@ const dashboard = {
               <p v-if="queries.length == 0"><em>No queries yet. Click on "create new" above,
               to create a new query or import a publicly available one.</em></p>
               <div class="row" v-for="i in queryRows" style="margin-bottom: 2em">
-                <div class="col-sm-4" v-for="q in queries.slice((i-1) * 3, i * 3)">
+                <div class="col-sm-4" v-for="q in orderedQueries().slice((i-1) * 3, i * 3)">
                   <query-card v-bind:query="q" :key="q._id"></query-card>
                 </div>
               </div>

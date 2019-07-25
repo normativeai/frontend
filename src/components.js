@@ -1099,6 +1099,20 @@ Vue.component('quill-term-prompt', {
 // Dashboard sort buttons.
 //////////////
 Vue.component('sort-button',{
+  data: function() {
+    return {
+      groupByLegislation: false
+    }
+  },
+  methods:{
+    emitFunc: function(order) {
+      if(this.type === 'query'){
+        this.$emit('order-by', [order, this.groupByLegislation]); // Queries need to send groupByLegislation information.
+      } else {
+        this.$emit('order-by', [order, null]); // Field not applicable for theories.
+      }
+    }
+  },
   props:{
     'type': String // Pass 'theory' or 'query' depending on use.
   },
@@ -1109,11 +1123,16 @@ Vue.component('sort-button',{
       Sort
     </button>
     <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dButton">
-      <button @click="$emit('sort-by', 'a-z')" class="dropdown-item" type="button">A to Z</button>
-      <button @click="$emit('sort-by', 'z-a')" class="dropdown-item" type="button">Z to A</button>
-      <button @click="$emit('sort-by', 'last-edited')" class="dropdown-item" type="button">Last edited</button>
+      <button @click="emitFunc('a-z')" class="dropdown-item" type="button">A to Z</button>
+      <button @click="emitFunc('z-a')" class="dropdown-item" type="button">Z to A</button>
+      <button @click="emitFunc('last-edited')" class="dropdown-item" type="button">Last edited</button>
       <div v-if="this.type === 'query'" class="dropdown-divider"></div>
-      <button @click="$emit('sort-by', 'group-by-theory')" v-if="this.type === 'query'" class="dropdown-item" type="button">Group by theory</button>
+      <div v-if="this.type === 'query'" class="pl-4">
+        <div class="form-check formcheck form-check-inline">
+          <label class="form-check-label" for="group-leg-check">Group by legislation </label>
+          <input class="form-check-input" type="checkbox" id="group-leg-check" v-model="groupByLegislation" />
+        </div>
+      </div>
     </div>
   </div>
   `

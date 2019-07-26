@@ -1,4 +1,3 @@
-
 const dashboard = {
   data: function() {
     return {
@@ -7,13 +6,13 @@ const dashboard = {
       queries: [],
       error: null,
       showModal: false,
-      // Sorting
+      // Sort
       ascDescT: 'asc',
       orderByT: 'name',
       ascDescQ: 'asc',
       orderByQ: 'name',
-
-      paintSplotchColors: ['#A40E1A', '#DB8144', '#DFC63D', '#76A653', '#3582B8', '#433368'],
+      /* https://www.schemecolor.com/rainbow-twilight.php and https://www.schemecolor.com/pastel-rainbow.php */
+      paintSplotchColors: ['#A40E1A', '#DB8144', '#DFC63D', '#76A653', '#3582B8', '#433368', '#CC99C9', '#9EC1CF', '#9EE09E', '#FDFD97', '#FEB144', '#FF6663'],
       lastSplotchColor: -1,
     }
   },
@@ -133,6 +132,12 @@ const dashboard = {
         this.orderByQ = sortEvent[0];
         this.ascDescQ = sortEvent[1];
       }
+      window.localStorage.setItem('strSortSettings', JSON.stringify({
+        ascDescT: this.ascDescT,
+        orderByT: this.orderByT,
+        ascDescQ: this.ascDescQ,
+        orderByQ: this.orderByQ,
+      }));
     },
     orderedTheories: function() {
       return _.orderBy(this.theories, this.orderByT, this.ascDescT);
@@ -145,12 +150,24 @@ const dashboard = {
       return this.paintSplotchColors[this.lastSplotchColor];
     },
     insertSplotchColor: function() {
-      var qTheories = Object.keys(_.groupBy(this.queries, 'theory'));
-      for(var i = 0; i < qTheories.length; i++){
+      let auxStyles = document.getElementById('additionalStyles').sheet;
+      for(var i = 0; i < this.theories.length; i++){
         let color = this.nextSplotchColor();
-        let auxStyles = document.getElementById('additionalStyles').sheet;
-        auxStyles.insertRule('.qt'+ qTheories[i] +' { background-color: ' + color + '; }', auxStyles.cssRules.length);
+        auxStyles.insertRule('.qt'+ this.theories[i]._id +' { background-color: ' + color + '; }', auxStyles.cssRules.length);
       }
+    },
+    // Called on mount if applicable loads the users last sort settings.
+    loadSortSettings: function() {
+      let self = this;
+      try {
+        var strSortSettings = JSON.parse(window.localStorage.getItem('strSortSettings'));
+        if(!!strSortSettings){
+          self.ascDescT = strSortSettings.ascDescT;
+          self.orderByT = strSortSettings.orderByT;
+          self.ascDescQ = strSortSettings.ascDescQ;
+          self.orderByQ = strSortSettings.orderByQ;
+        }
+      } catch(e) { }
     }
   },
   computed: {
@@ -303,4 +320,7 @@ const dashboard = {
         self.theories = null
       }, null))
   },
+  mounted: function() {
+    this.loadSortSettings();
+  }
 }

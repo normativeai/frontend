@@ -389,6 +389,7 @@ Vue.component('theory-card', {
   },
   template: `
     <div class="card" style="background-color:#f4f4f4">
+      <div class="paint-splotch" :class="'qt'+this.theory._id"></div>
       <div class="card-body">
         <h4 class="card-title">{{ theory.name }}</h4>
         <h6 class="card-subtitle small mb-0 text-muted">Last edited: {{ updated }}</h6>
@@ -1109,17 +1110,30 @@ Vue.component('sort-button',{
     emitFunc: function(order) {
       if(this.type === 'query' && this.groupByLegislation){
         // Queries need to send groupByLegislation information. Field not applicable for theories.
-        //The theory sorting is arbitrary (based on id).
-        let groupedOrder = [['theory', order[0]], ['asc', order[1]]];
-        this.$emit('order-by', groupedOrder);
+        //The theory sorting is currently arbitrary (based on id).
+        this.$emit('order-by', [['theory', order[0]], ['asc', order[1]]]);
       } else {
         this.$emit('order-by', order);
       }
+    },
+    /* This is probably a really bad way of doing this but essentially this function checks local storage
+        for a property that will only exist there if the saved groupByLegislation data implies the current sort mode is grouped thus overriding
+        the default false value of the checkbox and ensuring synchronicity of sort mode and checkbox value. 
+    */
+    groupByCheckedUpdate: function() {
+      try {
+        if(!!(JSON.parse(window.localStorage.getItem('strSortSettings')).orderByQ[1][1])) {
+          this.groupByLegislation = true;
+        }
+      } catch(e) { }
     }
   },
   props:{
     // Pass 'theory' or 'query' depending on use.
-    'type': String
+    'type': String,
+  },
+  mounted: function() {
+    _.delay(this.groupByCheckedUpdate, 250);
   },
   template: `
   <div class="dropdown" data-dropdown="dropdown">

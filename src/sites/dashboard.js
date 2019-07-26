@@ -7,10 +7,14 @@ const dashboard = {
       queries: [],
       error: null,
       showModal: false,
+      // Sorting
       ascDescT: 'asc',
       orderByT: 'name',
       ascDescQ: 'asc',
       orderByQ: 'name',
+      
+      paintSplotchColors: ['#A40E1A', '#DB8144', '#DFC63D', '#76A653', '#3582B8', '#433368'],
+      lastSplotchColor: -1,
     }
   },
   methods: {
@@ -124,12 +128,9 @@ const dashboard = {
     // Handler for all events from sort-button component. $event[0] can be 'a-z' 'z-a' or 'last-edited'.
     // $event[1] is true iff groupByLegislation == true. Relevent only to queries.
     onSort: function($event, type) {
-      console.log('onSort() received event of type: ' + type)
       var self = this;
       ////// theory sorting //////
       if(type === 'theory') {
-        console.log($event[0] + ' ********** ' + self.orderByT + ' ' + self.ascDescT);
-        console.log('Switch entered $event[0] === ' + $event[0]);
         switch($event[0]) {
           case 'z-a':
             self.orderByT = 'name';
@@ -144,7 +145,6 @@ const dashboard = {
             self.ascDescT = 'desc';
         }
       } else { ////// query sorting //////
-        console.log('ENTERED QUERY SECTION');
         if($event[1] === false) {
           switch($event[0]) {
             case 'z-a':
@@ -177,17 +177,26 @@ const dashboard = {
       }
     },
     orderedTheories: function() {
-      console.log("_.orderBy()" + JSON.stringify(_.orderBy(this.theories, this.orderByT, this.ascDescT)));
       return _.orderBy(this.theories, this.orderByT, this.ascDescT);
     },
     orderedQueries: function() {
-      console.log("_.orderBy()" + JSON.stringify(_.orderBy(this.queries, this.orderByQ, this.ascDescQ)));
       return _.orderBy(this.queries, this.orderByQ, this.ascDescQ);
     },
+    nextSplotchColor: function() {
+      this.lastSplotchColor = (this.lastSplotchColor + 1) % this.paintSplotchColors.length;
+      return this.paintSplotchColors[this.lastSplotchColor];
+    },
+    insertSplotchColor: function() {
+      var qTheories = Object.keys(_.groupBy(this.queries, 'theory'));
+      for(var i = 0; i < qTheories.length; i++){
+        let color = this.nextSplotchColor();
+        let auxStyles = document.getElementById('additionalStyles').sheet;
+        auxStyles.insertRule('.qt'+ qTheories[i] +' { background-color: ' + color + '; }', auxStyles.cssRules.length);
+      }
+    }
   },
   computed: {
     theoryRows: function() {
-      console.log('THOERY ROWS COMPUTED THIS.ORDERBYT='+this.orderByT);
       return Math.ceil(this.orderedTheories().length / 3);
     },
     queryRows: function() {
@@ -323,6 +332,7 @@ const dashboard = {
         self.theories = resp.data.data.theories;
         self.queries = resp.data.data.queries;
         self.dashboardLoaded = true;
+        self.insertSplotchColor();
       } else {
         nai.log('could not retrieve user data', '[App]')
       }
@@ -334,5 +344,5 @@ const dashboard = {
         self.queries = null;
         self.theories = null
       }, null))
-  }
+  },
 }

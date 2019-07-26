@@ -484,6 +484,7 @@ Vue.component('query-card', {
   },
   template: `
     <div class="card" style="background-color:#f4f4f4">
+      <div class="paint-splotch" :class="'qt'+this.query.theory"></div>
       <div class="card-body">
         <h4 class="card-title">{{ query.name }}</h4>
         <h6 class="card-subtitle small mb-0 text-muted">Last edited: {{ updated }}</h6>

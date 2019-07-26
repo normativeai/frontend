@@ -216,3 +216,17 @@ tr.tr-disabled {
   color:#b1b1b1;
 }
 
+.paint-splotch {
+  /* background-color:// #A40E1A #DB8144 #DFC63D #76A653 #3582B8 #433368  https://www.schemecolor.com/rainbow-twilight.php */
+  position: absolute;
+  border-bottom-left-radius: 10px;
+  border-bottom-right-radius: 2px;
+  border-top-left-radius: 2px;
+  border-top-right-radius: 3px;
+  transform:  translateX(1px) translateY(-1px);
+  border: solid black 2px;
+  top: 0px;
+  right: 0px;
+  height: 30px;
+  width: 30px;
+}

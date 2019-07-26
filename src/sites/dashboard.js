@@ -12,7 +12,7 @@ const dashboard = {
       orderByT: 'name',
       ascDescQ: 'asc',
       orderByQ: 'name',
-      
+
       paintSplotchColors: ['#A40E1A', '#DB8144', '#DFC63D', '#76A653', '#3582B8', '#433368'],
       lastSplotchColor: -1,
     }
@@ -125,55 +125,13 @@ const dashboard = {
     },
     ///////////////////////////////////
     // Sorting Stuff
-    // Handler for all events from sort-button component. $event[0] can be 'a-z' 'z-a' or 'last-edited'.
-    // $event[1] is true iff groupByLegislation == true. Relevent only to queries.
-    onSort: function($event, type) {
-      var self = this;
-      ////// theory sorting //////
+    onSort: function(sortEvent, type) {
       if(type === 'theory') {
-        switch($event[0]) {
-          case 'z-a':
-            self.orderByT = 'name';
-            self.ascDescT = 'desc';
-            break;
-          case 'a-z':
-            self.orderByT = 'name';
-            self.ascDescT = 'asc';
-            break
-          case 'last-edited':
-            self.orderByT = 'lastUpdate';
-            self.ascDescT = 'desc';
-        }
-      } else { ////// query sorting //////
-        if($event[1] === false) {
-          switch($event[0]) {
-            case 'z-a':
-              self.orderByQ = 'name';
-              self.ascDescQ = 'desc';
-              break;
-            case 'a-z':
-              self.orderByQ = 'name';
-              self.ascDescQ = 'asc';
-              break
-            case 'last-edited':
-              self.orderByQ = 'lastUpdate';
-              self.ascDescQ = 'desc';
-          }
-        } else {
-          switch($event[0]) {
-            case 'z-a':
-              self.orderByQ = ['theory', 'name'];
-              self.ascDescQ = ['asc','desc'];
-              break;
-            case 'a-z':
-              self.orderByQ = ['theory', 'name'];
-              self.ascDescQ = ['asc', 'asc'];
-              break
-            case 'last-edited':
-              self.orderByQ = ['theory','lastUpdate'];
-              self.ascDescQ = ['asc','desc'];
-          }
-        }
+        this.orderByT = sortEvent[0];
+        this.ascDescT = sortEvent[1];
+      } else {
+        this.orderByQ = sortEvent[0];
+        this.ascDescQ = sortEvent[1];
       }
     },
     orderedTheories: function() {
@@ -332,7 +290,7 @@ const dashboard = {
         self.theories = resp.data.data.theories;
         self.queries = resp.data.data.queries;
         self.dashboardLoaded = true;
-        self.insertSplotchColor();
+        self.insertSplotchColor(); // Needs to happen after data is loaded.
       } else {
         nai.log('could not retrieve user data', '[App]')
       }

@@ -1107,15 +1107,19 @@ Vue.component('sort-button',{
   },
   methods:{
     emitFunc: function(order) {
-      if(this.type === 'query'){
-        this.$emit('order-by', [order, this.groupByLegislation]); // Queries need to send groupByLegislation information.
+      if(this.type === 'query' && this.groupByLegislation){
+        // Queries need to send groupByLegislation information. Field not applicable for theories.
+        //The theory sorting is arbitrary (based on id).
+        let groupedOrder = [['theory', order[0]], ['asc', order[1]]];
+        this.$emit('order-by', groupedOrder);
       } else {
-        this.$emit('order-by', [order, null]); // Field not applicable for theories.
+        this.$emit('order-by', order);
       }
     }
   },
   props:{
-    'type': String // Pass 'theory' or 'query' depending on use.
+    // Pass 'theory' or 'query' depending on use.
+    'type': String
   },
   template: `
   <div class="dropdown" data-dropdown="dropdown">
@@ -1124,9 +1128,9 @@ Vue.component('sort-button',{
       Sort
     </button>
     <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dButton">
-      <button @click="emitFunc('a-z')" class="dropdown-item" type="button">A to Z</button>
-      <button @click="emitFunc('z-a')" class="dropdown-item" type="button">Z to A</button>
-      <button @click="emitFunc('last-edited')" class="dropdown-item" type="button">Last edited</button>
+      <button @click="emitFunc(['name', 'asc'])" class="dropdown-item" type="button">A to Z</button>
+      <button @click="emitFunc(['name', 'desc'])" class="dropdown-item" type="button">Z to A</button>
+      <button @click="emitFunc(['lastUpdate','desc'])" class="dropdown-item" type="button">Last edited</button>
       <div v-if="this.type === 'query'" class="dropdown-divider"></div>
       <div v-if="this.type === 'query'" class="pl-4">
         <div class="form-check formcheck form-check-inline">

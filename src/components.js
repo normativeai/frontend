@@ -1136,3 +1136,30 @@ Vue.component('SidePanelComponent', {
     </div>
     `
 })
+
+///////////////////////
+//Small sticky Sidebar
+///////////////////////
+Vue.component('small-sticky-sidebar',{
+
+template:`
+  <div class="sidebar small-sidebar bg-light">
+    <div class="sidebar-sticky small-sidebar-interior d-flex flex-column align-content-center">
+    <button class="navbar-toggler float-left mr-3" type="button" @click="$emit('show-large-nav')"><feather-icon icon="menu" class=""></feather-icon></button>
+
+      <ul style="transform: translateX(-3px);" class="nav">
+        <li class="nav-item">
+          <a class="nav-link" href="#legislatures">
+          <feather-icon icon="book" class=""></feather-icon>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#queries">
+          <feather-icon icon="cpu"></feather-icon>
+          </a>
+        </li>
+      </ul>
+    </div>
+  </div>
+`
+})

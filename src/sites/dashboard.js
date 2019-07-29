@@ -5,7 +5,8 @@ const dashboard = {
       theories: [],
       queries: [],
       error: null,
-      showModal: false
+      showModal: false,
+      showLargeNav: false
     }
   },
   methods: {
@@ -28,7 +29,7 @@ const dashboard = {
     onTheoryCreateFail: function(error) {
       console.log(error)
     },
-    onTheoryDelete: function(theory) {    
+    onTheoryDelete: function(theory) {
       nai.deleteTheory(theory, this.onTheoryDeleteSuccess(theory), this.onTheoryDeleteError)
     },
     onTheoryDeleteSuccess: function(theory) {
@@ -86,7 +87,7 @@ const dashboard = {
     onQueryCreateFail: function(error) {
       nai.log(error, '[App]')
     },
-    onQueryDelete: function(query) {    
+    onQueryDelete: function(query) {
       nai.deleteQuery(query, this.onQueryDeleteSuccess(query), this.onQueryDeleteError)
     },
     onQueryDeleteSuccess: function(query) {
@@ -104,7 +105,7 @@ const dashboard = {
     /////////////////////
     onCloneModalFinish: function() {
       nai.log("modal finish");
-      
+
       this.showModal = false;
     },
     onCloneModalCancel: function() {
@@ -113,6 +114,9 @@ const dashboard = {
     },
     showTheoryCloneWindows: function() {
       //this.showModal = true;
+    },
+    onShowLargeNav: function() {
+      this.showLargeNav = !this.showLargeNav;
     }
   },
   computed: {
@@ -126,26 +130,28 @@ const dashboard = {
   template: `
     <div class="container-fluid">
       <div class="row">
-        <nav class="col-md-2 d-none d-md-block bg-light sidebar">
+        <small-sticky-sidebar v-if="!showLargeNav" v-on:show-large-nav="onShowLargeNav()"></small-sticky-sidebar>
+        <nav v-if="showLargeNav" class="col-md-2 d-none d-md-block bg-light sidebar">
           <div class="sidebar-sticky">
             <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-1 mb-1 text-muted">
               <span>Dashboard</span>
+              <button class="navbar-toggler float-left mr-3" type="button" @click="showLargeNav = !showLargeNav"><feather-icon icon="menu" class=""></feather-icon></button>
             </h6>
             <ul class="nav flex-column mb-2">
               <li class="nav-item">
                 <a class="nav-link" href="#legislatures">
-                  <span data-feather="book"></span>
+                  <feather-icon icon="book"></feather-icon>
                   Legislations
                 </a>
               </li>
               <li class="nav-item">
                 <a class="nav-link" href="#queries">
-                  <span data-feather="cpu"></span>
+                  <feather-icon icon="cpu"></feather-icon>
                   Queries
                 </a>
               </li>
             </ul>
-            
+
             <!--<h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-3 mb-1 text-muted">
               <span>Settings</span>
             </h6>
@@ -160,18 +166,18 @@ const dashboard = {
           </div>
         </nav>
 
-        <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4">
+        <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4" :class="{'mr-auto': !showLargeNav}">
           <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center mb-0">
             <h1>Dashboard</h1>
             <!--<span>Logged in as: {{ user.name }}</span>-->
           </div>
           <hr class="mt-0">
-          
+
           <alert variant="danger" v-show="error" :dismissible="false">
             <span v-html="error"></span>
           </alert>
-          
-          
+
+
           <div v-if="theories">
             <a name="legislatures" style="display:block;visibility:hidden;position:relative;top:-3em"></a>
             <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center mb-4">
@@ -189,7 +195,7 @@ const dashboard = {
                 </button>
               </div>
             </div>
-            
+
             <loading-bar v-if="!dashboardLoaded"></loading-bar>
             <div v-if="dashboardLoaded">
               <p v-if="theories.length == 0"><em>No legislatures formalized yet. Click on "create new" above,
@@ -201,7 +207,7 @@ const dashboard = {
               </div>
             </div>
           </div>
-          
+
           <div v-if="queries">
             <hr>
             <a name="queries" style="display:block;visibility:hidden;position:relative;top:-3em"></a>
@@ -216,7 +222,7 @@ const dashboard = {
                 </div>
               </div>
             </div>
-            
+
             <loading-bar v-if="!dashboardLoaded"></loading-bar>
             <div v-if="dashboardLoaded">
               <p v-if="queries.length == 0"><em>No queries yet. Click on "create new" above,
@@ -228,9 +234,9 @@ const dashboard = {
               </div>
             </div>
           </div>
-          
+
         </main>
-        
+
       </div>
       <modal v-if="showModal" name="clone"></modal>
     </div>
@@ -255,7 +261,7 @@ const dashboard = {
       }
     }, nai.handleResponse(null, function(error) {
         self.dashboardLoaded = true;
-        self.error = `<b>Error</b>: Could not connect to NAI back-end. 
+        self.error = `<b>Error</b>: Could not connect to NAI back-end.
                      Please try to reload and contact the system
                      administrator if this problem persists.`
         self.queries = null;

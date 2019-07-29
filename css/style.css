@@ -66,7 +66,7 @@ border: 1px dashed gray;
  */
 
 .sidebar {
-  position: absolute;
+  position: fixed;
   top: 0;
   bottom: 0;
   left: 0;
@@ -245,11 +245,6 @@ tr.tr-disabled {
   right: 0px;
 }
 
-#toggleNav {
-  left: 0px;
-  transform: scale(-1, 1);
-}
-
 .semi-circle {
   position: -webkit-sticky;
   top: 45vh;
@@ -295,4 +290,11 @@ Applied to the empty "debug" div.
 /* Makeup for the existence of the split.js gutter */
 .toggle-side-panel-transform {
   transform: translateX(5px);
+}
+
+/*
+ ******** Small Sidebar **********
+ */
+.small-sidebar {
+  width: 40px;
 }

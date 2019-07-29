@@ -222,10 +222,9 @@ tr.tr-disabled {
   border-bottom-right-radius: 2px;
   border-top-left-radius: 2px;
   border-top-right-radius: 3px;
-  transform:  translateX(1px) translateY(-1px);
   border: solid black 2px;
-  top: 0px;
-  right: 0px;
+  top: -1px;
+  right: -1px;
   height: 30px;
   width: 30px;
 }

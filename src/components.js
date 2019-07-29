@@ -1116,9 +1116,8 @@ Vue.component('sort-button',{
         this.$emit('order-by', order);
       }
     },
-    /* This is probably a really bad way of doing this but essentially this function checks local storage
-        for a property that will only exist there if the saved groupByLegislation data implies the current sort mode is grouped thus overriding
-        the default false value of the checkbox and ensuring synchronicity of sort mode and checkbox value. 
+    /* This function checks local storage for a property that will only exist there if the saved groupByLegislation data implies the current sort mode
+    is grouped thus overriding the default false value of the checkbox and ensuring synchronicity of sort mode and checkbox value. 
     */
     groupByCheckedUpdate: function() {
       try {

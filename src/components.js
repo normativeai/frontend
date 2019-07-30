@@ -1141,25 +1141,89 @@ Vue.component('SidePanelComponent', {
 //Small sticky Sidebar
 ///////////////////////
 Vue.component('small-sticky-sidebar',{
-
 template:`
-  <div class="sidebar small-sidebar bg-light">
+  <div class="sidebar small-sidebar bg-light d-none d-md-block">
     <div class="sidebar-sticky small-sidebar-interior d-flex flex-column align-content-center">
-    <button class="navbar-toggler float-left mr-3" type="button" @click="$emit('show-large-nav')"><feather-icon icon="menu" class=""></feather-icon></button>
-
+    <button class="navbar-toggler float-left mr-3" type="button" @click="$emit('toggle-show-l-nav')"><feather-icon icon="menu" class=""></feather-icon></button>
       <ul style="transform: translateX(-3px);" class="nav">
-        <li class="nav-item">
-          <a class="nav-link" href="#legislatures">
-          <feather-icon icon="book" class=""></feather-icon>
-          </a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="#queries">
-          <feather-icon icon="cpu"></feather-icon>
-          </a>
-        </li>
+        <slot name="links"></slot>
       </ul>
     </div>
   </div>
 `
+})
+
+///////////////////
+// Large Sidebar
+///////////////////
+Vue.component('large-sidebar', {
+  props: ['page'],
+  template: `
+    <nav class="col-md-2 d-none d-md-block bg-light sidebar">
+      <div class="sidebar-sticky">
+        <slot name="returnToDashboard"> <!-- Default. In dashboard pass an empty template v-slot to overwrite the default and ensure it doesn't show up -->
+          <h6 v-if="page !== 'dashboard'" class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-1 mb-1 text-muted" v-on:click="$parent.$emit('go-back')" style="cursor:pointer">
+            <feather-icon icon="arrow-left"></feather-icon>
+            <a class="d-flex align-items-center text-muted">
+              <span><b>Back to dashboard</b></span>
+            </a>
+          </h6>
+        </slot>
+        <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-1 mb-1 text-muted">
+          <slot name="heading"></slot>
+          <button class="navbar-toggler float-left mr-3" type="button" @click="$emit('toggle-show-l-nav')"><feather-icon icon="menu" class=""></feather-icon></button>
+        </h6>
+        <ul class="nav flex-column mb-2">
+          <slot name="links"></slot>
+        </ul>
+      </div>
+    </nav>
+  `
+})
+///////////////////
+// Sidebar
+///////////////////
+Vue.component('sidebar',{
+  data: function() {
+    return{
+      showLargeNav: false
+    }
+  },
+  props: {
+    page: {
+      type: String,
+      required: true,
+      validator: function (value) {
+        return ['dashboard', 'theory', 'query'].indexOf(value) !== -1;
+      }
+    }
+  },
+  methods: {
+    onShowLargeNav: function() {
+      this.showLargeNav = !this.showLargeNav;
+      this.$emit('toggle-show-l-nav'); // Propigate event to parent for dynamic class changes to "main".
+    }
+  },
+  template:`
+  <div>
+    <transition enter-active-class="animated fadeInLeft" leave-active-class="animated fadeOutLeft">
+      <large-sidebar v-if="showLargeNav" v-on:toggle-show-l-nav="onShowLargeNav()" :page="this.page">
+        <template v-slot:heading>
+          <slot name="largeNavHeading">Contents</slot>
+        </template>
+        <template v-slot:links>
+          <slot name="largeNavLinks"></slot>
+        </template>
+      </large-sidebar>
+    </transition>
+
+    <transition enter-active-class="animated fadeInRight" leave-active-class="animated.fast fadeOutRight">
+      <small-sticky-sidebar v-if="!showLargeNav" v-on:toggle-show-l-nav="onShowLargeNav()" :page="this.page">
+        <template v-slot:links>
+          <slot name="smallNavLinks"></slot>
+        </template>
+      </small-sticky-sidebar>
+    </transition>
+  </div>
+  `
 })

@@ -130,43 +130,41 @@ const dashboard = {
   template: `
     <div class="container-fluid">
       <div class="row">
-        <small-sticky-sidebar v-if="!showLargeNav" v-on:show-large-nav="onShowLargeNav()"></small-sticky-sidebar>
-        <nav v-if="showLargeNav" class="col-md-2 d-none d-md-block bg-light sidebar">
-          <div class="sidebar-sticky">
-            <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-1 mb-1 text-muted">
-              <span>Dashboard</span>
-              <button class="navbar-toggler float-left mr-3" type="button" @click="showLargeNav = !showLargeNav"><feather-icon icon="menu" class=""></feather-icon></button>
-            </h6>
-            <ul class="nav flex-column mb-2">
+
+        <sidebar page="dashboard" v-on:toggle-show-l-nav="onShowLargeNav">
+          <template v-slot:returnToDashboard></template>
+          <template v-slot:smallNavLinks>
               <li class="nav-item">
                 <a class="nav-link" href="#legislatures">
-                  <feather-icon icon="book"></feather-icon>
-                  Legislations
+                <feather-icon icon="book" class=""></feather-icon>
                 </a>
               </li>
               <li class="nav-item">
                 <a class="nav-link" href="#queries">
-                  <feather-icon icon="cpu"></feather-icon>
-                  Queries
+                <feather-icon icon="cpu"></feather-icon>
                 </a>
               </li>
-            </ul>
+          </template>
+          <template v-slot:largeNavHeading>
+            <span>Dashboard</span>
+          </template>
+          <template v-slot:largeNavLinks>
+            <li class="nav-item">
+              <a class="nav-link" href="#legislatures">
+                <feather-icon icon="book"></feather-icon>
+                Legislations
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#queries">
+                <feather-icon icon="cpu"></feather-icon>
+                Queries
+              </a>
+            </li>
+          </template>
+        </sidebar>
 
-            <!--<h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-3 mb-1 text-muted">
-              <span>Settings</span>
-            </h6>
-            <ul class="nav flex-column mb-2">
-              <li class="nav-item">
-                <a class="nav-link">
-                  <span data-feather="settings"></span>
-                  Preferences
-                </a>
-              </li>
-            </ul>-->
-          </div>
-        </nav>
-
-        <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4" :class="{'mr-auto': !showLargeNav}">
+        <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4" :class="{'show-small-nav': !showLargeNav}">
           <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center mb-0">
             <h1>Dashboard</h1>
             <!--<span>Logged in as: {{ user.name }}</span>-->

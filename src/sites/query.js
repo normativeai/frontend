@@ -295,42 +295,47 @@ const query = {
   template: `
     <div class="container-fluid">
       <div class="row">
-        <nav class="col-md-2 d-none d-md-block bg-light sidebar">
-          <div class="sidebar-sticky">
-            <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-1 mb-1 text-muted" v-on:click="back" style="cursor:pointer">
-              <feather-icon icon="arrow-left"></feather-icon>
-              <a class="d-flex align-items-center text-muted">
-                <span><b>Back to dashboard</b></span>
+        <sidebar page="theory" v-on:go-back="back">
+          <template v-slot:smallNavLinks>
+            <li class="nav-item">
+              <a class="nav-link" href="#" @click="activeTab = 0">
+                <feather-icon icon="book"></feather-icon>
               </a>
-            </h6>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#" @click="activeTab = 1">
+                <feather-icon icon="zap"></feather-icon>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#" @click="activeTab = 2">
+                <feather-icon icon="clipboard"></feather-icon>
+              </a>
+            </li>
+          </template>
 
-            <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-3 mb-1 text-muted">
-              <span>Contents</span>
-            </h6>
-            <ul class="nav flex-column mb-2">
-              <li class="nav-item">
-                <a class="nav-link" href="#" @click="activeTab = 0">
-                  <feather-icon icon="book"></feather-icon>
-                  Query editor
-                </a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="#" @click="activeTab = 1">
-                  <feather-icon icon="zap"></feather-icon>
-                  Formalization
-                </a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="#" @click="activeTab = 2">
-                  <feather-icon icon="clipboard"></feather-icon>
-                  Vocabulary
-                </a>
-              </li>
-            </ul>
-          </div>
-        </nav>
-
-        <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4">
+          <template v-slot:largeNavLinks>
+            <li class="nav-item">
+              <a class="nav-link" href="#" @click="activeTab = 0">
+                <feather-icon icon="book"></feather-icon>
+                Query editor
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#" @click="activeTab = 1">
+                <feather-icon icon="zap"></feather-icon>
+                Formalization
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#" @click="activeTab = 2">
+                <feather-icon icon="clipboard"></feather-icon>
+                Vocabulary
+              </a>
+            </li>
+          </template>
+        </sidebar>
+        <main role="main" class="theory-query-main col-md-9 col-lg-10 px-4">
           <div v-if="!loaded">
             <h1>Loading query ...</h1>
             <loading-bar v-if="!loaded"></loading-bar>

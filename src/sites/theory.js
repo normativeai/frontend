@@ -346,54 +346,49 @@ const theory = {
   template: `
     <div class="d-flex" style="padding-right: 0px;">
       <div class="split-left mr-auto ml-auto">
-        <nav v-if="!showSidePanelComponent" class="col-md-2 d-none d-md-block bg-light sidebar">
-          <div class="sidebar-sticky">
-            <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-1 mb-1 text-muted" v-on:click="back" style="cursor:pointer">
-              <feather-icon icon="arrow-left"></feather-icon>
-              <a class="d-flex align-items-center text-muted">
-                <span><b>Back to dashboard</b></span>
+
+        <sidebar page="theory" v-on:go-back="back">
+          <template v-slot:smallNavLinks>
+            <li class="nav-item">
+              <a class="nav-link" href="#" @click="activeTab = 0" title="Legislation">
+                <feather-icon icon="book"></feather-icon>
               </a>
-            </h6>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#" @click="activeTab = 1" title="Formalization">
+                <feather-icon icon="zap"></feather-icon>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#" @click="activeTab = 2" title="Vocabulary">
+                <feather-icon icon="clipboard"></feather-icon>
+              </a>
+            </li>
+          </template>
 
-            <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-3 mb-1 text-muted">
-              <span>Contents</span>
-            </h6>
-            <ul class="nav flex-column mb-2">
-              <li class="nav-item">
-                <a class="nav-link" href="#" @click="activeTab = 0">
-                  <feather-icon icon="book"></feather-icon>
-                  Legislation
-                </a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="#" @click="activeTab = 1">
-                  <feather-icon icon="zap"></feather-icon>
-                  Formalization
-                </a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="#" @click="activeTab = 2">
-                  <feather-icon icon="clipboard"></feather-icon>
-                  Vocabulary
-                </a>
-              </li>
-            </ul>
+          <template v-slot:largeNavLinks>
+            <li class="nav-item">
+              <a class="nav-link" href="#" @click="activeTab = 0">
+                <feather-icon icon="book"></feather-icon>
+                Legislation
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#" @click="activeTab = 1">
+                <feather-icon icon="zap"></feather-icon>
+                Formalization
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#" @click="activeTab = 2">
+                <feather-icon icon="clipboard"></feather-icon>
+                Vocabulary
+              </a>
+            </li>
+          </template>
+        </sidebar>
 
-            <!--<h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-3 mb-1 text-muted">
-              <span>Settings</span>
-            </h6>
-            <ul class="nav flex-column mb-2">
-              <li class="nav-item">
-                <a class="nav-link">
-                  <feather-icon icon="settings"></feather-icon>
-                  Preferences
-                </a>
-              </li>
-            </ul>-->
-          </div>
-        </nav>
-
-        <main role="main" key="main" class="px-4" :class="{ 'col-10  ml-auto' : !showSidePanelComponent, 'col-12' : showSidePanelComponent }">
+        <main role="main" key="main" class="theory-query-main px-4 col-10" :class="{'offset-2' : showSidePanelComponent}">
           <div v-if="!loaded">
             <h1>Loading theory ...</h1>
             <loading-bar v-if="!loaded"></loading-bar>

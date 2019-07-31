@@ -26,7 +26,9 @@ const query = {
                          '#D47500','#E26A6A','#009FD4','#5D995D'],
       lastAnnotationColor: -1,
       connectives: null,
-      activeTab: 0
+      activeTab: 0,
+
+      showLargeNav: false
     }
   },
   methods: {
@@ -295,7 +297,7 @@ const query = {
   template: `
     <div class="container-fluid">
       <div class="row">
-        <sidebar page="theory" v-on:go-back="back">
+        <sidebar v-on:go-back="back" v-on:show-large-nav="showLargeNav=!showLargeNav">
           <template v-slot:smallNavLinks>
             <li class="nav-item">
               <a class="nav-link" href="#" @click="activeTab = 0">
@@ -335,7 +337,7 @@ const query = {
             </li>
           </template>
         </sidebar>
-        <main role="main" class="theory-query-main col-md-9 col-lg-10 px-4">
+        <main role="main" class="theory-query-main col-10" :class="{'show-large-nav' : showLargeNav}">
           <div v-if="!loaded">
             <h1>Loading query ...</h1>
             <loading-bar v-if="!loaded"></loading-bar>

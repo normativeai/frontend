@@ -117,12 +117,44 @@ border: 1px dashed gray;
 }
 
 /*
+ ******** Small Sidebar **********
+ */
+.small-sidebar {
+  width: 40px;
+}
+
+@media (min-width: 768px) {
+  .show-small-nav {
+    margin-right: 10%;
+  }
+}
+
+@media (min-width: 992px) {
+  .show-small-nav {
+    margin-right: 6%;
+  }
+}
+
+
+
+/*
  * Content
  */
 
 [role="main"] {
   padding-top: 48px; /* Space for fixed navbar */
   transition: margin-right 800ms;
+}
+/* Dynamically added to main when large sidebar is toggled. */
+.show-large-nav {
+  padding-left: 15%;
+}
+/* Applied to main content of theory and query. */
+.theory-query-main {
+  transform: translateX(30px);
+  transition: padding 800ms;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 /*
@@ -265,14 +297,14 @@ tr.tr-disabled {
   background-color: #f8f9fa;
 }
 
-/* Icon inside comment toggle button */
+/* Icon inside comment toggle button. */
  .message-circle-icon {
    display: block;
    margin: auto;
    color: #6c757d;
    transform: scale(-1, 1) translateY(1px) translateX(-1px);
   }
-/* Quill snow theme is normally translucent */
+/* Quill snow theme is normally translucent. */
 .ql-snow {
   background-color: #fff;
 }
@@ -292,28 +324,4 @@ Applied to the empty "debug" div.
 /* Makeup for the existence of the split.js gutter */
 .toggle-side-panel-transform {
   transform: translateX(5px);
-}
-
-/*
- ******** Small Sidebar **********
- */
-.small-sidebar {
-  width: 40px;
-}
-
-@media (min-width: 768px) {
-  .show-small-nav {
-    margin-right: 10%;
-  }
-}
-
-@media (min-width: 992px) {
-  .show-small-nav {
-    margin-right: 6%;
-  }
-}
-
-.theory-query-main {
-  margin-left: auto;
-  margin-right: auto;
 }

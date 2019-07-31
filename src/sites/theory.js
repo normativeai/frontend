@@ -1,8 +1,6 @@
 const theory = {
   data: function() {
     return {
-      showSidePanelComponent: false,
-
       theory: null,
       loaded: false,
       lastSavedTheory: null,
@@ -25,7 +23,10 @@ const theory = {
                          '#D47500','#E26A6A','#009FD4','#5D995D'],
       lastAnnotationColor: -1,
       connectives: null,
-      activeTab: 0
+      activeTab: 0,
+
+      showSidePanelComponent: false,
+      showLargeNav: false,
     }
   },
   methods: {
@@ -347,7 +348,7 @@ const theory = {
     <div class="d-flex" style="padding-right: 0px;">
       <div class="split-left mr-auto ml-auto">
 
-        <sidebar page="theory" v-on:go-back="back">
+        <sidebar page="theory" v-on:go-back="back" v-on:show-large-nav="showLargeNav=!showLargeNav">
           <template v-slot:smallNavLinks>
             <li class="nav-item">
               <a class="nav-link" href="#" @click="activeTab = 0" title="Legislation">
@@ -365,7 +366,6 @@ const theory = {
               </a>
             </li>
           </template>
-
           <template v-slot:largeNavLinks>
             <li class="nav-item">
               <a class="nav-link" href="#" @click="activeTab = 0">
@@ -388,7 +388,7 @@ const theory = {
           </template>
         </sidebar>
 
-        <main role="main" key="main" class="theory-query-main px-4 col-10" :class="{'offset-2' : showSidePanelComponent}">
+        <main role="main" key="main" class="theory-query-main col-10" :class="{'show-large-nav' : showLargeNav}">
           <div v-if="!loaded">
             <h1>Loading theory ...</h1>
             <loading-bar v-if="!loaded"></loading-bar>

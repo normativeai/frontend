@@ -131,8 +131,8 @@ const dashboard = {
     <div class="container-fluid">
       <div class="row">
 
-        <sidebar page="dashboard" v-on:toggle-show-l-nav="onShowLargeNav">
-          <template v-slot:returnToDashboard></template>
+        <sidebar page="dashboard" v-on:show-large-nav="onShowLargeNav">
+          <template v-slot:returnToDashboard><span></span></template>
           <template v-slot:smallNavLinks>
               <li class="nav-item">
                 <a class="nav-link" href="#legislatures">
@@ -174,7 +174,6 @@ const dashboard = {
           <alert variant="danger" v-show="error" :dismissible="false">
             <span v-html="error"></span>
           </alert>
-
 
           <div v-if="theories">
             <a name="legislatures" style="display:block;visibility:hidden;position:relative;top:-3em"></a>

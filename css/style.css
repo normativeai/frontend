@@ -251,7 +251,7 @@ tr.tr-disabled {
 }
 
 /*
- * ****** Notes panel. *******
+ * ****** Sidepanel/Comments *******
  */
 
 .notes-panel {
@@ -324,4 +324,17 @@ Applied to the empty "debug" div.
 /* Makeup for the existence of the split.js gutter */
 .toggle-side-panel-transform {
   transform: translateX(5px);
+}
+
+.paint-splotch {
+  position: absolute;
+  border-bottom-left-radius: 10px;
+  border-bottom-right-radius: 2px;
+  border-top-left-radius: 2px;
+  border-top-right-radius: 3px;
+  border: solid black 2px;
+  top: -1px;
+  right: -1px;
+  height: 30px;
+  width: 30px;
 }

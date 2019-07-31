@@ -58,7 +58,8 @@ const query = {
         theory: updatedTheory,
         description: this.queryDesc,
         content: this.queryContent,
-        assumptions: this.queryAssumptions
+        assumptions: this.queryAssumptions,
+        goal: this.query.goal
       }
       // Show save-in-progress icon
       this.saving = true;
@@ -578,6 +579,14 @@ const query = {
                 </tr>
               </tbody>
             </table>
+            <h5>Manual goal</h5>
+            <p class="small">
+            Inputting a manual goal is optional. It will be overriden if there is any goal set using
+            the annotator.
+            </p>
+            <div style="border: 1px solid black; padding: 1em; font-family: monospace; font-size: large;">
+            <input-update v-model="query.goal" placeholder="No manual goal set" v-bind:edit="editAssumptions"></input-update>
+            </div>
           </div>
 
 

@@ -6,7 +6,15 @@ const dashboard = {
       queries: [],
       error: null,
       showModal: false,
-      showLargeNav: false
+      showLargeNav: false,
+      // Sort
+      ascDescT: 'asc',
+      orderByT: 'name',
+      ascDescQ: 'asc',
+      orderByQ: 'name',
+      /* https://www.schemecolor.com/rainbow-twilight.php and https://www.schemecolor.com/pastel-rainbow.php */
+      paintSplotchColors: ['#A40E1A', '#DB8144', '#DFC63D', '#76A653', '#3582B8', '#433368', '#CC99C9', '#9EC1CF', '#9EE09E', '#FDFD97', '#FEB144', '#FF6663'],
+      lastSplotchColor: -1,
     }
   },
   methods: {
@@ -117,14 +125,61 @@ const dashboard = {
     },
     onShowLargeNav: function() {
       this.showLargeNav = !this.showLargeNav;
+    },
+    ///////////////////////////////////
+    // Sorting Stuff
+    onSort: function(sortEvent, type) {
+      if(type === 'theory') {
+        this.orderByT = sortEvent[0];
+        this.ascDescT = sortEvent[1];
+      } else {
+        this.orderByQ = sortEvent[0];
+        this.ascDescQ = sortEvent[1];
+      }
+      window.localStorage.setItem('strSortSettings', JSON.stringify({
+        ascDescT: this.ascDescT,
+        orderByT: this.orderByT,
+        ascDescQ: this.ascDescQ,
+        orderByQ: this.orderByQ,
+      }));
+    },
+    orderedTheories: function() {
+      return _.orderBy(this.theories, this.orderByT, this.ascDescT);
+    },
+    orderedQueries: function() {
+      return _.orderBy(this.queries, this.orderByQ, this.ascDescQ);
+    },
+    nextSplotchColor: function() {
+      this.lastSplotchColor = (this.lastSplotchColor + 1) % this.paintSplotchColors.length;
+      return this.paintSplotchColors[this.lastSplotchColor];
+    },
+    insertSplotchColor: function() {
+      let auxStyles = document.getElementById('additionalStyles').sheet;
+      for(var i = 0; i < this.theories.length; i++){
+        let color = this.nextSplotchColor();
+        auxStyles.insertRule('.qt'+ this.theories[i]._id +' { background-color: ' + color + '; }', auxStyles.cssRules.length);
+      }
+    },
+    // Called on mount if applicable loads the users last sort settings.
+    loadSortSettings: function() {
+      let self = this;
+      try {
+        var strSortSettings = JSON.parse(window.localStorage.getItem('strSortSettings'));
+        if(!!strSortSettings){
+          self.ascDescT = strSortSettings.ascDescT;
+          self.orderByT = strSortSettings.orderByT;
+          self.ascDescQ = strSortSettings.ascDescQ;
+          self.orderByQ = strSortSettings.orderByQ;
+        }
+      } catch(e) { }
     }
   },
   computed: {
     theoryRows: function() {
-      return Math.ceil(this.theories.length / 3);
+      return Math.ceil(this.orderedTheories().length / 3);
     },
     queryRows: function() {
-      return Math.ceil(this.queries.length / 3);
+      return Math.ceil(this.orderedQueries().length / 3);
     }
   },
   template: `
@@ -186,10 +241,11 @@ const dashboard = {
                     Create new
                   </button>
                 </div>
-                <button class="btn btn-sm btn-outline-secondary float-right" v-on:click="showTheoryCloneWindows">
+                <button class="btn btn-sm btn-outline-secondary float-right mr-2" v-on:click="showTheoryCloneWindows">
                   <span data-feather="corner-right-down"></span>
                   Import
                 </button>
+                <sort-button @order-by="onSort($event,'theory')" type="theory"></sort-button>
               </div>
             </div>
 
@@ -198,7 +254,7 @@ const dashboard = {
               <p v-if="theories.length == 0"><em>No legislatures formalized yet. Click on "create new" above,
               to create a new formalization or import a publicly available one.</em></p>
               <div class="row" v-for="i in theoryRows" style="margin-bottom: 2em">
-                <div class="col-sm-4" v-for="t in theories.slice((i-1) * 3, i * 3)">
+                <div class="col-sm-4" v-for="t in orderedTheories().slice((i-1) * 3, i * 3)">
                   <theory-card v-bind:theory="t" :key="t._id"></theory-card>
                 </div>
               </div>
@@ -217,6 +273,7 @@ const dashboard = {
                     Create new
                   </button>
                 </div>
+                <sort-button @order-by="onSort($event, 'query')" type="query"></sort-button>
               </div>
             </div>
 
@@ -225,7 +282,7 @@ const dashboard = {
               <p v-if="queries.length == 0"><em>No queries yet. Click on "create new" above,
               to create a new query or import a publicly available one.</em></p>
               <div class="row" v-for="i in queryRows" style="margin-bottom: 2em">
-                <div class="col-sm-4" v-for="q in queries.slice((i-1) * 3, i * 3)">
+                <div class="col-sm-4" v-for="q in orderedQueries().slice((i-1) * 3, i * 3)">
                   <query-card v-bind:query="q" :key="q._id"></query-card>
                 </div>
               </div>
@@ -253,6 +310,7 @@ const dashboard = {
         self.theories = resp.data.data.theories;
         self.queries = resp.data.data.queries;
         self.dashboardLoaded = true;
+        self.insertSplotchColor(); // Needs to happen after data is loaded.
       } else {
         nai.log('could not retrieve user data', '[App]')
       }
@@ -264,5 +322,8 @@ const dashboard = {
         self.queries = null;
         self.theories = null
       }, null))
+  },
+  mounted: function() {
+    this.loadSortSettings();
   }
 }

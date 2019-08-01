@@ -153,8 +153,17 @@ border: 1px dashed gray;
 .theory-query-main {
   transform: translateX(30px);
   transition: padding 800ms;
-  margin-left: auto;
   margin-right: auto;
+}
+
+@media(min-width: 576px) { .theory-query-main { margin-left: auto; } }
+
+/*
+This is a hacky solution to force quill to stay full size while using flex-box and auto margins which are unfortunatly necessary with split.js.
+Applied to the empty "debug" div.
+*/
+.force-quill-size {
+  min-width: 90vw;
 }
 
 /*
@@ -286,7 +295,7 @@ tr.tr-disabled {
   border-bottom-left-radius: 80px;
   border-color: #6c757d;
   border-style: solid;
-  border-width: 2px;
+  border-width: 1px;
   border-right: none;
   height: 40px;
   min-width: 20px;
@@ -295,6 +304,7 @@ tr.tr-disabled {
   align-content: center;
   cursor: pointer;
   background-color: #f8f9fa;
+  z-index: 100;
 }
 
 /* Icon inside comment toggle button. */
@@ -312,13 +322,6 @@ tr.tr-disabled {
 .ql-clipboard .ql-editor .ql-blank .ql-snow .ql-toolbar {
   min-width: 100%;
   width: 100%;
-}
-/*
-This is a hacky solution to force quill to stay full size while using flex-box and auto margins.
-Applied to the empty "debug" div.
-*/
-.force-quill-size {
-  min-width: 90vw;
 }
 
 /* Makeup for the existence of the split.js gutter */

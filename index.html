@@ -32,7 +32,9 @@
           </li>
         </ul>
       </nav>
-      <router-view v-bind:logged-in="loggedIn"></router-view>
+      <transition enter-active-class="animated fadeIn">
+        <router-view v-bind:logged-in="loggedIn"></router-view>
+      </transition>
       <!--<img src="/img/unilu.png" alt="University of Luxembourg" style="z-index:1000;position:fixed;bottom:0;left:0" class="col-sm-3 col-md-2 mb-2">-->
 
       <div style="height:1.8em;background-color:white;position:fixed;font-size:x-small;right:0;bottom:0" class="mb-0 mr-2">

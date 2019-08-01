@@ -60,6 +60,7 @@ const theory = {
         name: this.theoryName,
         description: this.theoryDesc,
         content: this.theoryContent,
+        comment: this.theoryComment,
         vocabulary: this.theoryVoc,
         formalization: this.theoryFormalization
       }
@@ -299,6 +300,9 @@ const theory = {
     },
     theoryContent: function() {
       return this.theory.content
+    },
+    theoryComment: function() {
+      return this.theory.comment
     },
     theoryVoc: function() {
       return this.theory.vocabulary
@@ -630,11 +634,12 @@ const theory = {
           <p>&nbsp;</p>
         </main>
       </div>
-      <span id="toggleSidePanel" class="semi-circle" :class="{'toggle-side-panel-transform position-sticky' : showSidePanelComponent, 'position-fixed' : !showSidePanelComponent}" v-on:click="toggleSidePanelComponent" title="Open comments panel.">
+      <span id="toggleSidePanel" class="semi-circle d-none d-sm-flex" :class="{'toggle-side-panel-transform position-sticky' : showSidePanelComponent, 'position-fixed' : !showSidePanelComponent}" v-on:click="toggleSidePanelComponent" title="Open comments panel.">
         <feather-icon class="message-circle-icon" icon="message-square"></feather-icon>
+        <div class="bg-light position-absolute" style="height: 38px; width: 2px; background-color:black; right:-2px;"></div>
       </span>
       <keep-alive>
-        <side-panel-component v-if="showSidePanelComponent"></side-panel-component>
+        <side-panel-component v-model="theory.comment" v-if="showSidePanelComponent"></side-panel-component>
       </keep-alive>
     </div>
   `,

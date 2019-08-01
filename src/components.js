@@ -1103,6 +1103,7 @@ Vue.component('quill-term-prompt', {
 Vue.component('SidePanelComponent', {
   data: function() {
     return {
+      content0: '',
       splitInstance: null,
       splitSizes: [80, 20],
       quill: null,
@@ -1111,8 +1112,30 @@ Vue.component('SidePanelComponent', {
       }
     }
   },
+  props: ['value'],
   mounted: function() {
-    this.quill = new Quill('#editor', this.options);
+    this.quill = new Quill('#commentEditor', this.options);
+    quill = this.quill;
+    this.quill.enable(false);
+    if (this.value) { this.quill.pasteHTML(this.value) };
+    this.quill.enable(true);
+
+    this.quill.on('text-change', (delta, oldDelta, source) => {
+            let html = document.getElementById('commentEditor').children[0].innerHTML;
+            const quill = this.quill;
+            const text = this.quill.getText();
+            if (html === '<p><br></p>') html = '';
+            this.content0 = html;
+            this.$emit('input', this.content0);
+          });
+  },
+  watch: {
+    value(newVal,oldVal) {
+      if (newVal && newVal !== this.content0) {
+        this.content0 = newVal;
+        this.quill.pasteHTML(newVal);
+      }
+    }
   },
   activated: function() {
     /* The instance of split.js is created on activation, destroyed on deactivation.
@@ -1133,7 +1156,7 @@ Vue.component('SidePanelComponent', {
   template: `
     <div class="d-flex split-right container-fluid justify-content-center align-content-center card bg-light">
       <div class="notes-panel justify-content-center align-content-center">
-        <div id="editor" style="height: 75%;"></div>
+        <div id="commentEditor" style="height: 75%;"></div>
       </div>
     </div>
     `
@@ -1142,10 +1165,10 @@ Vue.component('SidePanelComponent', {
 ///////////////////////
 //Small sticky Sidebar
 ///////////////////////
-Vue.component('small-sticky-sidebar',{
+Vue.component('small-sidebar',{
 template:`
   <div class="sidebar small-sidebar bg-light d-none d-md-block">
-    <div class="sidebar-sticky small-sidebar-interior d-flex flex-column align-content-center">
+    <div class="sidebar-sticky d-flex flex-column align-content-center">
     <button class="navbar-toggler float-left mr-3" type="button" @click="$emit('show-large-nav')"><feather-icon icon="menu" class=""></feather-icon></button>
       <ul style="transform: translateX(-3px);" class="nav">
         <slot name="links"></slot>
@@ -1206,9 +1229,9 @@ Vue.component('sidebar',{
     </transition>
 
     <transition enter-active-class="animated fadeInRight" leave-active-class="animated.fast fadeOutRight">
-      <small-sticky-sidebar v-if="!showLargeNav" v-on:show-large-nav="onShowLargeNav()">
+      <small-sidebar v-if="!showLargeNav" v-on:show-large-nav="onShowLargeNav()">
         <template v-slot:links><slot name="smallNavLinks"></slot></template>
-      </small-sticky-sidebar>
+      </small-sidebar>
     </transition>
   </div>
   `
@@ -1248,7 +1271,7 @@ Vue.component('sort-button',{
     'type': String,
   },
   mounted: function() {
-    _.delay(this.groupByCheckedUpdate, 250);
+    _.delay(this.groupByCheckedUpdate, 250); // Wait for user data to be populated.
   },
   template: `
   <div class="dropdown" data-dropdown="dropdown">

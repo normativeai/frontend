@@ -163,7 +163,7 @@ This is a hacky solution to force quill to stay full size while using flex-box a
 Applied to the empty "debug" div.
 */
 .force-quill-size {
-  min-width: 90vw;
+  min-width: 100vw;
 }
 
 /*

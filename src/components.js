@@ -389,6 +389,7 @@ Vue.component('theory-card', {
   },
   template: `
     <div class="card" style="background-color:#f4f4f4">
+      <div class="paint-splotch" :class="'qt'+this.theory._id"></div>
       <div class="card-body">
         <h4 class="card-title">{{ theory.name }}</h4>
         <h6 class="card-subtitle small mb-0 text-muted">Last edited: {{ updated }}</h6>
@@ -484,6 +485,7 @@ Vue.component('query-card', {
   },
   template: `
     <div class="card" style="background-color:#f4f4f4">
+      <div class="paint-splotch" :class="'qt'+this.query.theory"></div>
       <div class="card-body">
         <h4 class="card-title">{{ query.name }}</h4>
         <h6 class="card-subtitle small mb-0 text-muted">Last edited: {{ updated }}</h6>
@@ -949,14 +951,14 @@ Vue.component('quill', {
           <button class="ql-script" value="super" title="Superscript"></button>
         </span>
         <span class="ql-formats">
-          <button class="ql-undo" title="Undo">
-            <svg viewbox="0 0 18 18">
+          <button class="ql-undo position-relative" title="Undo">
+            <svg style="width: 100%; height: 100%;" viewbox="0 0 18 18">
               <polygon class="ql-fill ql-stroke" points="6 10 4 12 2 10 6 10"></polygon>
               <path class="ql-stroke" d="M8.09,13.91A4.6,4.6,0,0,0,9,14,5,5,0,1,0,4,9"></path>
             </svg>
           </button>
-          <button class="ql-redo" title="Redo">
-            <svg viewbox="0 0 18 18">
+          <button class="ql-redo position-relative" title="Redo">
+            <svg style="width: 100%; height: 100%;" viewbox="0 0 18 18">
               <polygon class="ql-fill ql-stroke" points="12 10 14 12 16 10 12 10"></polygon>
               <path class="ql-stroke" d="M9.91,13.91A4.6,4.6,0,0,1,9,14a5,5,0,1,1,5-5"></path>
             </svg>
@@ -1092,5 +1094,203 @@ Vue.component('quill-term-prompt', {
         </div>
       </div>
     </div>
+  `
+});
+
+///////////////////////////
+// Sidepanel/Comments Component
+///////////////////////////
+Vue.component('SidePanelComponent', {
+  data: function() {
+    return {
+      content0: '',
+      splitInstance: null,
+      splitSizes: [80, 20],
+      quill: null,
+      options: {
+        theme: 'snow'
+      }
+    }
+  },
+  props: ['value'],
+  mounted: function() {
+    this.quill = new Quill('#commentEditor', this.options);
+    quill = this.quill;
+    this.quill.enable(false);
+    if (this.value) { this.quill.pasteHTML(this.value) };
+    this.quill.enable(true);
+
+    this.quill.on('text-change', (delta, oldDelta, source) => {
+            let html = document.getElementById('commentEditor').children[0].innerHTML;
+            const quill = this.quill;
+            const text = this.quill.getText();
+            if (html === '<p><br></p>') html = '';
+            this.content0 = html;
+            this.$emit('input', this.content0);
+          });
+  },
+  watch: {
+    value(newVal,oldVal) {
+      if (newVal && newVal !== this.content0) {
+        this.content0 = newVal;
+        this.quill.pasteHTML(newVal);
+      }
+    }
+  },
+  activated: function() {
+    /* The instance of split.js is created on activation, destroyed on deactivation.
+     The size of each panel is saved in data. */
+    let self = this;
+    this.splitInstance = Split(['.split-left', '.split-right'], {
+        gutterSize: 5,
+        sizes: self.splitSizes,
+        onDragEnd: function(sizes) {
+          self.splitSizes = sizes;
+        }
+    });
+  },
+  deactivated: function() {
+    this.splitInstance.destroy();
+    this.splitInstance = null;
+  },
+  template: `
+    <div class="d-flex split-right container-fluid justify-content-center align-content-center card bg-light">
+      <div class="notes-panel justify-content-center align-content-center">
+        <div id="commentEditor" style="height: 75%;"></div>
+      </div>
+    </div>
+    `
+})
+
+///////////////////////
+//Small sticky Sidebar
+///////////////////////
+Vue.component('small-sidebar',{
+template:`
+  <div class="sidebar small-sidebar bg-light d-none d-md-block">
+    <div class="sidebar-sticky d-flex flex-column align-content-center">
+    <button class="navbar-toggler float-left mr-3" type="button" @click="$emit('show-large-nav')"><feather-icon icon="menu" class=""></feather-icon></button>
+      <ul style="transform: translateX(-3px);" class="nav">
+        <slot name="links"></slot>
+      </ul>
+    </div>
+  </div>
+`
+})
+
+///////////////////
+// Large Sidebar
+///////////////////
+Vue.component('large-sidebar', {
+  template: `
+    <nav class="col-md-2 d-none d-md-block bg-light sidebar">
+      <div class="sidebar-sticky">
+        <slot name="returnToDashboard">
+          <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-1 mb-1 text-muted" v-on:click="$parent.$emit('go-back')" style="cursor:pointer">
+            <feather-icon icon="arrow-left"></feather-icon>
+            <a class="d-flex align-items-center text-muted">
+              <span><b>Back to dashboard</b></span>
+            </a>
+          </h6>
+        </slot>
+        <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-1 mb-1 text-muted">
+          <slot name="heading"></slot>
+          <button class="navbar-toggler float-left mr-3" type="button" @click="$emit('show-large-nav')"><feather-icon icon="menu" class=""></feather-icon></button>
+        </h6>
+        <ul class="nav flex-column mb-2">
+          <slot name="links"></slot>
+        </ul>
+      </div>
+    </nav>
+  `
+})
+///////////////////
+// Sidebar
+///////////////////
+Vue.component('sidebar',{
+  data: function() {
+    return{
+      showLargeNav: false
+    }
+  },
+  methods: {
+    onShowLargeNav: function() {
+      this.showLargeNav = !this.showLargeNav;
+      this.$emit('show-large-nav'); // Propigate event to parent for dynamic class changes to "main".
+    }
+  },
+  template:`
+  <div>
+    <transition enter-active-class="animated fadeInLeft" leave-active-class="animated fadeOutLeft">
+      <large-sidebar v-if="showLargeNav" v-on:show-large-nav="onShowLargeNav()">
+        <template v-slot:returnToDashboard><slot name="returnToDashboard"></slot></template>
+        <template v-slot:heading><slot name="largeNavHeading">Contents</slot></template><template v-slot:links><slot name="largeNavLinks"></slot></template>
+      </large-sidebar>
+    </transition>
+
+    <transition enter-active-class="animated fadeInRight" leave-active-class="animated.fast fadeOutRight">
+      <small-sidebar v-if="!showLargeNav" v-on:show-large-nav="onShowLargeNav()">
+        <template v-slot:links><slot name="smallNavLinks"></slot></template>
+      </small-sidebar>
+    </transition>
+  </div>
+  `
+})
+//////////////
+// Dashboard sort buttons.
+//////////////
+Vue.component('sort-button',{
+  data: function() {
+    return {
+      groupByLegislation: false
+    }
+  },
+  methods:{
+    emitFunc: function(order) {
+      if(this.type === 'query' && this.groupByLegislation){
+        // Queries need to send groupByLegislation information. Field not applicable for theories.
+        //The theory sorting is currently arbitrary (based on id).
+        this.$emit('order-by', [['theory', order[0]], ['asc', order[1]]]);
+      } else {
+        this.$emit('order-by', order);
+      }
+    },
+    /* This function checks local storage for a property that will only exist there if the saved groupByLegislation data implies the current sort mode
+    is grouped thus overriding the default false value of the checkbox and ensuring synchronicity of sort mode and checkbox value.
+    */
+    groupByCheckedUpdate: function() {
+      try {
+        if(!!(JSON.parse(window.localStorage.getItem('strSortSettings')).orderByQ[1][1])) {
+          this.groupByLegislation = true;
+        }
+      } catch(e) { }
+    }
+  },
+  props:{
+    // Pass 'theory' or 'query' depending on use.
+    'type': String,
+  },
+  mounted: function() {
+    _.delay(this.groupByCheckedUpdate, 250); // Wait for user data to be populated.
+  },
+  template: `
+  <div class="dropdown" data-dropdown="dropdown">
+    <button class="btn btn-sm btn-outline-secondary dropdown-toggle float-right"
+    type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+      Sort
+    </button>
+    <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dButton">
+      <button @click="emitFunc(['name', 'asc'])" class="dropdown-item" type="button">A to Z</button>
+      <button @click="emitFunc(['name', 'desc'])" class="dropdown-item" type="button">Z to A</button>
+      <button @click="emitFunc(['lastUpdate','desc'])" class="dropdown-item" type="button">Last edited</button>
+      <div v-if="this.type === 'query'" class="dropdown-divider"></div>
+      <div v-if="this.type === 'query'" class="pl-4">
+        <div class="form-check formcheck form-check-inline">
+          <label class="form-check-label" for="group-leg-check">Group by legislation </label>
+          <input class="form-check-input" type="checkbox" id="group-leg-check" v-model="groupByLegislation" />
+        </div>
+      </div>
+    </div>
+  </div>
   `
 });

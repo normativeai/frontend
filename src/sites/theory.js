@@ -14,16 +14,19 @@ const theory = {
 
       consistencyCheckRunning: false,
       consistencyResponse: {show: false, type: '', message: '', timeout: 0},
-      
+
       independenceCheckRunning: false,
       independenceResponse: {show: false, type: '', message: '', timeout: 0},
-      
+
       annotationColors: ['#5C97BF','#00AA55','#F64747','#B381B3','#1BA39C','#FF00FF',
                          '#D252B2','#D46A43','#00A4A6','#D4533B','#939393','#AA8F00',
                          '#D47500','#E26A6A','#009FD4','#5D995D'],
       lastAnnotationColor: -1,
       connectives: null,
-      activeTab: 0
+      activeTab: 0,
+
+      showSidePanelComponent: false,
+      showLargeNav: false,
     }
   },
   methods: {
@@ -44,6 +47,9 @@ const theory = {
         router.push('/dashboard')
       }
     },
+    toggleSidePanelComponent: function() {
+      this.showSidePanelComponent = !this.showSidePanelComponent;
+    },
     doneLoading: function() {
       this.loaded = true
     },
@@ -54,6 +60,7 @@ const theory = {
         name: this.theoryName,
         description: this.theoryDesc,
         content: this.theoryContent,
+        comment: this.theoryComment,
         vocabulary: this.theoryVoc,
         formalization: this.theoryFormalization
       }
@@ -171,7 +178,7 @@ const theory = {
           let data = resp.data;
           let timeout = undefined;
           if (data.type == 'success') { timeout = 3000 }
-          self.consistencyResponse = {show: true, type: data.type, message: data.message, timeout: timeout};  
+          self.consistencyResponse = {show: true, type: data.type, message: data.message, timeout: timeout};
         } else {
           self.consistencyResponse = {show: true, type: 'warning', message: '<b>Unexpected reponse</b>: ' + resp};
         }
@@ -179,7 +186,7 @@ const theory = {
       }, function(error) {
         if (!!error.response.data) {
           let msg = error.response.data.error
-          self.consistencyResponse = {show: true, type: 'danger', message: msg.replace(/\n/g,'<br>')};  
+          self.consistencyResponse = {show: true, type: 'danger', message: msg.replace(/\n/g,'<br>')};
         } else {
           self.consistencyResponse = {show: true, type: 'danger', message: '<b>Unexpected error</b>: ' + error};
         }
@@ -214,7 +221,7 @@ const theory = {
           let data = resp.data;
           let timeout = undefined;
           if (data.type == 'success') { timeout = 3000 }
-          self.independenceResponse = {show: true, type: data.type, message: data.message, timeout: timeout};  
+          self.independenceResponse = {show: true, type: data.type, message: data.message, timeout: timeout};
         } else {
           self.independenceResponse = {show: true, type: 'warning', message: '<b>Unexpected reponse</b>: ' + resp};
         }
@@ -222,7 +229,7 @@ const theory = {
       }, function(error) {
         if (!!error.response.data) {
           let msg = error.response.data.error
-          self.consistencyResponse = {show: true, type: 'danger', message: msg.replace(/\n/g,'<br>')};  
+          self.consistencyResponse = {show: true, type: 'danger', message: msg.replace(/\n/g,'<br>')};
         } else {
           self.independenceResponse = {show: true, type: 'warning', message: '<b>Unexpected reponse</b>: ' + error};
         }
@@ -234,14 +241,14 @@ const theory = {
       if (!!info.term) {
         // term annotation
         let term = info.term;
-        
+
         let idx = _.findIndex(this.theoryAutoVoc, function(voc) {
             return (voc.symbol == term);
          });
         if (idx < 0) {
           this.insertTermStyle(term);
           this.theoryAutoVoc.push({original: original, full: term});
-        } 
+        }
         if (depth == 1) {
           // Also add as formula
           this.theoryAutoFormalization.push({original: original, formula: term})
@@ -294,6 +301,9 @@ const theory = {
     theoryContent: function() {
       return this.theory.content
     },
+    theoryComment: function() {
+      return this.theory.comment
+    },
     theoryVoc: function() {
       return this.theory.vocabulary
     },
@@ -334,61 +344,55 @@ const theory = {
         return "cursor: not-allowed"
       }
     },
-    auxStyles: function() { 
+    auxStyles: function() {
       return document.getElementById('additionalStyles').sheet;
     }
   },
   template: `
-    <div class="container-fluid">
-      <div class="row">
-        <nav class="col-md-2 d-none d-md-block bg-light sidebar">
-          <div class="sidebar-sticky">
-            <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-1 mb-1 text-muted" v-on:click="back" style="cursor:pointer">
-              <feather-icon icon="arrow-left"></feather-icon>
-              <a class="d-flex align-items-center text-muted">
-                <span><b>Back to dashboard</b></span>
+    <div class="d-flex" style="padding-right: 0px;">
+      <div class="split-left mr-auto ml-auto">
+
+        <sidebar page="theory" v-on:go-back="back" v-on:show-large-nav="showLargeNav=!showLargeNav">
+          <template v-slot:smallNavLinks>
+            <li class="nav-item">
+              <a class="nav-link" href="#" @click="activeTab = 0" title="Legislation">
+                <feather-icon icon="book"></feather-icon>
               </a>
-            </h6>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#" @click="activeTab = 1" title="Formalization">
+                <feather-icon icon="zap"></feather-icon>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#" @click="activeTab = 2" title="Vocabulary">
+                <feather-icon icon="clipboard"></feather-icon>
+              </a>
+            </li>
+          </template>
+          <template v-slot:largeNavLinks>
+            <li class="nav-item">
+              <a class="nav-link" href="#" @click="activeTab = 0">
+                <feather-icon icon="book"></feather-icon>
+                Legislation
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#" @click="activeTab = 1">
+                <feather-icon icon="zap"></feather-icon>
+                Formalization
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#" @click="activeTab = 2">
+                <feather-icon icon="clipboard"></feather-icon>
+                Vocabulary
+              </a>
+            </li>
+          </template>
+        </sidebar>
 
-            <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-3 mb-1 text-muted">
-              <span>Contents</span>
-            </h6>
-            <ul class="nav flex-column mb-2">
-              <li class="nav-item">
-                <a class="nav-link" href="#" @click="activeTab = 0">
-                  <feather-icon icon="book"></feather-icon>
-                  Legislation
-                </a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="#" @click="activeTab = 1">
-                  <feather-icon icon="zap"></feather-icon>
-                  Formalization
-                </a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="#" @click="activeTab = 2">
-                  <feather-icon icon="clipboard"></feather-icon>
-                  Vocabulary
-                </a>
-              </li>
-            </ul>
-
-            <!--<h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-3 mb-1 text-muted">
-              <span>Settings</span>
-            </h6>
-            <ul class="nav flex-column mb-2">
-              <li class="nav-item">
-                <a class="nav-link">
-                  <feather-icon icon="settings"></feather-icon>
-                  Preferences
-                </a>
-              </li>
-            </ul>-->
-          </div>
-        </nav>
-
-        <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4">
+        <main role="main" key="main" class="theory-query-main col-10" :class="{'show-large-nav' : showLargeNav}">
           <div v-if="!loaded">
             <h1>Loading theory ...</h1>
             <loading-bar v-if="!loaded"></loading-bar>
@@ -412,7 +416,7 @@ const theory = {
                 <feather-icon icon="download"></feather-icon>
                 Export</button>
               </div>
-              <button class="btn btn-sm btn-outline-secondary" v-on:click="toggleEditTitle" v-bind:class="{active : editTitle}" v-bind:aria-pressed="editTitle">
+              <button class="btn btn-sm btn-outline-secondary mr-2 mt-1" v-on:click="toggleEditTitle" v-bind:class="{active : editTitle}" v-bind:aria-pressed="editTitle">
                 <feather-icon icon="edit"></feather-icon>
                 Edit title/description
               </button>
@@ -422,8 +426,8 @@ const theory = {
           <p>
           <textarea-update placeholder="Enter description of theory" v-bind:edit="editTitle" v-model="theory.description"></textarea-update>
           </p>
-          <alert v-on:dismiss="saveResponse.show = false;saveResponse.timeout = null" :variant="saveResponse.type" v-show="saveResponse.show" :timeout="saveResponse.timeout" style="position:absolute; top:150px; right:100px">{{ saveResponse.message }}</alert>
-          
+          <alert v-on:dismiss="saveResponse.show = false;saveResponse.timeout = null" :variant="saveResponse.type" v-show="saveResponse.show" :timeout="saveResponse.timeout" style="position:absolute; top:150px; right:150px">{{ saveResponse.message }}</alert>
+
           <ul class="nav nav-tabs">
             <li class="nav-item">
               <a :class="{'nav-link': true, 'active': activeTab == 0}" href="#" @click="activeTab = 0;">Annotation</a>
@@ -459,9 +463,9 @@ const theory = {
             </div>
             <alert v-on:dismiss="consistencyResponse.show = false;consistencyResponse.timeout = null" :variant="consistencyResponse.type" v-show="consistencyResponse.show" :timeout="consistencyResponse.timeout"><span v-html="consistencyResponse.message"></span></alert>
             <quill ref="annotator" v-model="theory.content" spellcheck="false" v-bind:terms="theoryAutoVoc.concat(theoryVoc)" v-bind:connectives="connectives"></quill>
-            <div id="debug"></div>
+            <div id="debug" class="force-quill-size" ></div>
           </div>
-          
+
           <div class="nav-content" style="padding:1rem .5rem;" v-if="activeTab == 1">
              <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center">
               <h4>Logical representation (Formalization)</h4>
@@ -512,9 +516,9 @@ const theory = {
                   </tr>
                 </tbody>
               </table>
-            </div> 
+            </div>
           </div>
-          
+
           <div class="nav-content" style="padding:1rem .5rem;" v-if="activeTab == 2">
             <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center">
             <h4>Vocabulary</h4>
@@ -562,7 +566,7 @@ const theory = {
               </table>
             </div>
           </div>
-          
+
           <div class="nav-content" style="padding:1rem .5rem;" v-if="activeTab == 3">
             <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3">
               <h4>Advanced Settings</h4>
@@ -622,18 +626,24 @@ const theory = {
                   </tr>
                 </tbody>
               </table>
-            </div> 
+            </div>
           </div>
-          
+
         </div>
 
           <p>&nbsp;</p>
         </main>
-
       </div>
+      <span id="toggleSidePanel" class="semi-circle d-none d-sm-flex" :class="{'toggle-side-panel-transform position-sticky' : showSidePanelComponent, 'position-fixed' : !showSidePanelComponent}" v-on:click="toggleSidePanelComponent" title="Open comments panel.">
+        <feather-icon class="message-circle-icon" icon="message-square"></feather-icon>
+        <div class="bg-light position-absolute" style="height: 38px; width: 2px; background-color:black; right:-2px;"></div>
+      </span>
+      <keep-alive>
+        <side-panel-component v-model="theory.comment" v-if="showSidePanelComponent"></side-panel-component>
+      </keep-alive>
     </div>
   `,
-  mounted: function() {    
+  mounted: function() {
     this.$on('theory-annotate', this.onAnnotate);
   },
   created: function () {

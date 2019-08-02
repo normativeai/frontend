@@ -6,8 +6,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta http-equiv="Cache-control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
+    <link rel="stylesheet" href="/css/animate.css" type="text/css">
     <link rel="stylesheet" href="/css/bootstrap.4.31.min.css">
     <link rel="stylesheet" href="/css/style.css">
+    <script src="/js/jquery-3.0.0.min.js"></script>
+    <script src="/js/bootstrap.bundle.min.js"></script>
     <script src="/js/vue.js"></script>
     <script src="/js/vue-router.js"></script>
     <script src="/js/axios.min.js"></script>
@@ -18,7 +21,6 @@
   </head>
   <body>
     <div id="root">
-
       <nav class="navbar navbar-light fixed-top flex-md-nowrap p-0 shadow" style="background-color:white">
         <!--<img src="/img/unilu.png" alt="University of Luxembourg" style="height: 3rem" class="ml-2 mr-0">-->
         <a href="/index.html"><img src="/img/UNI_logo_horizontal_Q.gif" alt="University of Luxembourg" style="height: 3rem" class="ml-2 mr-0"></a>
@@ -30,7 +32,9 @@
           </li>
         </ul>
       </nav>
-      <router-view v-bind:logged-in="loggedIn"></router-view>
+      <transition enter-active-class="animated fadeIn">
+        <router-view v-bind:logged-in="loggedIn"></router-view>
+      </transition>
       <!--<img src="/img/unilu.png" alt="University of Luxembourg" style="z-index:1000;position:fixed;bottom:0;left:0" class="col-sm-3 col-md-2 mb-2">-->
 
       <div style="height:1.8em;background-color:white;position:fixed;font-size:x-small;right:0;bottom:0" class="mb-0 mr-2">
@@ -40,8 +44,9 @@
     <script>
     feather.replace();
     </script>
-    <script src="https://unpkg.com/vue-tippy/dist/vue-tippy.min.js"></script>
-    <link rel="stylesheet" href="https://unpkg.com/tippy.js@4/themes/light-border.css" />
+    <script src="/js/vue-tippy.min.js"></script>
+    <link rel="stylesheet" href="/css/tippy-light-border-theme.css" />
+    <script src="/js/split.min.js"></script>
     <script src="/js/quill.js"></script>
     <link href="/css/quill.snow.css" rel="stylesheet">
     <script src="/src/components.js"></script>

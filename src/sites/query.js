@@ -6,7 +6,7 @@ const query = {
       theories: null,
       //chosenTheory: null,
       loadedQuery: false,
-      loadedTheories: false,    
+      loadedTheories: false,
 
       editTitle: false,
       editAssumptions: false,
@@ -20,13 +20,15 @@ const query = {
 
       consistencyCheckRunning: false,
       consistencyResponse: {show: false, type: '', message: '', timeout: 0},
-      
+
       annotationColors: ['#5C97BF','#00AA55','#F64747','#B381B3','#1BA39C','#FF00FF',
                          '#D252B2','#D46A43','#00A4A6','#D4533B','#939393','#AA8F00',
                          '#D47500','#E26A6A','#009FD4','#5D995D'],
       lastAnnotationColor: -1,
       connectives: null,
-      activeTab: 0
+      activeTab: 0,
+
+      showLargeNav: false
     }
   },
   methods: {
@@ -154,7 +156,7 @@ const query = {
           let data = resp.data;
           let timeout = undefined;
           if (data.type == 'success') { timeout = 3000 }
-          self.execResponse = {show: true, type: data.type, message: data.message, timeout: timeout};  
+          self.execResponse = {show: true, type: data.type, message: data.message, timeout: timeout};
         } else {
           self.execResponse = {show: true, type: 'warning', message: '<b>Unexpected reponse</b>: ' + resp};
         }
@@ -162,7 +164,7 @@ const query = {
         }, function(error) {
           if (!!error.response.data) {
           let msg = error.response.data.error
-          self.consistencyResponse = {show: true, type: 'danger', message: msg.replace(/\n/g,'<br>')};  
+          self.consistencyResponse = {show: true, type: 'danger', message: msg.replace(/\n/g,'<br>')};
         } else {
           self.execResponse = {show: true, type: 'warning', message: '<b>Unexpected reponse</b>: ' + resp};
         }
@@ -177,7 +179,7 @@ const query = {
           let data = resp.data;
           let timeout = undefined;
           if (data.type == 'success') { timeout = 3000 }
-          self.consistencyResponse = {show: true, type: data.type, message: data.message, timeout: timeout};  
+          self.consistencyResponse = {show: true, type: data.type, message: data.message, timeout: timeout};
         } else {
           self.consistencyResponse = {show: true, type: 'warning', message: '<b>Unexpected reponse</b>: ' + resp};
         }
@@ -185,7 +187,7 @@ const query = {
       }, function(error) {
         if (!!error.response.data) {
           let msg = error.response.data.error
-          self.consistencyResponse = {show: true, type: 'danger', message: msg.replace(/\n/g,'<br>')};  
+          self.consistencyResponse = {show: true, type: 'danger', message: msg.replace(/\n/g,'<br>')};
         } else {
           self.consistencyResponse = {show: true, type: 'warning', message: '<b>Unexpected reponse</b>: ' + resp};
         }
@@ -197,14 +199,14 @@ const query = {
       if (!!info.term) {
         // term annotation
         let term = info.term;
-        
+
         let idx = _.findIndex(this.queryAutoVocabulary.concat(this.theoryVoc), function(voc) {
             return (voc.full == term);
          });
         if (idx < 0) {
           this.insertTermStyle(term);
           this.queryAutoVocabulary.push({original: original, full: term});
-        } 
+        }
         if (depth == 1) {
           // Also add as formula
           this.queryAutoAssumptions.push({original: original, formula: term})
@@ -289,49 +291,54 @@ const query = {
         return "cursor: not-allowed"
       }
     },
-    auxStyles: function() { 
+    auxStyles: function() {
       return document.getElementById('additionalStyles').sheet;
     }
   },
   template: `
     <div class="container-fluid">
       <div class="row">
-        <nav class="col-md-2 d-none d-md-block bg-light sidebar">
-          <div class="sidebar-sticky">
-            <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-1 mb-1 text-muted" v-on:click="back" style="cursor:pointer">
-              <feather-icon icon="arrow-left"></feather-icon>
-              <a class="d-flex align-items-center text-muted">
-                <span><b>Back to dashboard</b></span>
+        <sidebar v-on:go-back="back" v-on:show-large-nav="showLargeNav=!showLargeNav">
+          <template v-slot:smallNavLinks>
+            <li class="nav-item">
+              <a class="nav-link" href="#" @click="activeTab = 0">
+                <feather-icon icon="book"></feather-icon>
               </a>
-            </h6>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#" @click="activeTab = 1">
+                <feather-icon icon="zap"></feather-icon>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#" @click="activeTab = 2">
+                <feather-icon icon="clipboard"></feather-icon>
+              </a>
+            </li>
+          </template>
 
-            <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-3 mb-1 text-muted">
-              <span>Contents</span>
-            </h6>
-            <ul class="nav flex-column mb-2">
-              <li class="nav-item">
-                <a class="nav-link" href="#" @click="activeTab = 0">
-                  <feather-icon icon="book"></feather-icon>
-                  Query editor
-                </a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="#" @click="activeTab = 1">
-                  <feather-icon icon="zap"></feather-icon>
-                  Formalization
-                </a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="#" @click="activeTab = 2">
-                  <feather-icon icon="clipboard"></feather-icon>
-                  Vocabulary
-                </a>
-              </li>
-            </ul>
-          </div>
-        </nav>
-
-        <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4">
+          <template v-slot:largeNavLinks>
+            <li class="nav-item">
+              <a class="nav-link" href="#" @click="activeTab = 0">
+                <feather-icon icon="book"></feather-icon>
+                Query editor
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#" @click="activeTab = 1">
+                <feather-icon icon="zap"></feather-icon>
+                Formalization
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#" @click="activeTab = 2">
+                <feather-icon icon="clipboard"></feather-icon>
+                Vocabulary
+              </a>
+            </li>
+          </template>
+        </sidebar>
+        <main role="main" class="theory-query-main col-10" :class="{'show-large-nav' : showLargeNav}">
           <div v-if="!loaded">
             <h1>Loading query ...</h1>
             <loading-bar v-if="!loaded"></loading-bar>
@@ -357,7 +364,7 @@ const query = {
                     <bs-spinner type="primary"></bs-spinner>
                   </template>
                 </button>
-                
+
                 <button class="btn btn-sm btn-outline-primary" disabled>
                 <feather-icon icon="download"></feather-icon>
                 Export</button>
@@ -373,7 +380,7 @@ const query = {
           <textarea-update placeholder="Enter description of query" v-bind:edit="editTitle" v-model="query.description"></textarea-update>
           </p>
           <alert v-on:dismiss="saveResponse.show = false;saveResponse.timeout = null" :variant="saveResponse.type" v-show="saveResponse.show" :timeout="saveResponse.timeout" style="position:absolute; top:150px; right:100px">{{ saveResponse.message }}</alert>
-          
+
           <ul class="nav nav-tabs">
             <li class="nav-item">
               <a :class="{'nav-link': true, 'active': activeTab == 0}" href="#" @click="activeTab = 0;">Annotation</a>
@@ -388,7 +395,7 @@ const query = {
               <a :class="{'nav-link': true, 'active': activeTab == 3}" href="#" @click="activeTab = 3;">Advanced formalization</a>
             </li>
           </ul>
-          
+
           <div class="nav-content" style="padding:1rem .5rem;" v-if="activeTab == 0">
             <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center mb-1">
               <h4>Query Editor</h4>
@@ -423,7 +430,7 @@ const query = {
             <alert v-on:dismiss="execResponse.show = false;execResponse.timeout = null" :variant="execResponse.type" v-show="execResponse.show" :timeout="execResponse.timeout"><span v-html="execResponse.message"></span></alert>
             <quill ref="annotator" v-model="query.content" spellcheck="false" v-bind:terms="theoryVoc" v-bind:connectives="connectives" v-bind:allowTermCreation="true" v-bind:goal="true"></quill>
           </div>
-          
+
           <div class="nav-content" style="padding:1rem .5rem;" v-if="activeTab == 1">
             <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center">
               <h4>Logical representation (Formalization)</h4>
@@ -461,7 +468,7 @@ const query = {
             <alert v-on:dismiss="execResponse.show = false;execResponse.timeout = null" :variant="execResponse.type" v-show="execResponse.show" :timeout="execResponse.timeout"><span v-html="execResponse.message"></span></alert>
             <h5>Assumptions</h5>
             <p class="small"><em>Assumptions are contextual information that apply to a certain
-              situation only. This information is generated automatically from the annotations 
+              situation only. This information is generated automatically from the annotations
               and cannot be edited directly.</em></p>
             <div class="table-responsive">
               <table class="table table-striped table-sm table-hover" style="table-layout:fixed;">
@@ -485,14 +492,14 @@ const query = {
                 </tbody>
               </table>
             </div>
-            <h5>Goal</h5> 
+            <h5>Goal</h5>
             <p class="small"><em>The goal is a formula that is assessed for logical consequence from
              the legislation and the contextual assumptions above.</em></p>
             <div style="border: 1px solid black; padding: 1em; font-family: monospace; font-size: large;">
               {{ queryAutoGoal.formula }}
             </div>
           </div>
-          
+
           <div class="nav-content" style="padding:1rem .5rem;" v-if="activeTab == 2">
             <h4>Vocabulary</h4>
             <p class="small"><em>The vocabulary consists of all symbols that are used by the
@@ -534,7 +541,7 @@ const query = {
               </table>
             </div>
           </div>
-          
+
           <div class="nav-content" style="padding:1rem .5rem;" v-if="activeTab == 3">
             <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3">
               <h4>Advanced Settings</h4>
@@ -581,8 +588,8 @@ const query = {
             <input-update v-model="query.goal" placeholder="No manual goal set" v-bind:edit="editAssumptions"></input-update>
             </div>
           </div>
-          
-          
+
+
 
           <p>&nbsp;</p>
         </div>
@@ -591,7 +598,7 @@ const query = {
       </div>
     </div>
   `,
-  mounted: function() {    
+  mounted: function() {
     this.$on('theory-annotate', this.onAnnotate);
   },
   created: function () {
@@ -627,13 +634,13 @@ const query = {
         nai.log('Theory Data retrieved', '[Query]');
         nai.log(resp.data, '[Query]');
         self.theories = resp.data.data;
-        
+
         // get connetives for annotator
         nai.getConnectives(function(resp) {
           let connectives = resp.data.data;
           self.connectives = connectives
         }, nai.handleResponse());
-        
+
         self.loadedTheories = true;
       }, function(error) {
         nai.log(error, '[Query]')
@@ -653,4 +660,3 @@ const query = {
     nai.log('Unload handler created', '[Query]')
   }
 }
-

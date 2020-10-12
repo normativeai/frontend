@@ -20,7 +20,7 @@
 ///////////
 
 nai = new function () { var lib = this;
-  lib.API_URL = 'http://localhost:3000/api/';
+  lib.API_URL = 'https://nai.uni.lu/api/';
   lib.DEBUG = true;
 
   lib.$http = axios.create({

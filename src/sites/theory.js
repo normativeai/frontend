@@ -508,7 +508,7 @@ const theory = {
                     <td style="border-right:1px solid black">
                       <em>{{ item.original }}</em>
                     </td>
-                    <td v-if="item.cnl"><code>{{ item.cnl }}</code></td>
+                    <td v-if="item.cnl"><code v-html="item.cnl"></code></td>
                     <td v-else><em>Save theory to update formalization</em></td>
                     <td class="table-secondary" style="text-align: center">
                       <button title="Check for logical independence" type="button" class="btn btn-sm btn-secondary" v-on:click="runIndependenceCheck(item)" :disabled="independenceCheckRunning"><feather-icon icon="activity"></feather-icon></button>

@@ -148,6 +148,29 @@ const query = {
         self.execResponse = {show: true, type: 'warning', message: 'Cannot execute query, please select legislation first.', timeout: 3000};
       }
     },
+    exportQuery: function() {
+      var self = this;
+      if (!!this.query.theory) {
+        self.execResponse = {show: false, type: '', message: '', timeout: 0};
+
+        nai.exportQuery(this.queryId, function(resp) {
+		var element = document.createElement('a');
+		element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(resp.data.data));
+		element.setAttribute('download', 'LEG+1.p');
+
+		element.style.display = 'none';
+		document.body.appendChild(element);
+
+		element.click();
+
+		document.body.removeChild(element);
+	})
+      } else {
+        nai.log('Legislation not chosen, export not possible', '[Query]');
+        self.execResponse = {show: true, type: 'warning', message: 'Cannot execute query, please select legislation first.', timeout: 3000};
+      }
+    },
+
     runQuery0: function() {
       var self = this;
       this.execRunning = true;
@@ -365,9 +388,13 @@ const query = {
                   </template>
                 </button>
 
-                <button class="btn btn-sm btn-outline-primary" disabled>
-                <feather-icon icon="download"></feather-icon>
-                Export</button>
+                <button class="btn btn-sm btn-outline-primary"
+                  v-on:click="exportQuery"
+                  title="Export to QMLTP format">
+		  <feather-icon icon="download"></feather-icon>
+		  Export
+                </button>
+
               </div>
               <button class="btn btn-sm btn-outline-secondary" v-on:click="toggleEditTitle" v-bind:class="{active : editTitle}" v-bind:aria-pressed="editTitle">
                 <feather-icon icon="edit"></feather-icon>

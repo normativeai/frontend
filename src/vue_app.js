@@ -215,6 +215,10 @@ nai = new function () { var lib = this;
     this.log('Check consistency of ' + queryId, '[Query]');
     nai.$http.get('/queries/' + queryId + '/consistency').then(success).catch(fail)
   }
+  lib.exportQuery = function(queryId, success, fail) {
+    this.log('Exporting to QMLTP ' + queryId, '[Query]');
+    nai.$http.get('/queries/' + queryId + '/export').then(success).catch(fail)
+  }
 
   // Queiry-related queries END
   //////////////////////////////////////////////////////
